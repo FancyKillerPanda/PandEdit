@@ -25,11 +25,13 @@ endforeach ()
 set(HEADERS
 	window.hpp
 	shader.hpp
+	matrix.hpp
 )
 set(SOURCES
 	main.cpp
 	window.cpp
 	shader.cpp
+	matrix.cpp
 )
 
 # Prepends directories to the files

@@ -9,6 +9,7 @@
 
 #include "window.hpp"
 #include "shader.hpp"
+#include "matrix.hpp"
 
 // TODO(fkp): Find somewhere better to put this
 std::string readFile(const char* filename)
@@ -36,6 +37,7 @@ int main(int argc, char* argv[])
 	Window window { 960, 540, "PandEdit" };
 	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 255.0f);
 
+	Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 	Shader shapeShader { "shape", "res/shape.vert", "res/shape.frag" };
 	
 	while (window.isOpen)
