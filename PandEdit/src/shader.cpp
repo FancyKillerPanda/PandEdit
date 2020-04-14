@@ -4,6 +4,8 @@
 
 std::string readFile(const char* path);
 
+std::unordered_map<std::string, Shader*> Shader::shadersMap;
+
 Shader::Shader(std::string name, const char* vertexPath, const char* fragmentPath)
 	: name(name)
 {
@@ -40,11 +42,35 @@ Shader::Shader(std::string name, const char* vertexPath, const char* fragmentPat
 
 		delete[] message;
 	}
+	else
+	{
+		shadersMap.insert({ name, this });
+	}
 
 	glDetachShader(programID, vertexShader);
 	glDetachShader(programID, fragmentShader);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+}
+
+Shader::~Shader()
+{
+	shadersMap.erase(name);
+}
+
+Shader* Shader::get(const std::string& shaderName)
+{
+	// TODO(fkp): Caching?
+	auto result = shadersMap.find(shaderName);
+
+	if (result != shadersMap.end())
+	{
+		return result->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 GLuint Shader::compileShader(GLenum type, const char* source)
