@@ -29,11 +29,11 @@ public:
 	
 public:
 	Renderer(const Matrix4& projection);
-	
+
 	void updateProjection(const Matrix4& projection);
 	
 	void drawRect(float x, float y, float width, float height);
-	void drawText(const std::string& text, unsigned int messageLength, int x, int y, int wrapWidth);
+	void drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth);
 };
 
 #endif

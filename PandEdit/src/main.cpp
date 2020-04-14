@@ -11,6 +11,7 @@
 #include "shader.hpp"
 #include "matrix.hpp"
 #include "renderer.hpp"
+#include "text.hpp"
 
 // TODO(fkp): Find somewhere better to put this
 std::string readFile(const char* filename)
@@ -36,10 +37,16 @@ std::string readFile(const char* filename)
 int main(int argc, char* argv[])
 {
 	Window window { 960, 540, "PandEdit" };
+	
 	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 255.0f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 	Renderer renderer { projection };
+
+	Font arialFont("arial", "res/arial.ttf", 48);
+	renderer.currentFont = &arialFont;
 	
 	while (window.isOpen)
 	{
@@ -51,7 +58,7 @@ int main(int argc, char* argv[])
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderer.drawRect(50, 50, 100, 100);
+		renderer.drawText("The quick brown fox jumped over the lazy dog.", -1, 0, 0, 300);
 		SwapBuffers(window.deviceContext);
 	}
 	

@@ -3,7 +3,7 @@
 project(PandEdit_Core)
 
 # Copy resources to output directory
-set(RESOURCE_FILES shape.vert shape.frag)
+set(RESOURCE_FILES arial.ttf consola.ttf shape.vert shape.frag texture.vert texture.frag)
 add_custom_target(ResourceFileCopyTarget)
 
 foreach (file IN LISTS RESOURCE_FILES)
