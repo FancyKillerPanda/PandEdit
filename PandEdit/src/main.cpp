@@ -10,6 +10,7 @@
 #include "window.hpp"
 #include "shader.hpp"
 #include "matrix.hpp"
+#include "renderer.hpp"
 
 // TODO(fkp): Find somewhere better to put this
 std::string readFile(const char* filename)
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 255.0f);
 
 	Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
-	Shader shapeShader { "shape", "res/shape.vert", "res/shape.frag" };
+	Renderer renderer { projection };
 	
 	while (window.isOpen)
 	{
@@ -50,6 +51,7 @@ int main(int argc, char* argv[])
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.drawRect(50, 50, 100, 100);
 		SwapBuffers(window.deviceContext);
 	}
 	

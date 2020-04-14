@@ -26,12 +26,16 @@ set(HEADERS
 	window.hpp
 	shader.hpp
 	matrix.hpp
+	text.hpp
+	renderer.hpp
 )
 set(SOURCES
 	main.cpp
 	window.cpp
 	shader.cpp
 	matrix.cpp
+	text.cpp
+	renderer.cpp
 )
 
 # Prepends directories to the files
