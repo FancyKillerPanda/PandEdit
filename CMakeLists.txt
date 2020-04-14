@@ -10,3 +10,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Projects
 add_subdirectory(${CMAKE_SOURCE_DIR}/PandEdit)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party)
