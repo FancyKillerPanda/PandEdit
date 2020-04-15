@@ -120,6 +120,18 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	}
 }
 
+void Window::draw()
+{
+	for (Frame& frame : frames)
+	{
+		renderer->drawFrame(frame);
+	}
+}
+
+//
+// Internal window creation stuff
+//
+
 bool Window::registerWindowClass()
 {
 	WNDCLASS windowClass {};

@@ -10,6 +10,7 @@
 
 class Font;
 class Matrix4;
+class Frame;
 
 class Renderer
 {
@@ -34,6 +35,7 @@ public:
 	
 	void drawRect(float x, float y, float width, float height);
 	void drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth = 0.0f);
+	void drawFrame(Frame& frame);
 };
 
 #endif

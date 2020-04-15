@@ -37,6 +37,8 @@ public:
 	~Window();
 	static Window* get(HWND handle);
 
+	void draw();
+
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 	

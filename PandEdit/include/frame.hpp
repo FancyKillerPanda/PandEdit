@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "buffer.hpp"
+
 class Frame
 {
 public:
@@ -19,6 +21,8 @@ public:
 	unsigned int width;
 	unsigned int height;
 
+	Buffer* currentBuffer = nullptr;
+
 private:
 	static std::unordered_map<std::string, Frame*> framesMap;
 
@@ -26,7 +30,7 @@ public:
 	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, bool isActive = false);
 	~Frame();
 	static Frame* get(const std::string& name);
-
+	
 	void makeActive();
 };
 

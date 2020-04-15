@@ -1,4 +1,4 @@
-//  ===== Date Created: 14 April, 2020 ===== 
+//  ===== Date Created: 14 April, 2020 =====
 
 #include <stdio.h>
 #include <windows.h>
@@ -36,16 +36,20 @@ std::string readFile(const char* filename)
 int main(int argc, char* argv[])
 {
 	Window window { 960, 540, "PandEdit" };
-	
+
 	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 255.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Font arialFont("arial", "res/arial.ttf", 36);
 	Font consolasFont("consolas", "res/consola.ttf", 36);
-	
+
 	window.renderer->currentFont = &arialFont;
-	
+	Frame::currentFrame->currentBuffer = new Buffer { BufferType::Text };
+	Frame::currentFrame->currentBuffer->insertChar('A');
+	Frame::currentFrame->currentBuffer->insertChar('b');
+	Frame::currentFrame->currentBuffer->insertChar('c');
+
 	while (window.isOpen)
 	{
 		MSG message;
@@ -56,9 +60,9 @@ int main(int argc, char* argv[])
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		window.renderer->drawText("The quick brown fox jumped over the lazy dog.", -1, 0, 0);
+		window.draw();
 		SwapBuffers(window.deviceContext);
 	}
-	
+
 	return 0;
 }

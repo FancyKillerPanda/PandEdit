@@ -29,6 +29,7 @@ set(HEADERS
 	text.hpp
 	renderer.hpp
 	frame.hpp
+	buffer.hpp
 )
 set(SOURCES
 	main.cpp
@@ -38,6 +39,7 @@ set(SOURCES
 	text.cpp
 	renderer.cpp
 	frame.cpp
+	buffer.cpp
 )
 
 # Prepends directories to the files

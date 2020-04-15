@@ -4,6 +4,7 @@
 #include "shader.hpp"
 #include "text.hpp"
 #include "matrix.hpp"
+#include "frame.hpp"
 
 Renderer::Renderer(const Matrix4& projection)
 	: shapeShader("shape", "res/shape.vert", "res/shape.frag"),
@@ -213,4 +214,15 @@ void Renderer::drawText(const std::string& text, unsigned int messageLength, flo
 	glDrawArrays(GL_TRIANGLES, 0, count);
 
 	delete[] vertices;
+}
+
+void Renderer::drawFrame(Frame& frame)
+{
+	int y = frame.y;
+	
+	for (const std::string& line : frame.currentBuffer->data)
+	{
+		drawText(line, -1, frame.x, y, frame.width);
+		y += currentFont->size;
+	}
 }
