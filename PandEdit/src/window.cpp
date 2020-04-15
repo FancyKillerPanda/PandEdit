@@ -29,6 +29,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 
 		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 		renderer = new Renderer { projection };
+
+		frames.emplace_back("mainFrame", 0, 0, width, height, true);
 		
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}

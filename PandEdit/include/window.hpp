@@ -5,6 +5,9 @@
 
 #include <windows.h>
 #include <unordered_map>
+#include <vector>
+
+#include "frame.hpp"
 
 class Renderer;
 
@@ -24,6 +27,7 @@ public:
 	const DWORD windowStyles = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
 	Renderer* renderer;
+	std::vector<Frame> frames;
 
 private:
 	static std::unordered_map<HWND, Window*> windowsMap;

@@ -28,6 +28,7 @@ set(HEADERS
 	matrix.hpp
 	text.hpp
 	renderer.hpp
+	frame.hpp
 )
 set(SOURCES
 	main.cpp
@@ -36,6 +37,7 @@ set(SOURCES
 	matrix.cpp
 	text.cpp
 	renderer.cpp
+	frame.cpp
 )
 
 # Prepends directories to the files
