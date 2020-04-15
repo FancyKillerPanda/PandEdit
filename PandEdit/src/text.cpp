@@ -7,6 +7,8 @@
 
 #define MAX_TEXTURE_ATLAS_WIDTH 512
 
+std::unordered_map<std::string, Font*> Font::fontsMap;
+
 Font::Font(std::string name, const char* path, unsigned int size)
 	: size(size), name(name)
 {
@@ -124,9 +126,30 @@ Font::Font(std::string name, const char* path, unsigned int size)
 		offsetX += glyph->bitmap.width + 1;
 	}
 
+	fontsMap.insert({ name, this });
+	
 	printf("Info: Generated a %dx%d (%dkB) texture for '%s'.\n", textureAtlasWidth, textureAtlasHeight, (textureAtlasWidth * textureAtlasHeight) / 1024, path);
 
 	// Cleanup
 	FT_Done_Face(fontFace);
 	FT_Done_FreeType(freetypeLibrary);
+}
+
+Font::~Font()
+{
+	fontsMap.erase(name);
+}
+
+Font* Font::get(const std::string& name)
+{
+	auto result = fontsMap.find(name);
+
+	if (result != fontsMap.end())
+	{
+		return result->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }

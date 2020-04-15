@@ -9,7 +9,6 @@
 
 #include "window.hpp"
 #include "shader.hpp"
-#include "matrix.hpp"
 #include "renderer.hpp"
 #include "text.hpp"
 
@@ -42,11 +41,10 @@ int main(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
-	Renderer renderer { projection };
-
-	Font arialFont("arial", "res/arial.ttf", 48);
-	renderer.currentFont = &arialFont;
+	Font arialFont("arial", "res/arial.ttf", 36);
+	Font consolasFont("consolas", "res/consola.ttf", 36);
+	
+	window.renderer->currentFont = &arialFont;
 	
 	while (window.isOpen)
 	{
@@ -58,7 +56,7 @@ int main(int argc, char* argv[])
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderer.drawText("The quick brown fox jumped over the lazy dog.", -1, 0, 0, 300);
+		window.renderer->drawText("The quick brown fox jumped over the lazy dog.", -1, 0, 0);
 		SwapBuffers(window.deviceContext);
 	}
 	

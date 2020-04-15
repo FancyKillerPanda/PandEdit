@@ -72,6 +72,17 @@ void Renderer::drawRect(float x, float y, float width, float height)
 
 void Renderer::drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth)
 {
+	if (!currentFont)
+	{
+		static bool hasWarned = false;
+
+		if (!hasWarned)
+		{
+			printf("Error: No font selected.\n");
+			return;
+		}
+	}
+	
 	glUseProgram(textureShader.programID);
 	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 

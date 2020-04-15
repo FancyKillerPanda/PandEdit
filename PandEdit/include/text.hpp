@@ -4,6 +4,8 @@
 #define TEXT_HPP
 
 #include <string>
+#include <unordered_map>
+
 #include <glad/glad.h>
 
 struct Character
@@ -38,8 +40,13 @@ public:
 
 	Character chars[128];
 
+private:
+	static std::unordered_map<std::string, Font*> fontsMap;
+
 public:
 	Font(std::string name, const char* path, unsigned int size);
+	~Font();
+	static Font* get(const std::string& name);
 };
 
 #endif

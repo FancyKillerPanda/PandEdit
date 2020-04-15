@@ -9,11 +9,14 @@
 #include <glad/glad_wgl.h>
 
 #include "window.hpp"
+#include "renderer.hpp"
+#include "text.hpp"
+#include "matrix.hpp"
 
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
 Window::Window(unsigned int width, unsigned int height, const char* title)
-	: isOpen(false), width(width), height(height), title(title)
+	: isOpen(false), width(width), height(height), title(title), renderer(nullptr)
 {
 	if (registerWindowClass() &&
 		createDummyWindow() &&
@@ -23,6 +26,9 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 	{
 		isOpen = true;
 		windowsMap.insert({ windowHandle, this });
+
+		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
+		renderer = new Renderer { projection };
 		
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -51,6 +57,8 @@ Window* Window::get(HWND handle)
 
 LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
+#define IS_KEY_PRESSED(key) GetKeyState(key) & 0xFF00
+	
 	// TODO(fkp): Only get this when needed?
 	Window* window = Window::get(windowHandle);
 
@@ -71,6 +79,37 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 		window->isOpen = false;
 		PostQuitMessage(0);
+	} return 0;
+
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case '1':
+		{
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				if (window->renderer->currentFont->name == "arial")
+				{
+					Font* consolasFont = Font::get("consolas");
+					
+					if (consolasFont)
+					{
+						window->renderer->currentFont = consolasFont;
+					}
+				}
+				else if (window->renderer->currentFont->name == "consolas")
+				{
+					Font* arialFont = Font::get("arial");
+					
+					if (arialFont)
+					{
+						window->renderer->currentFont = arialFont;
+					}
+				}
+			}
+		} break;
+		}
 	} return 0;
 
 	default:
