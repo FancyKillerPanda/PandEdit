@@ -24,8 +24,9 @@ public:
 public:
 	Buffer(BufferType type);
 
-	// Inserts a character at the point
+	// Manipulations at the point
 	void insertChar(char character);
+	void backspaceChar();
 };
 
 #endif

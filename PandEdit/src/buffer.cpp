@@ -14,3 +14,23 @@ void Buffer::insertChar(char character)
 	data[line].insert(data[line].begin() + col, character);
 	col += 1;
 }
+
+void Buffer::backspaceChar()
+{
+	if (col > 0)
+	{
+		col -= 1;
+		data[line].erase(col, 1);
+	}
+	else
+	{
+		if (line > 0)
+		{
+			line -= 1;
+			col = data[line].size();
+
+			data[line] += data[line + 1];
+			data.erase(data.begin() + line + 1);
+		}
+	}
+}
