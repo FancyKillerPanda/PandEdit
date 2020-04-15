@@ -6,10 +6,15 @@ Frame* Frame::currentFrame = nullptr;
 Frame* Frame::previousFrame = nullptr;
 std::unordered_map<std::string, Frame*> Frame::framesMap;
 
-Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, bool isActive)
+Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
 	: name(name), x(x), y(y), width(width), height(height)
 {
 	framesMap.insert({ name, this });
+
+	if (!buffer)
+	{
+		currentBuffer = new Buffer { BufferType::Text };
+	}
 
 	if (isActive)
 	{

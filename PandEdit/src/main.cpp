@@ -45,10 +45,6 @@ int main(int argc, char* argv[])
 	Font consolasFont("consolas", "res/consola.ttf", 36);
 
 	window.renderer->currentFont = &arialFont;
-	Frame::currentFrame->currentBuffer = new Buffer { BufferType::Text };
-	Frame::currentFrame->currentBuffer->insertChar('A');
-	Frame::currentFrame->currentBuffer->insertChar('b');
-	Frame::currentFrame->currentBuffer->insertChar('c');
 
 	while (window.isOpen)
 	{

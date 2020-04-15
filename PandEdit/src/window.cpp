@@ -30,7 +30,7 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 		renderer = new Renderer { projection };
 
-		frames.emplace_back("mainFrame", 0, 0, width, height, true);
+		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, true);
 		
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -111,6 +111,14 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				}
 			}
 		} break;
+		}
+	} return 0;
+
+	case WM_CHAR:
+	{
+		if (wParam >= 32 && wParam < 127)
+		{
+			Frame::currentFrame->currentBuffer->insertChar((char) wParam);
 		}
 	} return 0;
 
