@@ -116,6 +116,11 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		{
 			Frame::currentFrame->currentBuffer->backspaceChar();
 		} break;
+
+		case VK_RETURN:
+		{
+			Frame::currentFrame->currentBuffer->newLine();
+		} break;
 		}
 	} return 0;
 

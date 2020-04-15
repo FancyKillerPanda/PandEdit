@@ -34,3 +34,14 @@ void Buffer::backspaceChar()
 		}
 	}
 }
+
+void Buffer::newLine()
+{
+	std::string restOfLine { data[line].begin() + col, data[line].end() };
+	data[line].erase(data[line].begin() + col, data[line].end());
+	
+	line += 1;
+	col = 0;
+
+	data.insert(data.begin() + line, restOfLine);
+}

@@ -27,6 +27,7 @@ public:
 	// Manipulations at the point
 	void insertChar(char character);
 	void backspaceChar();
+	void newLine();
 };
 
 #endif
