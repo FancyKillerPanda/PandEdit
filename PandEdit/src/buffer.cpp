@@ -11,6 +11,8 @@ Buffer::Buffer(BufferType type)
 
 void Buffer::movePointLeft()
 {
+	pointFlashFrameCounter = 0;
+	
 	if (col > 0)
 	{
 		col -= 1;
@@ -27,13 +29,15 @@ void Buffer::movePointLeft()
 
 void Buffer::movePointRight()
 {
+	pointFlashFrameCounter = 0;
+
 	if (col < data[line].size())
 	{
 		col += 1;
 	}
 	else
 	{
-		if (line < data.size())
+		if (line < data.size() - 1)
 		{
 			line += 1;
 			col = 0;
@@ -43,6 +47,8 @@ void Buffer::movePointRight()
 
 void Buffer::movePointUp()
 {
+	pointFlashFrameCounter = 0;
+
 	if (line > 0)
 	{
 		line -= 1;
@@ -56,7 +62,9 @@ void Buffer::movePointUp()
 
 void Buffer::movePointDown()
 {
-	if (line < data.size())
+	pointFlashFrameCounter = 0;
+
+	if (line < data.size() - 1)
 	{
 		line += 1;
 
@@ -69,12 +77,16 @@ void Buffer::movePointDown()
 
 void Buffer::insertChar(char character)
 {
+	pointFlashFrameCounter = 0;
+
 	data[line].insert(data[line].begin() + col, character);
 	col += 1;
 }
 
 void Buffer::backspaceChar()
 {
+	pointFlashFrameCounter = 0;
+
 	if (col > 0)
 	{
 		col -= 1;
@@ -95,6 +107,8 @@ void Buffer::backspaceChar()
 
 void Buffer::newLine()
 {
+	pointFlashFrameCounter = 0;
+
 	std::string restOfLine { data[line].begin() + col, data[line].end() };
 	data[line].erase(data[line].begin() + col, data[line].end());
 	
