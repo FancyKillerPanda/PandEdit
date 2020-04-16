@@ -115,15 +115,78 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			}
 		} break;
 
-		case VK_BACK:	buffer.backspaceChar();		break;
-		case VK_DELETE:	buffer.deleteChar();		break;
-		case VK_RETURN:	buffer.newLine();			break;
-		case VK_LEFT:	buffer.movePointLeft();		break;
-		case VK_RIGHT:	buffer.movePointRight();	break;
-		case VK_UP:		buffer.movePointUp();		break;
-		case VK_DOWN:	buffer.movePointDown();		break;
-		case VK_HOME:	buffer.movePointHome();		break;
-		case VK_END:	buffer.movePointEnd();		break;
+		case VK_BACK:
+		{
+			unsigned int numToMove = 1;
+
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				numToMove = buffer.findWordBoundaryLeft();
+			}
+
+			buffer.backspaceChar(numToMove);
+		} break;
+
+		case VK_DELETE:
+		{
+			unsigned int numToMove = 1;
+
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				numToMove = buffer.findWordBoundaryRight();
+			}
+
+			buffer.deleteChar(numToMove);
+		} break;
+
+		case VK_RETURN:
+		{
+			buffer.newLine();
+		} break;
+
+		case VK_LEFT:
+		{
+			unsigned int numToMove = 1;
+
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				numToMove = buffer.findWordBoundaryLeft();
+			}
+
+			buffer.movePointLeft(numToMove);
+		} break;
+		
+		case VK_RIGHT:
+		{
+			unsigned int numToMove = 1;
+
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				numToMove = buffer.findWordBoundaryRight();
+			}
+
+			buffer.movePointRight(numToMove);
+		} break;
+		
+		case VK_UP:
+		{
+			buffer.movePointUp();
+		} break;
+		
+		case VK_DOWN:
+		{
+			buffer.movePointDown();
+		} break;
+
+		case VK_HOME:
+		{
+			buffer.movePointHome();
+		} break;
+
+		case VK_END:
+		{
+			buffer.movePointEnd();
+		} break;
 		}
 	} return 0;
 

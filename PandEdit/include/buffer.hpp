@@ -28,8 +28,8 @@ public:
 	Buffer(BufferType type);
 
 	// Movement of the point
-	void movePointLeft();
-	void movePointRight();
+	void movePointLeft(unsigned int num = 1);
+	void movePointRight(unsigned int num = 1);
 	void movePointUp();
 	void movePointDown();
 	void movePointHome();
@@ -37,9 +37,14 @@ public:
 	
 	// Manipulations at the point
 	void insertChar(char character);
-	void backspaceChar();
-	void deleteChar();
+	void backspaceChar(unsigned int num = 1);
+	void deleteChar(unsigned int num = 1);
 	void newLine();
+
+	// Utility
+	// TODO(fkp): Currently only registers space, do other word boundaries
+	unsigned int findWordBoundaryLeft();
+	unsigned int findWordBoundaryRight();
 };
 
 #endif
