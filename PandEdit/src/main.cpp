@@ -43,8 +43,7 @@ int main(int argc, char* argv[])
 
 	Font arialFont("arial", "res/arial.ttf", 36);
 	Font consolasFont("consolas", "res/consola.ttf", 36);
-
-	window.renderer->currentFont = &arialFont;
+	window.setFont(&consolasFont);
 
 	while (window.isOpen)
 	{

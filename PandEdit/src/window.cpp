@@ -12,6 +12,7 @@
 #include "renderer.hpp"
 #include "text.hpp"
 #include "matrix.hpp"
+#include "text.hpp"
 
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
@@ -30,7 +31,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 		renderer = new Renderer { projection };
 
-		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, true);
+		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, BufferType::Text, true);
+		frames.emplace_back("minibufferFrame", 0, 0, 0, 0, nullptr, BufferType::MiniBuffer, false);
 		
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -96,21 +98,11 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			{
 				if (window->renderer->currentFont->name == "arial")
 				{
-					Font* consolasFont = Font::get("consolas");
-					
-					if (consolasFont)
-					{
-						window->renderer->currentFont = consolasFont;
-					}
+					window->setFont(Font::get("consolas"));
 				}
 				else if (window->renderer->currentFont->name == "consolas")
 				{
-					Font* arialFont = Font::get("arial");
-					
-					if (arialFont)
-					{
-						window->renderer->currentFont = arialFont;
-					}
+					window->setFont(Font::get("arial"));
 				}
 			}
 		} break;
@@ -210,6 +202,18 @@ void Window::draw()
 	{
 		renderer->drawFrame(frame);
 	}
+}
+
+void Window::setFont(Font* font)
+{
+	if (!font) return;
+	
+	renderer->currentFont = font;
+
+	// Updates minibuffer size
+	Frame* minibufferFrame = Frame::get("minibufferFrame");
+	minibufferFrame->y = height - renderer->currentFont->size;
+	minibufferFrame->height = renderer->currentFont->size;
 }
 
 //

@@ -10,6 +10,7 @@
 #include "frame.hpp"
 
 class Renderer;
+class Font;
 
 class Window
 {
@@ -38,6 +39,7 @@ public:
 	static Window* get(HWND handle);
 
 	void draw();
+	void setFont(Font* font);
 
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
