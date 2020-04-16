@@ -30,6 +30,8 @@ void Buffer::movePointLeft(unsigned int num)
 			}
 		}
 	}
+
+	targetCol = col;
 }
 
 void Buffer::movePointRight(unsigned int num)
@@ -53,6 +55,8 @@ void Buffer::movePointRight(unsigned int num)
 			}
 		}
 	}
+
+	targetCol = col;
 }
 
 void Buffer::movePointUp()
@@ -62,11 +66,7 @@ void Buffer::movePointUp()
 	if (line > 0)
 	{
 		line -= 1;
-
-		if (col > data[line].size())
-		{
-			col = data[line].size();
-		}
+		moveColToTarget();
 	}
 }
 
@@ -77,24 +77,24 @@ void Buffer::movePointDown()
 	if (line < data.size() - 1)
 	{
 		line += 1;
-
-		if (col > data[line].size())
-		{
-			col = data[line].size();
-		}
+		moveColToTarget();
 	}
 }
 
 void Buffer::movePointHome()
 {
 	pointFlashFrameCounter = 0;
+	
 	col = 0;
+	targetCol = col;
 }
 
 void Buffer::movePointEnd()
 {
 	pointFlashFrameCounter = 0;
+	
 	col = data[line].size();
+	targetCol = col;
 }
 
 void Buffer::insertChar(char character)
@@ -103,6 +103,7 @@ void Buffer::insertChar(char character)
 
 	data[line].insert(data[line].begin() + col, character);
 	col += 1;
+	targetCol = col;
 }
 
 void Buffer::backspaceChar(unsigned int num)
@@ -130,6 +131,8 @@ void Buffer::backspaceChar(unsigned int num)
 			}
 		}
 	}
+	
+	targetCol = col;
 }
 
 void Buffer::deleteChar(unsigned int num)
@@ -153,6 +156,8 @@ void Buffer::deleteChar(unsigned int num)
 			}
 		}
 	}
+	
+	targetCol = col;
 }
 
 void Buffer::newLine()
@@ -164,6 +169,7 @@ void Buffer::newLine()
 	
 	line += 1;
 	col = 0;
+	targetCol = col;
 
 	data.insert(data.begin() + line, restOfLine);
 }
@@ -204,4 +210,23 @@ unsigned int Buffer::findWordBoundaryRight()
 	}
 
 	return numberOfChars;
+}
+
+void Buffer::moveColToTarget()
+{
+	if (col > data[line].size())
+	{
+		col = data[line].size();
+	}
+	else
+	{
+		if (targetCol > data[line].size())
+		{
+			col = data[line].size();
+		}
+		else
+		{
+			col = targetCol;
+		}
+	}
 }
