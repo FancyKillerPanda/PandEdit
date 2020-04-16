@@ -75,6 +75,18 @@ void Buffer::movePointDown()
 	}
 }
 
+void Buffer::movePointHome()
+{
+	pointFlashFrameCounter = 0;
+	col = 0;
+}
+
+void Buffer::movePointEnd()
+{
+	pointFlashFrameCounter = 0;
+	col = data[line].size();
+}
+
 void Buffer::insertChar(char character)
 {
 	pointFlashFrameCounter = 0;
@@ -99,6 +111,24 @@ void Buffer::backspaceChar()
 			line -= 1;
 			col = data[line].size();
 
+			data[line] += data[line + 1];
+			data.erase(data.begin() + line + 1);
+		}
+	}
+}
+
+void Buffer::deleteChar()
+{
+	pointFlashFrameCounter = 0;
+
+	if (col < data[line].size())
+	{
+		data[line].erase(col, 1);
+	}
+	else
+	{
+		if (line < data.size() - 1)
+		{
 			data[line] += data[line + 1];
 			data.erase(data.begin() + line + 1);
 		}

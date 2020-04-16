@@ -69,6 +69,9 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		// This is *almost* certainly the dummy window
 		return DefWindowProc(windowHandle, message, wParam, lParam);
 	}
+
+	// The current buffer active
+	Buffer& buffer = *Frame::currentFrame->currentBuffer;
 	
 	switch (message)
 	{
@@ -112,35 +115,15 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			}
 		} break;
 
-		case VK_BACK:
-		{
-			Frame::currentFrame->currentBuffer->backspaceChar();
-		} break;
-
-		case VK_RETURN:
-		{
-			Frame::currentFrame->currentBuffer->newLine();
-		} break;
-
-		case VK_LEFT:
-		{
-			Frame::currentFrame->currentBuffer->movePointLeft();
-		} break;
-		
-		case VK_RIGHT:
-		{
-			Frame::currentFrame->currentBuffer->movePointRight();
-		} break;
-		
-		case VK_UP:
-		{
-			Frame::currentFrame->currentBuffer->movePointUp();
-		} break;
-		
-		case VK_DOWN:
-		{
-			Frame::currentFrame->currentBuffer->movePointDown();
-		} break;
+		case VK_BACK:	buffer.backspaceChar();		break;
+		case VK_DELETE:	buffer.deleteChar();		break;
+		case VK_RETURN:	buffer.newLine();			break;
+		case VK_LEFT:	buffer.movePointLeft();		break;
+		case VK_RIGHT:	buffer.movePointRight();	break;
+		case VK_UP:		buffer.movePointUp();		break;
+		case VK_DOWN:	buffer.movePointDown();		break;
+		case VK_HOME:	buffer.movePointHome();		break;
+		case VK_END:	buffer.movePointEnd();		break;
 		}
 	} return 0;
 
@@ -148,7 +131,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 		if (wParam >= 32 && wParam < 127)
 		{
-			Frame::currentFrame->currentBuffer->insertChar((char) wParam);
+			buffer.insertChar((char) wParam);
 		}
 	} return 0;
 

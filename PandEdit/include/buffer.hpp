@@ -32,10 +32,13 @@ public:
 	void movePointRight();
 	void movePointUp();
 	void movePointDown();
+	void movePointHome();
+	void movePointEnd();
 	
 	// Manipulations at the point
 	void insertChar(char character);
 	void backspaceChar();
+	void deleteChar();
 	void newLine();
 };
 
