@@ -121,6 +121,26 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		{
 			Frame::currentFrame->currentBuffer->newLine();
 		} break;
+
+		case VK_LEFT:
+		{
+			Frame::currentFrame->currentBuffer->movePointLeft();
+		} break;
+		
+		case VK_RIGHT:
+		{
+			Frame::currentFrame->currentBuffer->movePointRight();
+		} break;
+		
+		case VK_UP:
+		{
+			Frame::currentFrame->currentBuffer->movePointUp();
+		} break;
+		
+		case VK_DOWN:
+		{
+			Frame::currentFrame->currentBuffer->movePointDown();
+		} break;
 		}
 	} return 0;
 

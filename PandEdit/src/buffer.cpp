@@ -9,6 +9,64 @@ Buffer::Buffer(BufferType type)
 	data.emplace_back();
 }
 
+void Buffer::movePointLeft()
+{
+	if (col > 0)
+	{
+		col -= 1;
+	}
+	else
+	{
+		if (line > 0)
+		{
+			line -= 1;
+			col = data[line].size();
+		}
+	}
+}
+
+void Buffer::movePointRight()
+{
+	if (col < data[line].size())
+	{
+		col += 1;
+	}
+	else
+	{
+		if (line < data.size())
+		{
+			line += 1;
+			col = 0;
+		}
+	}
+}
+
+void Buffer::movePointUp()
+{
+	if (line > 0)
+	{
+		line -= 1;
+
+		if (col > data[line].size())
+		{
+			col = data[line].size();
+		}
+	}
+}
+
+void Buffer::movePointDown()
+{
+	if (line < data.size())
+	{
+		line += 1;
+
+		if (col > data[line].size())
+		{
+			col = data[line].size();
+		}
+	}
+}
+
 void Buffer::insertChar(char character)
 {
 	data[line].insert(data[line].begin() + col, character);

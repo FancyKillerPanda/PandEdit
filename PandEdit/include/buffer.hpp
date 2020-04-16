@@ -24,6 +24,12 @@ public:
 public:
 	Buffer(BufferType type);
 
+	// Movement of the point
+	void movePointLeft();
+	void movePointRight();
+	void movePointUp();
+	void movePointDown();
+	
 	// Manipulations at the point
 	void insertChar(char character);
 	void backspaceChar();
