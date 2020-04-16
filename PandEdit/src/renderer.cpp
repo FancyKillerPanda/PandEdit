@@ -218,11 +218,38 @@ void Renderer::drawText(const std::string& text, unsigned int messageLength, flo
 
 void Renderer::drawFrame(Frame& frame)
 {
+	Buffer& buffer = *frame.currentBuffer;
 	int y = frame.y;
 	
-	for (const std::string& line : frame.currentBuffer->data)
+	for (const std::string& line : buffer.data)
 	{
 		drawText(line, -1, frame.x, y, frame.width);
 		y += currentFont->size;
+	}
+
+	if (buffer.pointFlashFrameCounter++ % 90 < 45)
+	{
+		// Calculate the point pixel locations
+		float pointX = frame.x;
+		float pointY = frame.y + (buffer.line * currentFont->size);
+		float pointWidth;
+		float pointHeight = (float) currentFont->size;
+
+		for (unsigned int i = 0; i < buffer.col; i++)
+		{
+			const Character& character = currentFont->chars[buffer.data[buffer.line][i]];
+			pointX += character.advanceX;
+		}
+
+		if (buffer.col == buffer.data[buffer.line].size())
+		{
+			pointWidth = (float) currentFont->maxGlyphAdvanceX;
+		}
+		else
+		{
+			pointWidth = currentFont->chars[buffer.data[buffer.line][buffer.col]].advanceX;
+		}
+		
+		drawRect(pointX, pointY, pointWidth, pointHeight);
 	}
 }

@@ -21,6 +21,9 @@ public:
 	unsigned int line = 0;
 	unsigned int col = 0;
 
+	// TODO(fkp): Make this a timer
+	unsigned int pointFlashFrameCounter = 0;
+
 public:
 	Buffer(BufferType type);
 
