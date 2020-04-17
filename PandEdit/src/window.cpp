@@ -219,6 +219,12 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		}
 	} return 0;
 
+	case WM_SYSCHAR:
+	{
+		// By default plays a beep, which we don't want.
+		// I don't think it does anything else.
+	} return 0;
+	
 	case WM_CHAR:
 	{
 		if (wParam >= 32 && wParam < 127)
