@@ -160,7 +160,18 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 		case VK_RETURN:
 		{
-			buffer.newLine();
+			if (buffer.type == BufferType::MiniBuffer)
+			{
+				// TODO(fkp): Execute command
+				buffer.data[0] = "";
+				buffer.col = 0;
+
+				Frame::previousFrame->makeActive();
+			}
+			else
+			{
+				buffer.newLine();
+			}
 		} break;
 
 		case VK_LEFT:
