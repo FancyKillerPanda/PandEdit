@@ -31,6 +31,13 @@ void Buffer::movePointLeft(unsigned int num)
 	{
 		if (col > 0)
 		{
+			if (type == BufferType::MiniBuffer &&
+				col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+			{
+				// Should not be able to move into the 'Execute: ' part
+				break;
+			}
+			
 			col -= 1;
 		}
 		else
@@ -97,7 +104,16 @@ void Buffer::movePointHome()
 {
 	doCommonPointManipulationTasks();	
 
-	col = 0;
+	if (type == BufferType::MiniBuffer)
+	{
+		// Should move to after the 'Execute: ' part
+		col = Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1;
+	}
+	else
+	{
+		col = 0;
+	}
+	
 	targetCol = col;
 }
 
@@ -128,6 +144,13 @@ void Buffer::backspaceChar(unsigned int num)
 	{
 		if (col > 0)
 		{
+			if (type == BufferType::MiniBuffer &&
+				col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+			{
+				// Should not be able to backspace into the 'Execute: ' part
+				break;
+			}
+			
 			col -= 1;
 			data[line].erase(col, 1);
 		}
