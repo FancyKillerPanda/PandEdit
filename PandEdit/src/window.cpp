@@ -1,4 +1,4 @@
-//  ===== Date Created: 14 April, 2020 ===== 
+//  ===== Date Created: 14 April, 2020 =====
 
 #define PANDEDIT_DEBUG_WINDOW
 
@@ -31,9 +31,9 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
 		renderer = new Renderer { projection };
 
-		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, BufferType::Text, true);
 		frames.emplace_back("minibufferFrame", 0, 0, 0, 0, nullptr, BufferType::MiniBuffer, false);
-		
+		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, BufferType::Text, true);
+
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
 }
@@ -62,7 +62,7 @@ Window* Window::get(HWND handle)
 LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
 #define IS_KEY_PRESSED(key) GetKeyState(key) & 0xFF00
-	
+
 	// TODO(fkp): Only get this when needed?
 	Window* window = Window::get(windowHandle);
 
@@ -74,7 +74,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 	// The current buffer active
 	Buffer& buffer = *Frame::currentFrame->currentBuffer;
-	
+
 	switch (message)
 	{
 	case WM_CLOSE:
@@ -88,6 +88,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		PostQuitMessage(0);
 	} return 0;
 
+	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{
 		switch (wParam)
@@ -104,6 +105,32 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				{
 					window->setFont(Font::get("arial"));
 				}
+			}
+		} break;
+
+		case 'G':
+		{
+			if (IS_KEY_PRESSED(VK_CONTROL))
+			{
+				if (buffer.type == BufferType::MiniBuffer)
+				{
+					buffer.data[0] = "Quit";
+					buffer.col = buffer.data[0].size();
+
+					Frame::previousFrame->makeActive();
+				}
+			}
+		} break;
+
+		case 'X':
+		{
+			if (IS_KEY_PRESSED(VK_MENU))
+			{
+				Frame* minibufferFrame = Frame::get("minibufferFrame");
+				minibufferFrame->makeActive();
+
+				minibufferFrame->currentBuffer->data[0] = "Execute: ";
+				minibufferFrame->currentBuffer->col = minibufferFrame->currentBuffer->data[0].size();
 			}
 		} break;
 
@@ -147,7 +174,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 			buffer.movePointLeft(numToMove);
 		} break;
-		
+
 		case VK_RIGHT:
 		{
 			unsigned int numToMove = 1;
@@ -159,12 +186,12 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 			buffer.movePointRight(numToMove);
 		} break;
-		
+
 		case VK_UP:
 		{
 			buffer.movePointUp();
 		} break;
-		
+
 		case VK_DOWN:
 		{
 			buffer.movePointDown();
@@ -207,13 +234,18 @@ void Window::draw()
 void Window::setFont(Font* font)
 {
 	if (!font) return;
-	
+
 	renderer->currentFont = font;
 
 	// Updates minibuffer size
 	Frame* minibufferFrame = Frame::get("minibufferFrame");
 	minibufferFrame->y = height - renderer->currentFont->size;
+	minibufferFrame->width = width;
 	minibufferFrame->height = renderer->currentFont->size;
+
+	// Update other frame sizes
+	Frame* mainFrame = Frame::get("mainFrame");
+	mainFrame->height = height - renderer->currentFont->size;
 }
 
 //
@@ -276,7 +308,7 @@ bool Window::createDummyWindow()
 		printf("Error: Failed to find a suitable pixel format for dummy window.\n");
 		return false;
 	}
-	
+
 	if (!SetPixelFormat(deviceContext, dummyPixelFormat, &dummyPFD))
 	{
 		printf("Error: Failed to set pixel format for dummy window.\n");

@@ -27,6 +27,35 @@ Frame::~Frame()
 	framesMap.erase(name);
 }
 
+Frame::Frame(Frame&& other)
+	: name(std::move(other.name)),
+	  x(other.x), y(other.y), width(other.width), height(other.height),
+	  currentBuffer(other.currentBuffer)
+{
+	framesMap[name] = this;
+	other.name = "";
+}
+
+Frame& Frame::operator=(Frame&& other)
+{
+	if (this != &other)
+	{
+		framesMap.erase(name);
+		
+		name = other.name;
+		x = other.x;
+		y = other.y;
+		width = other.width;
+		height = other.height;
+		currentBuffer = other.currentBuffer;
+
+		other.currentBuffer = nullptr;
+		other.name = "";
+	}
+
+	return *this;
+}
+
 Frame* Frame::get(const std::string& name)
 {
 	auto result = framesMap.find(name);

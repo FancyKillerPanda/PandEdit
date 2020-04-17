@@ -29,6 +29,11 @@ private:
 public:
 	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, BufferType type = BufferType::Text, bool isActive = false);
 	~Frame();
+	Frame(const Frame&) = delete;
+	Frame& operator=(const Frame&) = delete;
+	Frame(Frame&& other);
+	Frame& operator=(Frame&& other);
+	
 	static Frame* get(const std::string& name);
 	
 	void makeActive();
