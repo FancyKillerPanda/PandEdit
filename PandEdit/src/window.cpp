@@ -29,7 +29,7 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		windowsMap.insert({ windowHandle, this });
 
 		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
-		renderer = new Renderer { projection };
+		renderer = new Renderer { projection, (float) width, (float) height };
 
 		frames.emplace_back("minibufferFrame", 0, 0, 0, 0, nullptr, BufferType::MiniBuffer, false);
 		frames.emplace_back("mainFrame", 0, 0, width, height, nullptr, BufferType::Text, true);

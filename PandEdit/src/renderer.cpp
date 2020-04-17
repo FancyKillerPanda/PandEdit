@@ -6,17 +6,19 @@
 #include "matrix.hpp"
 #include "frame.hpp"
 
-Renderer::Renderer(const Matrix4& projection)
+Renderer::Renderer(const Matrix4& projection, float windowWidth, float windowHeight)
 	: shapeShader("shape", "res/shape.vert", "res/shape.frag"),
 	  textureShader("texture", "res/texture.vert", "res/texture.frag"),
 	  currentFont(nullptr)
 {
-	updateProjection(projection);
+	updateShaderUniforms(projection, windowWidth, windowHeight);
 }
 
-void Renderer::updateProjection(const Matrix4& projection)
+// TODO(fkp): This method has a lot of code duplication
+void Renderer::updateShaderUniforms(const Matrix4& projection, float windowWidth, float windowHeight)
 {
 	GLint projUniformLocation = -1;
+	GLint resolutionUniformLocation = -1;
 
 	glUseProgram(shapeShader.programID);
 	projUniformLocation = glGetUniformLocation(shapeShader.programID, "projection");
@@ -26,12 +28,26 @@ void Renderer::updateProjection(const Matrix4& projection)
 		glUniformMatrix4fv(projUniformLocation, 1, false, projection.data);
 	}
 
+	resolutionUniformLocation = glGetUniformLocation(shapeShader.programID, "resolution");
+
+	if (resolutionUniformLocation != -1)
+	{
+		glUniform2f(resolutionUniformLocation, windowWidth, windowHeight);
+	}
+
 	glUseProgram(textureShader.programID);
 	projUniformLocation = glGetUniformLocation(textureShader.programID, "projection");
 
 	if (projUniformLocation != -1)
 	{
 		glUniformMatrix4fv(projUniformLocation, 1, false, projection.data);
+	}
+
+	resolutionUniformLocation = glGetUniformLocation(textureShader.programID, "resolution");
+
+	if (resolutionUniformLocation != -1)
+	{
+		glUniform2f(resolutionUniformLocation, windowWidth, windowHeight);
 	}
 }
 
@@ -69,6 +85,16 @@ void Renderer::drawRect(float x, float y, float width, float height)
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawHollowRect(float x, float y, float width, float height, float borderWidth)
+{
+	glUseProgram(shapeShader.programID);
+	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), borderWidth);
+	glUniform4f(glGetUniformLocation(shapeShader.programID, "rectangleDimensions"), x, y, width, height);
+
+	drawRect(x, y, width, height);
+	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
 void Renderer::drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth)
@@ -227,29 +253,40 @@ void Renderer::drawFrame(Frame& frame)
 		y += currentFont->size;
 	}
 
-	if (buffer.pointFlashFrameCounter++ % 90 < 45)
+	// Calculate the point pixel locations
+	float pointX = frame.x;
+	float pointY = frame.y + (buffer.line * currentFont->size);
+	float pointWidth;
+	float pointHeight = (float) currentFont->size;
+
+	for (unsigned int i = 0; i < buffer.col; i++)
 	{
-		// Calculate the point pixel locations
-		float pointX = frame.x;
-		float pointY = frame.y + (buffer.line * currentFont->size);
-		float pointWidth;
-		float pointHeight = (float) currentFont->size;
+		const Character& character = currentFont->chars[buffer.data[buffer.line][i]];
+		pointX += character.advanceX;
+	}
 
-		for (unsigned int i = 0; i < buffer.col; i++)
+	if (buffer.col == buffer.data[buffer.line].size())
+	{
+		pointWidth = (float) currentFont->maxGlyphAdvanceX;
+	}
+	else
+	{
+		pointWidth = currentFont->chars[buffer.data[buffer.line][buffer.col]].advanceX;
+	}
+	
+	if (&frame == Frame::currentFrame)
+	{
+		if (buffer.pointFlashFrameCounter++ % 90 < 45)
 		{
-			const Character& character = currentFont->chars[buffer.data[buffer.line][i]];
-			pointX += character.advanceX;
+			drawRect(pointX, pointY, pointWidth, pointHeight);
 		}
-
-		if (buffer.col == buffer.data[buffer.line].size())
+	}
+	else
+	{
+		if (buffer.type != BufferType::MiniBuffer)
 		{
-			pointWidth = (float) currentFont->maxGlyphAdvanceX;
+			unsigned int borderWidth = 1 + (currentFont->size / 24);
+			drawHollowRect(pointX, pointY, pointWidth, pointHeight, (float) borderWidth);
 		}
-		else
-		{
-			pointWidth = currentFont->chars[buffer.data[buffer.line][buffer.col]].advanceX;
-		}
-		
-		drawRect(pointX, pointY, pointWidth, pointHeight);
 	}
 }
