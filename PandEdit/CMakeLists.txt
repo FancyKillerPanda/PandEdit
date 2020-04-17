@@ -30,6 +30,7 @@ set(HEADERS
 	renderer.hpp
 	frame.hpp
 	buffer.hpp
+	commands.hpp
 )
 set(SOURCES
 	main.cpp
@@ -40,6 +41,7 @@ set(SOURCES
 	renderer.cpp
 	frame.cpp
 	buffer.cpp
+	commands.cpp
 )
 
 # Prepends directories to the files

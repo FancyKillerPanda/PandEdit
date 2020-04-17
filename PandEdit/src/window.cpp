@@ -13,6 +13,7 @@
 #include "text.hpp"
 #include "matrix.hpp"
 #include "text.hpp"
+#include "commands.hpp"
 
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
@@ -161,11 +162,15 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		{
 			if (buffer.type == BufferType::MiniBuffer)
 			{
-				// TODO(fkp): Execute command
-				buffer.data[0] = "";
-				buffer.col = 0;
+				// Gets rid of the 'Execute: '
+				std::string commandText = buffer.data[0].substr(buffer.data[0].find(' '));
 
-				Frame::previousFrame->makeActive();
+				while (commandText.size() > 0 && commandText[0] == ' ')
+				{
+					commandText.erase(0, 1);
+				}
+
+				Commands::executeCommand(commandText);
 			}
 			else
 			{
