@@ -29,6 +29,9 @@ public:
 public:
 	Buffer(BufferType type);
 
+	// This is stuff that is common to all point manipulations
+	void doCommonPointManipulationTasks();
+	
 	// Movement of the point
 	void movePointLeft(unsigned int num = 1);
 	void movePointRight(unsigned int num = 1);

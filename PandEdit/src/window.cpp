@@ -126,11 +126,10 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		{
 			if (IS_KEY_PRESSED(VK_MENU))
 			{
-				Frame* minibufferFrame = Frame::get("minibufferFrame");
-				minibufferFrame->makeActive();
+				Frame::minibufferFrame->makeActive();
 
-				minibufferFrame->currentBuffer->data[0] = "Execute: ";
-				minibufferFrame->currentBuffer->col = minibufferFrame->currentBuffer->data[0].size();
+				Frame::minibufferFrame->currentBuffer->data[0] = "Execute: ";
+				Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
 			}
 		} break;
 
@@ -249,10 +248,9 @@ void Window::setFont(Font* font)
 	renderer->currentFont = font;
 
 	// Updates minibuffer size
-	Frame* minibufferFrame = Frame::get("minibufferFrame");
-	minibufferFrame->y = height - renderer->currentFont->size;
-	minibufferFrame->width = width;
-	minibufferFrame->height = renderer->currentFont->size;
+	Frame::minibufferFrame->y = height - renderer->currentFont->size;
+	Frame::minibufferFrame->width = width;
+	Frame::minibufferFrame->height = renderer->currentFont->size;
 
 	// Update other frame sizes
 	Frame* mainFrame = Frame::get("mainFrame");

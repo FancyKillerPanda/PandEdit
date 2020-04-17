@@ -13,6 +13,7 @@ class Frame
 public:
 	static Frame* currentFrame;
 	static Frame* previousFrame;
+	static Frame* minibufferFrame;
 
 	std::string name;
 	

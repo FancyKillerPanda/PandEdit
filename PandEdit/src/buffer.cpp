@@ -1,6 +1,7 @@
 //  ===== Date Created: 15 April, 2020 ===== 
 
 #include "buffer.hpp"
+#include "frame.hpp"
 
 Buffer::Buffer(BufferType type)
 	: type(type)
@@ -9,9 +10,20 @@ Buffer::Buffer(BufferType type)
 	data.emplace_back();
 }
 
-void Buffer::movePointLeft(unsigned int num)
+void Buffer::doCommonPointManipulationTasks()
 {
 	pointFlashFrameCounter = 0;
+
+	if (type != BufferType::MiniBuffer)
+	{
+		Frame::minibufferFrame->currentBuffer->data[0] = "";
+		Frame::minibufferFrame->currentBuffer->col = 0;
+	}
+}
+
+void Buffer::movePointLeft(unsigned int num)
+{
+	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
 	
@@ -36,7 +48,7 @@ void Buffer::movePointLeft(unsigned int num)
 
 void Buffer::movePointRight(unsigned int num)
 {
-	pointFlashFrameCounter = 0;
+	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
 	
@@ -61,8 +73,8 @@ void Buffer::movePointRight(unsigned int num)
 
 void Buffer::movePointUp()
 {
-	pointFlashFrameCounter = 0;
-
+	doCommonPointManipulationTasks();
+	
 	if (line > 0)
 	{
 		line -= 1;
@@ -72,7 +84,7 @@ void Buffer::movePointUp()
 
 void Buffer::movePointDown()
 {
-	pointFlashFrameCounter = 0;
+	doCommonPointManipulationTasks();
 
 	if (line < data.size() - 1)
 	{
@@ -83,23 +95,23 @@ void Buffer::movePointDown()
 
 void Buffer::movePointHome()
 {
-	pointFlashFrameCounter = 0;
-	
+	doCommonPointManipulationTasks();	
+
 	col = 0;
 	targetCol = col;
 }
 
 void Buffer::movePointEnd()
 {
-	pointFlashFrameCounter = 0;
-	
+	doCommonPointManipulationTasks();	
+
 	col = data[line].size();
 	targetCol = col;
 }
 
 void Buffer::insertChar(char character)
 {
-	pointFlashFrameCounter = 0;
+	doCommonPointManipulationTasks();
 
 	data[line].insert(data[line].begin() + col, character);
 	col += 1;
@@ -108,7 +120,7 @@ void Buffer::insertChar(char character)
 
 void Buffer::backspaceChar(unsigned int num)
 {
-	pointFlashFrameCounter = 0;
+	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
 	
@@ -137,8 +149,8 @@ void Buffer::backspaceChar(unsigned int num)
 
 void Buffer::deleteChar(unsigned int num)
 {
-	pointFlashFrameCounter = 0;
-
+	doCommonPointManipulationTasks();
+	
 	if (num == 0) num = 1;
 	
 	for (int i = 0; i < num; i++)
@@ -162,8 +174,8 @@ void Buffer::deleteChar(unsigned int num)
 
 void Buffer::newLine()
 {
-	pointFlashFrameCounter = 0;
-
+	doCommonPointManipulationTasks();
+	
 	std::string restOfLine { data[line].begin() + col, data[line].end() };
 	data[line].erase(data[line].begin() + col, data[line].end());
 	
