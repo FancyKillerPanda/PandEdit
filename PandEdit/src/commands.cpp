@@ -46,6 +46,15 @@ DEFINE_COMMAND(frameSplitVertically_Command)
 	return true;
 }
 
+DEFINE_COMMAND(frameSplitHorizontally_Command)
+{
+	writeToMiniBuffer("");
+	exitMiniBuffer();
+	window.splitCurrentFrameHorizontally();
+	
+	return true;
+}
+
 DEFINE_COMMAND(frameMoveNext_Command)
 {
 	writeToMiniBuffer("");
@@ -67,6 +76,7 @@ DEFINE_COMMAND(frameMovePrevious_Command)
 std::unordered_map<std::string, bool (*)(Window&, const std::string& text)> Commands::commandsMap = {
 	{ "echo", echo_Command },
 	{ "frameSplitVertically", frameSplitVertically_Command },
+	{ "frameSplitHorizontally", frameSplitHorizontally_Command },
 	{ "frameMoveNext", frameMoveNext_Command },
 	{ "frameMovePrevious", frameMovePrevious_Command },
 };

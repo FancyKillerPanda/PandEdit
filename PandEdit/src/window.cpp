@@ -314,6 +314,12 @@ void Window::splitCurrentFrameVertically()
 	frames.push_back(std::move(*rightSideFrame));
 }
 
+void Window::splitCurrentFrameHorizontally()
+{
+	Frame* bottomFrame = Frame::currentFrame->splitHorizontally();
+	frames.push_back(std::move(*bottomFrame));
+}
+
 //
 // Internal window creation stuff
 //

@@ -153,3 +153,16 @@ Frame* Frame::splitVertically()
 
 	return new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
 }
+
+Frame* Frame::splitHorizontally()
+{
+	height /= 2;
+
+	std::string newFrameName = name + "_SplitDown";
+	int newFrameX = realX;
+	int newFrameY = y + height;
+	unsigned int newFrameWidth = realWidth;
+	unsigned int newFrameHeight = height;
+
+	return new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+}
