@@ -8,6 +8,8 @@
 
 #include "buffer.hpp"
 
+constexpr unsigned int FRAME_BORDER_WIDTH = 5;
+
 class Frame
 {
 public:
@@ -16,12 +18,17 @@ public:
 	static Frame* minibufferFrame;
 
 	std::string name;
-	
+
+	// Dimensions that text is rendered in
 	int x;
 	int y;
 	unsigned int width;
 	unsigned int height;
-
+	
+	// Includes the vertical borders
+	int realX;
+	unsigned int realWidth;
+	
 	Buffer* currentBuffer = nullptr;
 
 private:

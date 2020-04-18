@@ -21,12 +21,15 @@ Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int he
 void Frame::init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
 {
 	this->name = name;
-	this->x = x;
-	this->y = y;
-	this->width = width;
-	this->height = height;
 	this->currentBuffer = buffer;
-
+	
+	this->realX = x;
+	this->realWidth = width;
+	this->x = realX + FRAME_BORDER_WIDTH;
+	this->y = y;
+	this->width = realWidth - FRAME_BORDER_WIDTH;
+	this->height = height;
+	
 	framesMap.insert({ name, this });
 
 	if (isActive)
@@ -52,6 +55,7 @@ Frame::~Frame()
 
 Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
+	  realX(other.realX), realWidth(other.realWidth),
 	  x(other.x), y(other.y), width(other.width), height(other.height),
 	  currentBuffer(other.currentBuffer)
 {
@@ -82,6 +86,8 @@ Frame& Frame::operator=(Frame&& other)
 		framesMap.erase(name);
 
 		name = other.name;
+		realX = other.realX;
+		realWidth = other.realWidth;
 		x = other.x;
 		y = other.y;
 		width = other.width;

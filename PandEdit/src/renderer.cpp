@@ -306,6 +306,16 @@ void Renderer::drawFrame(Frame& frame)
 	}
 
 	//
+	// Border
+	//
+
+	glUseProgram(shapeShader.programID);
+	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.3f, 1.0f);
+
+	drawRect(frame.realX, frame.y, FRAME_BORDER_WIDTH, frame.height);
+	drawRect(frame.realWidth - FRAME_BORDER_WIDTH, frame.y, FRAME_BORDER_WIDTH, frame.height);
+
+	//
 	// Mode line
 	//
 
@@ -322,7 +332,7 @@ void Renderer::drawFrame(Frame& frame)
 			glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.2f, 1.0f);
 		}
 
-		drawRect(frame.x, frame.y + frame.height - currentFont->size, frame.width, currentFont->size);
+		drawRect(frame.realX, frame.y + frame.height - currentFont->size, frame.realWidth, currentFont->size);
 		glUseProgram(textureShader.programID);
 		
 		if (&frame == Frame::currentFrame)
@@ -341,6 +351,6 @@ void Renderer::drawFrame(Frame& frame)
 		modeLineText += std::to_string(buffer.col);
 		modeLineText += ")";
 		
-		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width);
+		drawText(modeLineText, modeLineText.size(), frame.realX, frame.y + frame.height - currentFont->size, frame.realWidth);
 	}
 }

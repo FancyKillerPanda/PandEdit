@@ -33,7 +33,7 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		renderer = new Renderer { projection, (float) width, (float) height };
 
 		frames.emplace_back("mainFrame", 0, 0, width, height, BufferType::Text, "*scratch*", true);
-		frames.emplace_back("minibufferFrame", 0, 0, 0, 0, BufferType::MiniBuffer, "__minibuffer__", false);
+		frames.emplace_back("minibufferFrame", 0, 0, width, 0, BufferType::MiniBuffer, "__minibuffer__", false);
 
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -260,7 +260,6 @@ void Window::setFont(Font* font)
 
 	// Updates minibuffer size
 	Frame::minibufferFrame->y = height - renderer->currentFont->size;
-	Frame::minibufferFrame->width = width;
 	Frame::minibufferFrame->height = renderer->currentFont->size;
 
 	// Update other frame sizes
