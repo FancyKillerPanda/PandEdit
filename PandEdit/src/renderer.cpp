@@ -97,7 +97,7 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-void Renderer::drawText(const std::string& text, int messageLength, float x, float y, float wrapWidth)
+void Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap)
 {
 	if (!currentFont)
 	{
@@ -118,8 +118,8 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 	// For ease of use (arrows are dumb)
 	const Font& font = *currentFont;
 
-	// Warns about a wrapWidth that is too small
-	if (wrapWidth != 0.0 && wrapWidth < (float) font.maxGlyphAdvanceX)
+	// Warns about a maxWidth that is too small
+	if (maxWidth != 0.0f && maxWidth < (float) font.maxGlyphAdvanceX)
 	{
 		// TODO(fkp): Warn once macro
 		static bool hasWarned = false;
@@ -127,10 +127,24 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 		if (!hasWarned)
 		{
 			hasWarned = true;
-			printf("Warning: Wrap width smaller than glyph.\n");
+			printf("Warning: Max width smaller than glyph.\n");
 
 			return;
 		}
+	}
+
+	// Warns about wrap set but no width provided
+	if (wrap && maxWidth <= 0.0f)
+	{
+		static bool hasWarned = false;
+
+		if (!hasWarned)
+		{
+			hasWarned = true;
+			printf("Warning: Max width not provided but wrap requested.\n");
+
+			return;
+		}		
 	}
 
 	glBindVertexArray(font.vao);
@@ -158,12 +172,19 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 			break;
 		}
 
-		// Next line
+		// Next line or end
 		if (currentChar == '\n' ||
-			(wrapWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + wrapWidth))
+			(maxWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + maxWidth))
 		{
-			x = startX;
-			y += font.size;
+			if (wrap)
+			{
+				x = startX;
+				y += font.size;
+			}
+			else
+			{
+				break;
+			}
 		}
 
 		// Calculates vertex dimensions
@@ -351,6 +372,6 @@ void Renderer::drawFrame(Frame& frame)
 		modeLineText += std::to_string(buffer.col);
 		modeLineText += ")";
 
-		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width);
+		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width, false);
 	}
 }
