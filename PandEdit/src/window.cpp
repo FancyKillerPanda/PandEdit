@@ -267,6 +267,47 @@ void Window::setFont(Font* font)
 	mainFrame->height = height - renderer->currentFont->size;
 }
 
+void Window::moveToNextFrame(bool moveNext)
+{
+	// This shouldn't happen, but it's there just in case
+	if (Frame::currentFrame == Frame::minibufferFrame)
+	{
+		Frame::get("mainFrame")->makeActive();
+		return;
+	}
+	
+	// TODO(fkp): This can be more efficient by storing an index
+	for (int i = 0; i < frames.size(); i++)
+	{
+		if (&frames[i] == Frame::currentFrame)
+		{
+			// This will wrap to the current frame if necessary
+			do
+			{
+				if (moveNext)
+				{
+					i += 1;
+					i %= frames.size();
+				}
+				else
+				{
+					if (i == 0)
+					{
+						i = frames.size();
+					}
+
+					i -= 1;
+				}
+			} while (frames[i].currentBuffer->type == BufferType::MiniBuffer);
+
+			frames[i].makeActive();
+			return;
+		}
+	}
+
+	printf("Error: Window is not keeping track of current frame.\n");
+}
+
 void Window::splitCurrentFrameVertically()
 {
 	Frame* rightSideFrame = Frame::currentFrame->splitVertically();

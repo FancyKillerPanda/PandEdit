@@ -146,7 +146,7 @@ Frame* Frame::splitVertically()
 	width = realWidth - FRAME_BORDER_WIDTH;
 
 	std::string newFrameName = name + "_SplitRight";
-	int newFrameX = realWidth;
+	int newFrameX = realX + realWidth;
 	int newFrameY = y;
 	unsigned int newFrameWidth = realWidth;
 	unsigned int newFrameHeight = height;

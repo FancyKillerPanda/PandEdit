@@ -40,6 +40,9 @@ public:
 
 	void draw();
 	void setFont(Font* font);
+
+	// If moveNext is false, will move backwards
+	void moveToNextFrame(bool moveNext = true);
 	void splitCurrentFrameVertically();
 
 private:
