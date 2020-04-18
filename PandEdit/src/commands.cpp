@@ -6,7 +6,7 @@
 
 // TODO(fkp): Write to minibuffer function
 
-void exitMinibuffer()
+void exitMiniBuffer()
 {
 	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
 	{
@@ -15,26 +15,32 @@ void exitMinibuffer()
 	}
 }
 
+void writeToMiniBuffer(std::string message)
+{
+	Frame::minibufferFrame->currentBuffer->data[0] = message;
+	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
+}
+
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
 
 DEFINE_COMMAND(echo_Command)
 {
 	if (text == "")
 	{
-		Frame::minibufferFrame->currentBuffer->data[0] = "Error: Nothing to echo";
+		writeToMiniBuffer("Error: Nothing to echo");
 	}
 	else
 	{
-		Frame::minibufferFrame->currentBuffer->data[0] = text;
+		writeToMiniBuffer(text);
 	}
-
-	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
+	
 	return true;
 }
 
 DEFINE_COMMAND(frameSplitVertically_Command)
 {
-	exitMinibuffer();
+	writeToMiniBuffer("");
+	exitMiniBuffer();
 	window.splitCurrentFrameVertically();
 	
 	return true;
@@ -67,13 +73,12 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 	{
 		if (result->second(window, argumentsText))
 		{
-			// Exits the minibuffer
-			exitMinibuffer();
+			exitMiniBuffer();
 		}
 	}
 	else
 	{
-		Frame::minibufferFrame->currentBuffer->data[0] = "Error: Unknown command";
-		exitMinibuffer();
+		writeToMiniBuffer("Error: Unknown command");
+		exitMiniBuffer();
 	}
 }
