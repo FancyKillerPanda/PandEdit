@@ -28,7 +28,8 @@ private:
 	static std::unordered_map<std::string, Frame*> framesMap;
 
 public:
-	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, BufferType type = BufferType::Text, bool isActive = false);
+	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, bool isActive = false);
+	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, BufferType type, std::string bufferName, bool isActive = false);
 	~Frame();
 	Frame(const Frame&) = delete;
 	Frame& operator=(const Frame&) = delete;
@@ -38,6 +39,9 @@ public:
 	static Frame* get(const std::string& name);
 	
 	void makeActive();
+
+private:
+	void init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, bool isActive = false);
 };
 
 #endif

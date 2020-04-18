@@ -7,14 +7,13 @@ out vec4 outColour;
 uniform vec2 resolution;
 uniform vec4 rectangleDimensions;
 uniform float borderWidth;
-// uniform vec4 colour;
+uniform vec4 colour;
 
 void main()
 {
 	if (borderWidth == 0.0)
 	{
-//		outColour = colour;
-		outColour = vec4(1.0, 1.0, 1.0, 1.0);
+		outColour = colour;
 	}
 	else
 	{
@@ -29,7 +28,6 @@ void main()
 			visible = 1.0;
 		}
 
-//		outColour = colour * vec4(visible);
-		outColour = vec4(1.0, 1.0, 1.0, 1.0) * vec4(visible);
+		outColour = colour * vec4(visible);
 	}
 }

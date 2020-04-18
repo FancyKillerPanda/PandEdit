@@ -3,8 +3,8 @@
 #include "buffer.hpp"
 #include "frame.hpp"
 
-Buffer::Buffer(BufferType type)
-	: type(type)
+Buffer::Buffer(BufferType type, std::string name)
+	: type(type), name(name)
 {
 	// Makes sure there's at least one line in the buffer
 	data.emplace_back();

@@ -7,15 +7,27 @@ Frame* Frame::previousFrame = nullptr;
 Frame* Frame::minibufferFrame = nullptr;
 std::unordered_map<std::string, Frame*> Frame::framesMap;
 
-Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, BufferType type, bool isActive)
-	: name(name), x(x), y(y), width(width), height(height)
+Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
 {
-	framesMap.insert({ name, this });
+	init(name, x, y, width, height, buffer, isActive);
+}
 
-	if (!buffer)
-	{
-		currentBuffer = new Buffer { type };
-	}
+Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, BufferType type, std::string bufferName, bool isActive)
+{
+	Buffer* buffer = new Buffer { type, bufferName };
+	init(name, x, y, width, height, buffer, isActive);
+}
+
+void Frame::init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
+{
+	this->name = name;
+	this->x = x;
+	this->y = y;
+	this->width = width;
+	this->height = height;
+	this->currentBuffer = buffer;
+
+	framesMap.insert({ name, this });
 
 	if (isActive)
 	{
@@ -46,6 +58,17 @@ Frame::Frame(Frame&& other)
 	framesMap[name] = this;
 	other.name = "";
 
+	if (&other == Frame::currentFrame)
+	{
+		Frame::currentFrame = this;
+	}
+
+	// TODO(fkp): Should this be an else if?
+	if (&other == Frame::previousFrame)
+	{
+		Frame::previousFrame = this;
+	}
+	
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
 		minibufferFrame = this;
@@ -65,6 +88,17 @@ Frame& Frame::operator=(Frame&& other)
 		height = other.height;
 		currentBuffer = other.currentBuffer;
 
+		if (&other == Frame::currentFrame)
+		{
+			Frame::currentFrame = this;
+		}
+
+		// TODO(fkp): Should this be an else if?
+		if (&other == Frame::previousFrame)
+		{
+			Frame::previousFrame = this;
+		}
+	
 		if (currentBuffer->type == BufferType::MiniBuffer)
 		{
 			minibufferFrame = this;

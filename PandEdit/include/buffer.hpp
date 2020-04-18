@@ -16,6 +16,7 @@ class Buffer
 {
 public:
 	BufferType type;
+	std::string name;
 	
 	std::vector<std::string> data;
 	
@@ -27,7 +28,7 @@ public:
 	unsigned int pointFlashFrameCounter = 0;
 
 public:
-	Buffer(BufferType type);
+	Buffer(BufferType type, std::string name);
 
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();
