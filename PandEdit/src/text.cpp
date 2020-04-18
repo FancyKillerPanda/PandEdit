@@ -60,7 +60,7 @@ Font::Font(std::string name, const char* path, unsigned int size)
 			currentHeight = 0;
 		}
 
-		currentWidth += glyph->bitmap.width;
+		currentWidth += glyph->bitmap.width + 1;
 		if (glyph->bitmap.rows > currentHeight) currentHeight = glyph->bitmap.rows;
 		if (glyph->bitmap_top > (int) maxGlyphBearingY) maxGlyphBearingY = glyph->bitmap_top;
 

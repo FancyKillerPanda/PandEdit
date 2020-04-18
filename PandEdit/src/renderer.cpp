@@ -97,7 +97,7 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-void Renderer::drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth)
+void Renderer::drawText(const std::string& text, int messageLength, float x, float y, float wrapWidth)
 {
 	if (!currentFont)
 	{

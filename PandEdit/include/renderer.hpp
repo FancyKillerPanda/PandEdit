@@ -35,7 +35,7 @@ public:
 	
 	void drawRect(float x, float y, float width, float height);
 	void drawHollowRect(float x, float y, float width, float height, float borderWidth);
-	void drawText(const std::string& text, unsigned int messageLength, float x, float y, float wrapWidth = 0.0f);
+	void drawText(const std::string& text, int messageLength, float x, float y, float wrapWidth = 0.0f);
 	void drawFrame(Frame& frame);
 };
 
