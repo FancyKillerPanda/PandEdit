@@ -267,6 +267,12 @@ void Window::setFont(Font* font)
 	mainFrame->height = height - renderer->currentFont->size;
 }
 
+void Window::splitCurrentFrameVertically()
+{
+	Frame* rightSideFrame = Frame::currentFrame->splitVertically();
+	frames.push_back(std::move(*rightSideFrame));
+}
+
 //
 // Internal window creation stuff
 //

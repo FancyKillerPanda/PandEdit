@@ -46,6 +46,7 @@ public:
 	static Frame* get(const std::string& name);
 	
 	void makeActive();
+	Frame* splitVertically();
 
 private:
 	void init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, bool isActive = false);

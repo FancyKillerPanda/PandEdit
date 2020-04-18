@@ -40,6 +40,7 @@ public:
 
 	void draw();
 	void setFont(Font* font);
+	void splitCurrentFrameVertically();
 
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);

@@ -139,3 +139,17 @@ void Frame::makeActive()
 		currentFrame = this;
 	}
 }
+
+Frame* Frame::splitVertically()
+{
+	realWidth /= 2;
+	width = realWidth - FRAME_BORDER_WIDTH;
+
+	std::string newFrameName = name + "_SplitRight";
+	int newFrameX = realWidth;
+	int newFrameY = y;
+	unsigned int newFrameWidth = realWidth;
+	unsigned int newFrameHeight = height;
+
+	return new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+}

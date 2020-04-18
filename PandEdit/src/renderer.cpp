@@ -109,7 +109,7 @@ void Renderer::drawText(const std::string& text, unsigned int messageLength, flo
 			return;
 		}
 	}
-	
+
 	glUseProgram(textureShader.programID);
 
 	// TODO(fkp): Set if not set
@@ -160,7 +160,7 @@ void Renderer::drawText(const std::string& text, unsigned int messageLength, flo
 
 		// Next line
 		if (currentChar == '\n' ||
-			(wrapWidth != 0.0f && x + font.chars[currentChar].advanceX > wrapWidth))
+			(wrapWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + wrapWidth))
 		{
 			x = startX;
 			y += font.size;
@@ -249,13 +249,13 @@ void Renderer::drawFrame(Frame& frame)
 	//
 	// Text
 	//
-	
+
 	glUseProgram(textureShader.programID);
 	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-	
+
 	Buffer& buffer = *frame.currentBuffer;
 	int y = frame.y;
-	
+
 	for (const std::string& line : buffer.data)
 	{
 		drawText(line, -1, frame.x, y, frame.width);
@@ -265,7 +265,7 @@ void Renderer::drawFrame(Frame& frame)
 	//
 	// Point
 	//
-	
+
 	float pointX = frame.x;
 	float pointY = frame.y + (buffer.line * currentFont->size);
 	float pointWidth;
@@ -285,8 +285,8 @@ void Renderer::drawFrame(Frame& frame)
 	{
 		pointWidth = currentFont->chars[buffer.data[buffer.line][buffer.col]].advanceX;
 	}
-	
-	glUseProgram(shapeShader.programID);			
+
+	glUseProgram(shapeShader.programID);
 	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (&frame == Frame::currentFrame)
@@ -313,7 +313,7 @@ void Renderer::drawFrame(Frame& frame)
 	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.3f, 1.0f);
 
 	drawRect(frame.realX, frame.y, FRAME_BORDER_WIDTH, frame.height);
-	drawRect(frame.realWidth - FRAME_BORDER_WIDTH, frame.y, FRAME_BORDER_WIDTH, frame.height);
+	drawRect(frame.realX + frame.realWidth - FRAME_BORDER_WIDTH, frame.y, FRAME_BORDER_WIDTH, frame.height);
 
 	//
 	// Mode line
@@ -322,7 +322,7 @@ void Renderer::drawFrame(Frame& frame)
 	if (buffer.type != BufferType::MiniBuffer)
 	{
 		glUseProgram(shapeShader.programID);
-		
+
 		if (&frame == Frame::currentFrame)
 		{
 			glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -334,7 +334,7 @@ void Renderer::drawFrame(Frame& frame)
 
 		drawRect(frame.realX, frame.y + frame.height - currentFont->size, frame.realWidth, currentFont->size);
 		glUseProgram(textureShader.programID);
-		
+
 		if (&frame == Frame::currentFrame)
 		{
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 0.2f, 0.2f, 0.2f, 1.0f);
@@ -350,7 +350,7 @@ void Renderer::drawFrame(Frame& frame)
 		modeLineText += ", COL: ";
 		modeLineText += std::to_string(buffer.col);
 		modeLineText += ")";
-		
-		drawText(modeLineText, modeLineText.size(), frame.realX, frame.y + frame.height - currentFont->size, frame.realWidth);
+
+		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width);
 	}
 }
