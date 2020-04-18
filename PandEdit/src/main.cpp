@@ -45,8 +45,6 @@ int main(int argc, char* argv[])
 	Font consolasFont("consolas", "res/consola.ttf", 24);
 	window.setFont(&consolasFont);
 
-	window.splitCurrentFrameVertically();
-
 	while (window.isOpen)
 	{
 		MSG message;

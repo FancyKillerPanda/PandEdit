@@ -6,13 +6,15 @@
 #include <unordered_map>
 #include <string>
 
+class Window;
+
 class Commands
 {
 public:
-	static std::unordered_map<std::string, bool (*)(const std::string& text)> commandsMap;
+	static std::unordered_map<std::string, bool (*)(Window&, const std::string&)> commandsMap;
 
 public:
-	static void executeCommand(const std::string& commandText);
+	static void executeCommand(Window& window, const std::string& commandText);
 };
 
 #endif

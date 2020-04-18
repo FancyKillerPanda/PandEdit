@@ -2,10 +2,20 @@
 
 #include "commands.hpp"
 #include "frame.hpp"
+#include "window.hpp"
 
 // TODO(fkp): Write to minibuffer function
 
-#define DEFINE_COMMAND(name) bool name(const std::string& text)
+void exitMinibuffer()
+{
+	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
+	{
+		Frame::minibufferFrame->currentBuffer->col = 0; // Just to be safe
+		Frame::previousFrame->makeActive();
+	}
+}
+
+#define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
 
 DEFINE_COMMAND(echo_Command)
 {
@@ -22,11 +32,20 @@ DEFINE_COMMAND(echo_Command)
 	return true;
 }
 
-std::unordered_map<std::string, bool (*)(const std::string& text)> Commands::commandsMap = {
+DEFINE_COMMAND(frameSplitVertically_Command)
+{
+	exitMinibuffer();
+	window.splitCurrentFrameVertically();
+	
+	return true;
+}
+
+std::unordered_map<std::string, bool (*)(Window&, const std::string& text)> Commands::commandsMap = {
 	{ "echo", echo_Command },
+	{ "frameSplitVertically", frameSplitVertically_Command },
 };
 
-void Commands::executeCommand(const std::string& commandText)
+void Commands::executeCommand(Window& window, const std::string& commandText)
 {
 	std::string commandName = commandText.substr(0, commandText.find(' '));
 	std::string argumentsText = "";
@@ -46,17 +65,15 @@ void Commands::executeCommand(const std::string& commandText)
 
 	if (result != commandsMap.end())
 	{
-		if (result->second(argumentsText))
+		if (result->second(window, argumentsText))
 		{
 			// Exits the minibuffer
-			Frame::minibufferFrame->currentBuffer->col = 0; // Just to be safe
-			Frame::previousFrame->makeActive();
+			exitMinibuffer();
 		}
 	}
 	else
 	{
 		Frame::minibufferFrame->currentBuffer->data[0] = "Error: Unknown command";
-		Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
-		Frame::previousFrame->makeActive();		
+		exitMinibuffer();
 	}
 }
