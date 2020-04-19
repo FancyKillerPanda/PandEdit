@@ -32,6 +32,7 @@ set(HEADERS
 	buffer.hpp
 	commands.hpp
 	keymap.hpp
+	default_key_bindings.hpp
 )
 set(SOURCES
 	main.cpp

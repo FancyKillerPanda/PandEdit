@@ -95,9 +95,9 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 		KeyMap::registerKeyPress(*window, KeyMap::convertWin32CodeToKey(wParam));
 		
-		/*
 		switch (wParam)
 		{
+		// NOTE(fkp): This is just for debugging
 		case '1':
 		{
 			if (IS_KEY_PRESSED(VK_CONTROL))
@@ -112,56 +112,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				}
 			}
 		} break;
-
-		case 'G':
-		{
-			if (IS_KEY_PRESSED(VK_CONTROL))
-			{
-				if (buffer.type == BufferType::MiniBuffer)
-				{
-					buffer.data[0] = "Quit";
-					buffer.col = buffer.data[0].size();
-
-					Frame::previousFrame->makeActive();
-				}
-			}
-		} break;
-
-		case 'X':
-		{
-			if (IS_KEY_PRESSED(VK_MENU))
-			{
-				Frame::minibufferFrame->makeActive();
-
-				Frame::minibufferFrame->currentBuffer->data[0] = "Execute: ";
-				Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
-			}
-		} break;
-
-		case VK_BACK:
-		{
-			unsigned int numToMove = 1;
-
-			if (IS_KEY_PRESSED(VK_CONTROL))
-			{
-				numToMove = buffer.findWordBoundaryLeft();
-			}
-
-			buffer.backspaceChar(numToMove);
-		} break;
-
-		case VK_DELETE:
-		{
-			unsigned int numToMove = 1;
-
-			if (IS_KEY_PRESSED(VK_CONTROL))
-			{
-				numToMove = buffer.findWordBoundaryRight();
-			}
-
-			buffer.deleteChar(numToMove);
-		} break;
-
+		
 		case VK_RETURN:
 		{
 			if (buffer.type == BufferType::MiniBuffer)
@@ -181,52 +132,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				buffer.newLine();
 			}
 		} break;
-
-		case VK_LEFT:
-		{
-			unsigned int numToMove = 1;
-
-			if (IS_KEY_PRESSED(VK_CONTROL))
-			{
-				numToMove = buffer.findWordBoundaryLeft();
-			}
-
-			buffer.movePointLeft(numToMove);
-		} break;
-
-		case VK_RIGHT:
-		{
-			unsigned int numToMove = 1;
-
-			if (IS_KEY_PRESSED(VK_CONTROL))
-			{
-				numToMove = buffer.findWordBoundaryRight();
-			}
-
-			buffer.movePointRight(numToMove);
-		} break;
-
-		case VK_UP:
-		{
-			buffer.movePointUp();
-		} break;
-
-		case VK_DOWN:
-		{
-			buffer.movePointDown();
-		} break;
-
-		case VK_HOME:
-		{
-			buffer.movePointHome();
-		} break;
-
-		case VK_END:
-		{
-			buffer.movePointEnd();
-		} break;
 		}
-		*/
 	} return 0;
 
 	case WM_KEYUP:

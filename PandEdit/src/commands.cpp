@@ -6,13 +6,13 @@
 
 // TODO(fkp): Write to minibuffer function
 
-void writeToMiniBuffer(std::string message)
+void writeToMinibuffer(std::string message)
 {
 	Frame::minibufferFrame->currentBuffer->data[0] = message;
 	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
 }
 
-void exitMiniBuffer()
+void exitMinibuffer()
 {
 	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
 	{
@@ -21,66 +21,37 @@ void exitMiniBuffer()
 	}
 }
 
-void exitMiniBuffer(std::string message)
+void exitMinibuffer(std::string message)
 {
-	writeToMiniBuffer(message);
-	exitMiniBuffer();
+	writeToMinibuffer(message);
+	exitMinibuffer();
 }
 
-#define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
-
-DEFINE_COMMAND(echo_Command)
-{
-	if (text == "")
-	{
-		writeToMiniBuffer("Error: Nothing to echo");
-	}
-	else
-	{
-		writeToMiniBuffer(text);
-	}
-	
-	return true;
-}
-
-DEFINE_COMMAND(frameSplitVertically_Command)
-{
-	exitMiniBuffer();
-	window.splitCurrentFrameVertically();
-	
-	return true;
-}
-
-DEFINE_COMMAND(frameSplitHorizontally_Command)
-{
-	exitMiniBuffer();
-	window.splitCurrentFrameHorizontally();
-	
-	return true;
-}
-
-DEFINE_COMMAND(frameMoveNext_Command)
-{
-	exitMiniBuffer();
-	window.moveToNextFrame();
-	
-	return true;	
-}
-
-DEFINE_COMMAND(frameMovePrevious_Command)
-{
-	exitMiniBuffer();
-	window.moveToNextFrame(false);
-	
-	return true;	
-}
+#include "commands_definitions.inl"
 
 std::unordered_map<std::string, bool (*)(Window&, const std::string& text)> Commands::commandsMap = {
-	{ "echo", echo_Command },
-	{ "frameSplitVertically", frameSplitVertically_Command },
-	{ "frameSplitHorizontally", frameSplitHorizontally_Command },
-	{ "frameMoveNext", frameMoveNext_Command },
-	{ "frameMovePrevious", frameMovePrevious_Command },
+	{ "echo", echo },
+	{ "minibufferEnter", minibufferEnter },
+	{ "minibufferQuit", minibufferQuit },
+	
+	{ "frameSplitVertically", frameSplitVertically },
+	{ "frameSplitHorizontally", frameSplitHorizontally },
+	{ "frameMoveNext", frameMoveNext },
+	{ "frameMovePrevious", frameMovePrevious },
+
+	{ "backspaceChar", backspaceChar },
+	{ "deleteChar", deleteChar },
+	{ "backspaceWord", backspaceWord },
+	{ "deleteWord", deleteWord },
+	
+	{ "movePointLeftChar", movePointLeftChar },
+	{ "movePointRightChar", movePointRightChar },
+	{ "movePointLeftWord", movePointLeftWord },
+	{ "movePointRightWord", movePointRightWord },
+	{ "movePointLineUp", movePointLineUp },
+	{ "movePointLineDown", movePointLineDown },
+	{ "movePointHome", movePointHome },
+	{ "movePointEnd", movePointEnd },
 };
 
 void Commands::executeCommand(Window& window, const std::string& commandText)
@@ -105,11 +76,11 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 	{
 		if (result->second(window, argumentsText))
 		{
-			exitMiniBuffer();
+			exitMinibuffer();
 		}
 	}
 	else
 	{
-		exitMiniBuffer("Error: Unknown command");
+		exitMinibuffer("Error: Unknown command");
 	}
 }

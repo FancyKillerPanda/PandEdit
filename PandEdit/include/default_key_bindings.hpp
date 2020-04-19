@@ -10,8 +10,27 @@ void mapDefaultKeyBindings()
 	// NOTE(fkp): KeyCombo constructor is in the order:
 	// Key, Control, Shift, Alt, Windows
 	
-	KeyMap::bindKey({ Key::Enter, true }, "frameSplitVertically");
-	KeyMap::bindKey({ Key::Enter, true, false, true }, "frameSplitHorizontally");
+	KeyMap::bindKey({ Key::X, false, false, true }, "minibufferEnter");
+	KeyMap::bindKey({ Key::G, true }, "minibufferQuit");
+	
+	KeyMap::bindKey({ Key::_2, true }, "frameSplitVertically"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::_3, true }, "frameSplitHorizontally"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::W, false, false, true }, "frameMoveNext");
+	KeyMap::bindKey({ Key::W, false, true, true }, "frameMovePrevious");
+	
+	KeyMap::bindKey({ Key::Backspace }, "backspaceChar");
+	KeyMap::bindKey({ Key::Delete }, "deleteChar");
+	KeyMap::bindKey({ Key::Backspace, true }, "backspaceWord");
+	KeyMap::bindKey({ Key::Delete, true }, "deleteWord");
+	
+	KeyMap::bindKey({ Key::LeftArrow }, "movePointLeftChar");
+	KeyMap::bindKey({ Key::RightArrow }, "movePointRightChar");
+	KeyMap::bindKey({ Key::LeftArrow, true }, "movePointLeftWord");
+	KeyMap::bindKey({ Key::RightArrow, true }, "movePointRightWord");
+	KeyMap::bindKey({ Key::UpArrow }, "movePointLineUp");
+	KeyMap::bindKey({ Key::DownArrow }, "movePointLineDown");
+	KeyMap::bindKey({ Key::Home }, "movePointHome");
+	KeyMap::bindKey({ Key::End }, "movePointEnd");
 }
 
 #endif
