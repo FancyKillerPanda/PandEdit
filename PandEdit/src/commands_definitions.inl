@@ -2,6 +2,7 @@
 // commands.cpp
 
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
+#define FRAME Frame::currentFrame
 #define BUFFER Frame::currentFrame->currentBuffer
 
 //
@@ -78,25 +79,25 @@ DEFINE_COMMAND(frameMovePrevious)
 
 DEFINE_COMMAND(backspaceChar)
 {
-	BUFFER->backspaceChar(1);
+	BUFFER->backspaceChar(*FRAME, 1);
 	return false;
 }
 
 DEFINE_COMMAND(deleteChar)
 {
-	BUFFER->deleteChar(1);
+	BUFFER->deleteChar(*FRAME, 1);
 	return false;
 }
 
 DEFINE_COMMAND(backspaceWord)
 {
-	BUFFER->backspaceChar(BUFFER->findWordBoundaryLeft());
+	BUFFER->backspaceChar(*FRAME, BUFFER->findWordBoundaryLeft(*FRAME));
 	return false;
 }
 
 DEFINE_COMMAND(deleteWord)
 {
-	BUFFER->deleteChar(BUFFER->findWordBoundaryRight());
+	BUFFER->deleteChar(*FRAME, BUFFER->findWordBoundaryRight(*FRAME));
 	return false;
 }
 
@@ -107,49 +108,49 @@ DEFINE_COMMAND(deleteWord)
 
 DEFINE_COMMAND(movePointLeftChar)
 {
-	BUFFER->movePointLeft(1);
+	BUFFER->movePointLeft(*FRAME, 1);
 	return false;
 }
 
 DEFINE_COMMAND(movePointRightChar)
 {
-	BUFFER->movePointRight(1);
+	BUFFER->movePointRight(*FRAME, 1);
 	return false;
 }
 
 DEFINE_COMMAND(movePointLeftWord)
 {
-	BUFFER->movePointLeft(BUFFER->findWordBoundaryLeft());
+	BUFFER->movePointLeft(*FRAME, BUFFER->findWordBoundaryLeft(*FRAME));
 	return false;
 }
 
 DEFINE_COMMAND(movePointRightWord)
 {
-	BUFFER->movePointLeft(BUFFER->findWordBoundaryRight());
+	BUFFER->movePointLeft(*FRAME, BUFFER->findWordBoundaryRight(*FRAME));
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineUp)
 {
-	BUFFER->movePointUp();
+	BUFFER->movePointUp(*FRAME);
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineDown)
 {
-	BUFFER->movePointDown();
+	BUFFER->movePointDown(*FRAME);
 	return false;
 }
 
 DEFINE_COMMAND(movePointHome)
 {
-	BUFFER->movePointHome();
+	BUFFER->movePointHome(*FRAME);
 	return false;
 }
 
 DEFINE_COMMAND(movePointEnd)
 {
-	BUFFER->movePointEnd();
+	BUFFER->movePointEnd(*FRAME);
 	return false;
 }
 

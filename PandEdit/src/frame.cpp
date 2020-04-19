@@ -29,6 +29,10 @@ void Frame::init(std::string name, int x, int y, unsigned int width, unsigned in
 	this->y = y;
 	this->width = realWidth - FRAME_BORDER_WIDTH;
 	this->height = height;
+
+	line = currentBuffer->lastLine;
+	col = currentBuffer->lastCol;
+	targetCol = currentBuffer->lastTargetCol;
 	
 	framesMap.insert({ name, this });
 
@@ -57,7 +61,8 @@ Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
 	  realX(other.realX), realWidth(other.realWidth),
 	  x(other.x), y(other.y), width(other.width), height(other.height),
-	  currentBuffer(other.currentBuffer)
+	  currentBuffer(other.currentBuffer),
+	  line(other.line), col(other.col), targetCol(other.targetCol)
 {
 	framesMap[name] = this;
 	other.name = "";
@@ -93,6 +98,9 @@ Frame& Frame::operator=(Frame&& other)
 		width = other.width;
 		height = other.height;
 		currentBuffer = other.currentBuffer;
+		line = other.line;
+		col = other.col;
+		targetCol = other.targetCol;
 
 		if (&other == Frame::currentFrame)
 		{
@@ -151,7 +159,13 @@ Frame* Frame::splitVertically()
 	unsigned int newFrameWidth = realWidth;
 	unsigned int newFrameHeight = height;
 
-	return new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+	Frame* result = new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+
+	result->line = line;
+	result->col = col;
+	result->targetCol = targetCol;
+
+	return result;
 }
 
 Frame* Frame::splitHorizontally()
@@ -164,5 +178,11 @@ Frame* Frame::splitHorizontally()
 	unsigned int newFrameWidth = realWidth;
 	unsigned int newFrameHeight = height;
 
-	return new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+	Frame* result =  new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+	
+	result->line = line;
+	result->col = col;
+	result->targetCol = targetCol;
+
+	return result;
 }

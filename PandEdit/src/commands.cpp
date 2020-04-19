@@ -9,14 +9,14 @@
 void writeToMinibuffer(std::string message)
 {
 	Frame::minibufferFrame->currentBuffer->data[0] = message;
-	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
+	Frame::minibufferFrame->col = Frame::minibufferFrame->currentBuffer->data[0].size();
 }
 
 void exitMinibuffer()
 {
 	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
 	{
-		Frame::minibufferFrame->currentBuffer->col = 0; // Just to be safe
+		Frame::minibufferFrame->col = 0; // Just to be safe
 		Frame::previousFrame->makeActive();
 	}
 }

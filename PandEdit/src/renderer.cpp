@@ -288,23 +288,23 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = frame.x;
-	float pointY = frame.y + (buffer.line * currentFont->size);
+	float pointY = frame.y + (frame.line * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 
-	for (unsigned int i = 0; i < buffer.col; i++)
+	for (unsigned int i = 0; i < frame.col; i++)
 	{
-		const Character& character = currentFont->chars[buffer.data[buffer.line][i]];
+		const Character& character = currentFont->chars[buffer.data[frame.line][i]];
 		pointX += character.advanceX;
 	}
 
-	if (buffer.col == buffer.data[buffer.line].size())
+	if (frame.col == buffer.data[frame.line].size())
 	{
 		pointWidth = (float) currentFont->maxGlyphAdvanceX;
 	}
 	else
 	{
-		pointWidth = currentFont->chars[buffer.data[buffer.line][buffer.col]].advanceX;
+		pointWidth = currentFont->chars[buffer.data[frame.line][frame.col]].advanceX;
 	}
 
 	glUseProgram(shapeShader.programID);
@@ -367,9 +367,9 @@ void Renderer::drawFrame(Frame& frame)
 
 		std::string modeLineText = buffer.name;
 		modeLineText += " (LINE: ";
-		modeLineText += std::to_string(buffer.line + 1);
+		modeLineText += std::to_string(frame.line + 1);
 		modeLineText += ", COL: ";
-		modeLineText += std::to_string(buffer.col);
+		modeLineText += std::to_string(frame.col);
 		modeLineText += ")";
 
 		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width, false);

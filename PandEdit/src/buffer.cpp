@@ -17,11 +17,11 @@ void Buffer::doCommonPointManipulationTasks()
 	if (type != BufferType::MiniBuffer)
 	{
 		Frame::minibufferFrame->currentBuffer->data[0] = "";
-		Frame::minibufferFrame->currentBuffer->col = 0;
+		Frame::minibufferFrame->col = 0;
 	}
 }
 
-void Buffer::movePointLeft(unsigned int num)
+void Buffer::movePointLeft(Frame& frame, unsigned int num)
 {
 	doCommonPointManipulationTasks();
 
@@ -29,31 +29,31 @@ void Buffer::movePointLeft(unsigned int num)
 	
 	for (int i = 0; i < num; i++)
 	{
-		if (col > 0)
+		if (frame.col > 0)
 		{
 			if (type == BufferType::MiniBuffer &&
-				col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+				frame.col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
 			{
 				// Should not be able to move into the 'Execute: ' part
 				break;
 			}
 			
-			col -= 1;
+			frame.col -= 1;
 		}
 		else
 		{
-			if (line > 0)
+			if (frame.line > 0)
 			{
-				line -= 1;
-				col = data[line].size();
+				frame.line -= 1;
+				frame.col = data[frame.line].size();
 			}
 		}
 	}
 
-	targetCol = col;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::movePointRight(unsigned int num)
+void Buffer::movePointRight(Frame& frame, unsigned int num)
 {
 	doCommonPointManipulationTasks();
 
@@ -61,80 +61,80 @@ void Buffer::movePointRight(unsigned int num)
 	
 	for (int i = 0; i < num; i++)
 	{
-		if (col < data[line].size())
+		if (frame.col < data[frame.line].size())
 		{
-			col += 1;
+			frame.col += 1;
 		}
 		else
 		{
-			if (line < data.size() - 1)
+			if (frame.line < data.size() - 1)
 			{
-				line += 1;
-				col = 0;
+				frame.line += 1;
+				frame.col = 0;
 			}
 		}
 	}
 
-	targetCol = col;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::movePointUp()
+void Buffer::movePointUp(Frame& frame)
 {
 	doCommonPointManipulationTasks();
 	
-	if (line > 0)
+	if (frame.line > 0)
 	{
-		line -= 1;
-		moveColToTarget();
+		frame.line -= 1;
+		moveColToTarget(frame);
 	}
 }
 
-void Buffer::movePointDown()
+void Buffer::movePointDown(Frame& frame)
 {
 	doCommonPointManipulationTasks();
 
-	if (line < data.size() - 1)
+	if (frame.line < data.size() - 1)
 	{
-		line += 1;
-		moveColToTarget();
+		frame.line += 1;
+		moveColToTarget(frame);
 	}
 }
 
-void Buffer::movePointHome()
+void Buffer::movePointHome(Frame& frame)
 {
 	doCommonPointManipulationTasks();	
 
 	if (type == BufferType::MiniBuffer)
 	{
 		// Should move to after the 'Execute: ' part
-		col = Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1;
+		frame.col = Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1;
 	}
 	else
 	{
-		col = 0;
+		frame.col = 0;
 	}
 	
-	targetCol = col;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::movePointEnd()
+void Buffer::movePointEnd(Frame& frame)
 {
 	doCommonPointManipulationTasks();	
 
-	col = data[line].size();
-	targetCol = col;
+	frame.col = data[frame.line].size();
+	frame.targetCol = frame.col;
 }
 
-void Buffer::insertChar(char character)
+void Buffer::insertChar(Frame& frame, char character)
 {
 	doCommonPointManipulationTasks();
 
-	data[line].insert(data[line].begin() + col, character);
-	col += 1;
-	targetCol = col;
+	data[frame.line].insert(data[frame.line].begin() + frame.col, character);
+	frame.col += 1;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::backspaceChar(unsigned int num)
+void Buffer::backspaceChar(Frame& frame, unsigned int num)
 {
 	doCommonPointManipulationTasks();
 
@@ -142,35 +142,35 @@ void Buffer::backspaceChar(unsigned int num)
 	
 	for (int i = 0; i < num; i++)
 	{
-		if (col > 0)
+		if (frame.col > 0)
 		{
 			if (type == BufferType::MiniBuffer &&
-				col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+				frame.col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
 			{
 				// Should not be able to backspace into the 'Execute: ' part
 				break;
 			}
 			
-			col -= 1;
-			data[line].erase(col, 1);
+			frame.col -= 1;
+			data[frame.line].erase(frame.col, 1);
 		}
 		else
 		{
-			if (line > 0)
+			if (frame.line > 0)
 			{
-				line -= 1;
-				col = data[line].size();
+				frame.line -= 1;
+				frame.col = data[frame.line].size();
 
-				data[line] += data[line + 1];
-				data.erase(data.begin() + line + 1);
+				data[frame.line] += data[frame.line + 1];
+				data.erase(data.begin() + frame.line + 1);
 			}
 		}
 	}
 	
-	targetCol = col;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::deleteChar(unsigned int num)
+void Buffer::deleteChar(Frame& frame, unsigned int num)
 {
 	doCommonPointManipulationTasks();
 	
@@ -178,46 +178,46 @@ void Buffer::deleteChar(unsigned int num)
 	
 	for (int i = 0; i < num; i++)
 	{
-		if (col < data[line].size())
+		if (frame.col < data[frame.line].size())
 		{
-			data[line].erase(col, 1);
+			data[frame.line].erase(frame.col, 1);
 		}
 		else
 		{
-			if (line < data.size() - 1)
+			if (frame.line < data.size() - 1)
 			{
-				data[line] += data[line + 1];
-				data.erase(data.begin() + line + 1);
+				data[frame.line] += data[frame.line + 1];
+				data.erase(data.begin() + frame.line + 1);
 			}
 		}
 	}
 	
-	targetCol = col;
+	frame.targetCol = frame.col;
 }
 
-void Buffer::newLine()
+void Buffer::newLine(Frame& frame)
 {
 	doCommonPointManipulationTasks();
 	
-	std::string restOfLine { data[line].begin() + col, data[line].end() };
-	data[line].erase(data[line].begin() + col, data[line].end());
+	std::string restOfLine { data[frame.line].begin() + frame.col, data[frame.line].end() };
+	data[frame.line].erase(data[frame.line].begin() + frame.col, data[frame.line].end());
 	
-	line += 1;
-	col = 0;
-	targetCol = col;
+	frame.line += 1;
+	frame.col = 0;
+	frame.targetCol = frame.col;
 
-	data.insert(data.begin() + line, restOfLine);
+	data.insert(data.begin() + frame.line, restOfLine);
 }
 
-unsigned int Buffer::findWordBoundaryLeft()
+unsigned int Buffer::findWordBoundaryLeft(Frame& frame)
 {
 	unsigned int numberOfChars = 0;
 
-	while (col - numberOfChars > 0)
+	while (frame.col - numberOfChars > 0)
 	{
 		// Stops at space, only if not the first character
 		if (numberOfChars != 0 &&
-			data[line][col - numberOfChars - 1] == ' ')
+			data[frame.line][frame.col - numberOfChars - 1] == ' ')
 		{
 			break;
 		}
@@ -228,15 +228,15 @@ unsigned int Buffer::findWordBoundaryLeft()
 	return numberOfChars;
 }
 
-unsigned int Buffer::findWordBoundaryRight()
+unsigned int Buffer::findWordBoundaryRight(Frame& frame)
 {
 	unsigned int numberOfChars = 0;
 
-	while (col + numberOfChars < data[line].size())
+	while (frame.col + numberOfChars < data[frame.line].size())
 	{
 		// Stops at space, only if not the first character
 		if (numberOfChars != 0 &&
-			data[line][col + numberOfChars] == ' ')
+			data[frame.line][frame.col + numberOfChars] == ' ')
 		{
 			break;
 		}
@@ -247,21 +247,21 @@ unsigned int Buffer::findWordBoundaryRight()
 	return numberOfChars;
 }
 
-void Buffer::moveColToTarget()
+void Buffer::moveColToTarget(Frame& frame)
 {
-	if (col > data[line].size())
+	if (frame.col > data[frame.line].size())
 	{
-		col = data[line].size();
+		frame.col = data[frame.line].size();
 	}
 	else
 	{
-		if (targetCol > data[line].size())
+		if (frame.targetCol > data[frame.line].size())
 		{
-			col = data[line].size();
+			frame.col = data[frame.line].size();
 		}
 		else
 		{
-			col = targetCol;
+			frame.col = frame.targetCol;
 		}
 	}
 }

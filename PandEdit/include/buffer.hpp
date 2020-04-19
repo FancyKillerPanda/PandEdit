@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+class Frame;
+
 enum class BufferType
 {
 	MiniBuffer,
@@ -20,9 +22,11 @@ public:
 	
 	std::vector<std::string> data;
 	
-	unsigned int line = 0;
-	unsigned int col = 0;
-	unsigned int targetCol = 0;
+	// The frame will take a copy of this when opened, and the last
+	// frame to close this buffer will write its values in.
+	unsigned int lastLine = 0;
+	unsigned int lastCol = 0;
+	unsigned int lastTargetCol = 0;
 
 	// TODO(fkp): Make this a timer
 	unsigned int pointFlashFrameCounter = 0;
@@ -34,24 +38,24 @@ public:
 	void doCommonPointManipulationTasks();
 	
 	// Movement of the point
-	void movePointLeft(unsigned int num = 1);
-	void movePointRight(unsigned int num = 1);
-	void movePointUp();
-	void movePointDown();
-	void movePointHome();
-	void movePointEnd();
+	void movePointLeft(Frame& frame, unsigned int num = 1);
+	void movePointRight(Frame& frame, unsigned int num = 1);
+	void movePointUp(Frame& frame);
+	void movePointDown(Frame& frame);
+	void movePointHome(Frame& frame);
+	void movePointEnd(Frame& frame);
 	
 	// Manipulations at the point
-	void insertChar(char character);
-	void backspaceChar(unsigned int num = 1);
-	void deleteChar(unsigned int num = 1);
-	void newLine();
+	void insertChar(Frame& frame, char character);
+	void backspaceChar(Frame& frame, unsigned int num = 1);
+	void deleteChar(Frame& frame, unsigned int num = 1);
+	void newLine(Frame& frame);
 
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries
-	unsigned int findWordBoundaryLeft();
-	unsigned int findWordBoundaryRight();
-	void moveColToTarget();
+	unsigned int findWordBoundaryLeft(Frame& frame);
+	unsigned int findWordBoundaryRight(Frame& frame);
+	void moveColToTarget(Frame& frame);
 };
 
 #endif

@@ -30,6 +30,9 @@ public:
 	unsigned int realWidth;
 	
 	Buffer* currentBuffer = nullptr;
+	unsigned int line = 0;
+	unsigned int col = 0;
+	unsigned int targetCol = 0;
 
 private:
 	static std::unordered_map<std::string, Frame*> framesMap;

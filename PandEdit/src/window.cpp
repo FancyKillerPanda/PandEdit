@@ -129,7 +129,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			}
 			else
 			{
-				buffer.newLine();
+				buffer.newLine(*Frame::currentFrame);
 			}
 		} break;
 		}
@@ -150,7 +150,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 		if (wParam >= 32 && wParam < 127)
 		{
-			buffer.insertChar((char) wParam);
+			buffer.insertChar(*Frame::currentFrame, (char) wParam);
 		}
 	} return 0;
 
