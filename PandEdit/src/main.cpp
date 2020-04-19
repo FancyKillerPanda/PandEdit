@@ -11,6 +11,7 @@
 #include "shader.hpp"
 #include "renderer.hpp"
 #include "text.hpp"
+#include "default_key_bindings.hpp"
 
 // TODO(fkp): Find somewhere better to put this
 std::string readFile(const char* filename)
@@ -45,6 +46,8 @@ int main(int argc, char* argv[])
 	Font consolasFont("consolas", "res/consola.ttf", 24);
 	window.setFont(&consolasFont);
 
+	mapDefaultKeyBindings();	
+	
 	while (window.isOpen)
 	{
 		MSG message;

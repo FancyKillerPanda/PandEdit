@@ -31,6 +31,7 @@ set(HEADERS
 	frame.hpp
 	buffer.hpp
 	commands.hpp
+	keymap.hpp
 )
 set(SOURCES
 	main.cpp
@@ -42,6 +43,7 @@ set(SOURCES
 	frame.cpp
 	buffer.cpp
 	commands.cpp
+	keymap.cpp
 )
 
 # Prepends directories to the files

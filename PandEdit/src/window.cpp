@@ -14,6 +14,7 @@
 #include "matrix.hpp"
 #include "text.hpp"
 #include "commands.hpp"
+#include "keymap.hpp"
 
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
@@ -92,6 +93,9 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{
+		KeyMap::registerKeyPress(*window, KeyMap::convertWin32CodeToKey(wParam));
+		
+		/*
 		switch (wParam)
 		{
 		case '1':
@@ -222,6 +226,12 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			buffer.movePointEnd();
 		} break;
 		}
+		*/
+	} return 0;
+
+	case WM_KEYUP:
+	{
+		KeyMap::registerKeyRelease(KeyMap::convertWin32CodeToKey(wParam));
 	} return 0;
 
 	case WM_SYSCHAR:

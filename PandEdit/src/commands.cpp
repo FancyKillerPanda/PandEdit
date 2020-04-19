@@ -6,6 +6,12 @@
 
 // TODO(fkp): Write to minibuffer function
 
+void writeToMiniBuffer(std::string message)
+{
+	Frame::minibufferFrame->currentBuffer->data[0] = message;
+	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
+}
+
 void exitMiniBuffer()
 {
 	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
@@ -15,10 +21,10 @@ void exitMiniBuffer()
 	}
 }
 
-void writeToMiniBuffer(std::string message)
+void exitMiniBuffer(std::string message)
 {
-	Frame::minibufferFrame->currentBuffer->data[0] = message;
-	Frame::minibufferFrame->currentBuffer->col = Frame::minibufferFrame->currentBuffer->data[0].size();
+	writeToMiniBuffer(message);
+	exitMiniBuffer();
 }
 
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
@@ -39,7 +45,6 @@ DEFINE_COMMAND(echo_Command)
 
 DEFINE_COMMAND(frameSplitVertically_Command)
 {
-	writeToMiniBuffer("");
 	exitMiniBuffer();
 	window.splitCurrentFrameVertically();
 	
@@ -48,7 +53,6 @@ DEFINE_COMMAND(frameSplitVertically_Command)
 
 DEFINE_COMMAND(frameSplitHorizontally_Command)
 {
-	writeToMiniBuffer("");
 	exitMiniBuffer();
 	window.splitCurrentFrameHorizontally();
 	
@@ -57,7 +61,6 @@ DEFINE_COMMAND(frameSplitHorizontally_Command)
 
 DEFINE_COMMAND(frameMoveNext_Command)
 {
-	writeToMiniBuffer("");
 	exitMiniBuffer();
 	window.moveToNextFrame();
 	
@@ -66,7 +69,6 @@ DEFINE_COMMAND(frameMoveNext_Command)
 
 DEFINE_COMMAND(frameMovePrevious_Command)
 {
-	writeToMiniBuffer("");
 	exitMiniBuffer();
 	window.moveToNextFrame(false);
 	
@@ -108,7 +110,6 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 	}
 	else
 	{
-		writeToMiniBuffer("Error: Unknown command");
-		exitMiniBuffer();
+		exitMiniBuffer("Error: Unknown command");
 	}
 }
