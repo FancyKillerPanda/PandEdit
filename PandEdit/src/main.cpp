@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Font arialFont("arial", "res/arial.ttf", 24);
+	Font arialFont("arial", "res/arial.ttf", 30);
 	Font consolasFont("consolas", "res/consola.ttf", 24);
 	window.setFont(&consolasFont);
 

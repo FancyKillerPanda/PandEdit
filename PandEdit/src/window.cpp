@@ -19,7 +19,9 @@
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
 Window::Window(unsigned int width, unsigned int height, const char* title)
-	: isOpen(false), width(width), height(height), title(title), renderer(nullptr)
+	: isOpen(false),
+	  width(width), height(height),
+	  title(title), renderer(nullptr)
 {
 	if (registerWindowClass() &&
 		createDummyWindow() &&
@@ -30,11 +32,11 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		isOpen = true;
 		windowsMap.insert({ windowHandle, this });
 
-		Matrix4 projection = Matrix4::ortho(0, 960, 0, 540, -1, 1);
+		Matrix4 projection = Matrix4::ortho(0, width, 0, height, -1, 1);
 		renderer = new Renderer { projection, (float) width, (float) height };
 
-		frames.emplace_back("mainFrame", 0, 0, width, height, BufferType::Text, "*scratch*", true);
-		frames.emplace_back("minibufferFrame", 0, 0, width, 0, BufferType::MiniBuffer, "__minibuffer__", false);
+		frames.emplace_back("mainFrame", Vector4f { 0.0f, 0.0f, 1.0f, 1.0f }, width, height, BufferType::Text, "*scratch*", true);
+		frames.emplace_back("minibufferFrame", Vector4f { 0.0f, 1.0f, 1.0f, 0.0f }, width, height, BufferType::MiniBuffer, "__minibuffer__", false);
 
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -174,13 +176,18 @@ void Window::setFont(Font* font)
 
 	renderer->currentFont = font;
 
+	for (Frame& frame : frames)
+	{
+		frame.updateWindowSize(width, height - renderer->currentFont->size);
+	}
+	
 	// Updates minibuffer size
-	Frame::minibufferFrame->y = height - renderer->currentFont->size;
-	Frame::minibufferFrame->height = renderer->currentFont->size;
+//	Frame::minibufferFrame->y = height - renderer->currentFont->size;
+//	Frame::minibufferFrame->height = renderer->currentFont->size;
 
 	// Update other frame sizes
-	Frame* mainFrame = Frame::get("mainFrame");
-	mainFrame->height = height - renderer->currentFont->size;
+//	Frame* mainFrame = Frame::get("mainFrame");
+//	mainFrame->height = height - renderer->currentFont->size;
 }
 
 void Window::moveToNextFrame(bool moveNext)

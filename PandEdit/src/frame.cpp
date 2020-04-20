@@ -7,29 +7,26 @@ Frame* Frame::previousFrame = nullptr;
 Frame* Frame::minibufferFrame = nullptr;
 std::unordered_map<std::string, Frame*> Frame::framesMap;
 
-Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
+Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
-	init(name, x, y, width, height, buffer, isActive);
+	init(name, dimensions, buffer, isActive);
 }
 
-Frame::Frame(std::string name, int x, int y, unsigned int width, unsigned int height, BufferType type, std::string bufferName, bool isActive)
+Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, BufferType type, std::string bufferName, bool isActive)
+	: windowWidth(windowWidth), windowHeight(windowHeight)
 {
 	Buffer* buffer = new Buffer { type, bufferName };
-	init(name, x, y, width, height, buffer, isActive);
+	init(name, dimensions, buffer, isActive);
 }
 
-void Frame::init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer, bool isActive)
+void Frame::init(std::string name, Vector4f dimensions, Buffer* buffer, bool isActive)
 {
 	this->name = name;
-	this->currentBuffer = buffer;
+	currentBuffer = buffer;
 	
-	this->realX = x;
-	this->realWidth = width;
-	this->x = realX + FRAME_BORDER_WIDTH;
-	this->y = y;
-	this->width = realWidth - FRAME_BORDER_WIDTH;
-	this->height = height;
-
+	// NOTE(fkp): windowWidth and windowHeight initialised in constructors
+	pcDimensions = dimensions;
+	
 	line = currentBuffer->lastLine;
 	col = currentBuffer->lastCol;
 	targetCol = currentBuffer->lastTargetCol;
@@ -59,8 +56,8 @@ Frame::~Frame()
 
 Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
-	  realX(other.realX), realWidth(other.realWidth),
-	  x(other.x), y(other.y), width(other.width), height(other.height),
+	  pcDimensions(std::move(other.pcDimensions)),
+	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
 	  currentBuffer(other.currentBuffer),
 	  line(other.line), col(other.col), targetCol(other.targetCol)
 {
@@ -91,12 +88,11 @@ Frame& Frame::operator=(Frame&& other)
 		framesMap.erase(name);
 
 		name = other.name;
-		realX = other.realX;
-		realWidth = other.realWidth;
-		x = other.x;
-		y = other.y;
-		width = other.width;
-		height = other.height;
+		
+		pcDimensions = other.pcDimensions;
+		windowWidth = other.windowWidth;
+		windowHeight = other.windowHeight;
+		
 		currentBuffer = other.currentBuffer;
 		line = other.line;
 		col = other.col;
@@ -148,18 +144,21 @@ void Frame::makeActive()
 	}
 }
 
+void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight)
+{
+	windowWidth = newWidth;
+	windowHeight = newHeight;
+}
+
 Frame* Frame::splitVertically()
 {
-	realWidth /= 2;
-	width = realWidth - FRAME_BORDER_WIDTH;
+	pcDimensions.width /= 2.0f;
+
+	Vector4f newFrameDimensions = pcDimensions;
+	newFrameDimensions.x += pcDimensions.width;
 
 	std::string newFrameName = name + "_SplitRight";
-	int newFrameX = realX + realWidth;
-	int newFrameY = y;
-	unsigned int newFrameWidth = realWidth;
-	unsigned int newFrameHeight = height;
-
-	Frame* result = new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+	Frame* result = new Frame(newFrameName, pcDimensions, windowWidth, windowHeight, currentBuffer, true);
 
 	result->line = line;
 	result->col = col;
@@ -170,15 +169,13 @@ Frame* Frame::splitVertically()
 
 Frame* Frame::splitHorizontally()
 {
-	height /= 2;
+	pcDimensions.height /= 2.0f;
+
+	Vector4f newFrameDimensions = pcDimensions;
+	newFrameDimensions.y += pcDimensions.height;
 
 	std::string newFrameName = name + "_SplitDown";
-	int newFrameX = realX;
-	int newFrameY = y + height;
-	unsigned int newFrameWidth = realWidth;
-	unsigned int newFrameHeight = height;
-
-	Frame* result =  new Frame(newFrameName, newFrameX, newFrameY, newFrameWidth, newFrameHeight, currentBuffer, true);
+	Frame* result = new Frame(newFrameName, pcDimensions, windowWidth, windowHeight, currentBuffer, true);
 	
 	result->line = line;
 	result->col = col;

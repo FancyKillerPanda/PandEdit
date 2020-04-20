@@ -267,6 +267,20 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 
 void Renderer::drawFrame(Frame& frame)
 {
+	// Pixel dimensions
+	int realFramePixelX = (int) (frame.pcDimensions.x * frame.windowWidth);
+	unsigned int realFramePixelWidth = (unsigned int) (frame.pcDimensions.width * frame.windowWidth);
+	int framePixelX = realFramePixelX + FRAME_BORDER_WIDTH;
+	int framePixelY = (int) (frame.pcDimensions.y * frame.windowHeight);
+	unsigned int framePixelWidth = realFramePixelWidth - FRAME_BORDER_WIDTH;
+	unsigned int framePixelHeight = (unsigned int) (frame.pcDimensions.height * frame.windowHeight);
+
+	if (frame.pcDimensions.y == 1.0f)
+	{
+		// This is the minibuffer
+		framePixelHeight = currentFont->size;
+	}
+	
 	//
 	// Text
 	//
@@ -275,11 +289,11 @@ void Renderer::drawFrame(Frame& frame)
 	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 
 	Buffer& buffer = *frame.currentBuffer;
-	int y = frame.y;
+	int y = framePixelY;
 
 	for (const std::string& line : buffer.data)
 	{
-		drawText(line, -1, frame.x, y, frame.width);
+		drawText(line, -1, framePixelX, y, framePixelWidth);
 		y += currentFont->size;
 	}
 
@@ -287,8 +301,8 @@ void Renderer::drawFrame(Frame& frame)
 	// Point
 	//
 
-	float pointX = frame.x;
-	float pointY = frame.y + (frame.line * currentFont->size);
+	float pointX = framePixelX;
+	float pointY = framePixelY + (frame.line * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 
@@ -333,8 +347,8 @@ void Renderer::drawFrame(Frame& frame)
 	glUseProgram(shapeShader.programID);
 	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.3f, 1.0f);
 
-	drawRect(frame.realX, frame.y, FRAME_BORDER_WIDTH, frame.height);
-	drawRect(frame.realX + frame.realWidth - FRAME_BORDER_WIDTH, frame.y, FRAME_BORDER_WIDTH, frame.height);
+	drawRect(realFramePixelX, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
+	drawRect(realFramePixelX + realFramePixelWidth - FRAME_BORDER_WIDTH, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
 
 	//
 	// Mode line
@@ -353,7 +367,7 @@ void Renderer::drawFrame(Frame& frame)
 			glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.2f, 1.0f);
 		}
 
-		drawRect(frame.realX, frame.y + frame.height - currentFont->size, frame.realWidth, currentFont->size);
+		drawRect(realFramePixelX, framePixelY + framePixelHeight - currentFont->size, realFramePixelWidth, currentFont->size);
 		glUseProgram(textureShader.programID);
 
 		if (&frame == Frame::currentFrame)
@@ -372,6 +386,6 @@ void Renderer::drawFrame(Frame& frame)
 		modeLineText += std::to_string(frame.col);
 		modeLineText += ")";
 
-		drawText(modeLineText, modeLineText.size(), frame.x, frame.y + frame.height - currentFont->size, frame.width, false);
+		drawText(modeLineText, modeLineText.size(), framePixelX, framePixelY + framePixelHeight - currentFont->size, framePixelWidth, false);
 	}
 }

@@ -1,4 +1,4 @@
-//  ===== Date Created: 14 April, 2020 ===== 
+//  ===== Date Created: 14 April, 2020 =====
 
 #if !defined(WINDOW_HPP)
 #define WINDOW_HPP
@@ -16,11 +16,11 @@ class Window
 {
 public:
 	bool isOpen;
-	
+
 	unsigned int width;
 	unsigned int height;
 	const char* title;
-	
+
 	HWND windowHandle;
 	HDC deviceContext;
 	HGLRC renderingContext;
@@ -32,10 +32,11 @@ public:
 
 private:
 	static std::unordered_map<HWND, Window*> windowsMap;
-	
+
 public:
 	Window(unsigned int width, unsigned int height, const char* title);
 	~Window();
+
 	static Window* get(HWND handle);
 
 	void draw();
@@ -48,7 +49,7 @@ public:
 
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-	
+
 	// Window creation
 	bool registerWindowClass();
 	bool createDummyWindow();

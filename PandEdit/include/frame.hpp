@@ -10,6 +10,14 @@
 
 constexpr unsigned int FRAME_BORDER_WIDTH = 5;
 
+struct Vector4f
+{
+	float x;
+	float y;
+	float width;
+	float height;
+};
+
 class Frame
 {
 public:
@@ -19,15 +27,14 @@ public:
 
 	std::string name;
 
-	// Dimensions that text is rendered in
-	int x;
-	int y;
-	unsigned int width;
-	unsigned int height;
-	
-	// Includes the vertical borders
-	int realX;
-	unsigned int realWidth;
+	// The real dimensions of the frame, as a percentage of the window
+	// size (without the minibuffer).	
+	// NOTE(fkp): The minibuffer will have a y-value of 1.0f and a
+	// height of 0.0f, to indicate it should use the current font size
+	// as the height
+	Vector4f pcDimensions;
+	unsigned int windowWidth;
+	unsigned int windowHeight;
 	
 	Buffer* currentBuffer = nullptr;
 	unsigned int line = 0;
@@ -38,8 +45,8 @@ private:
 	static std::unordered_map<std::string, Frame*> framesMap;
 
 public:
-	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, bool isActive = false);
-	Frame(std::string name, int x, int y, unsigned int width, unsigned int height, BufferType type, std::string bufferName, bool isActive = false);
+	Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);
+	Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, BufferType type, std::string bufferName, bool isActive = false);
 	~Frame();
 	Frame(const Frame&) = delete;
 	Frame& operator=(const Frame&) = delete;
@@ -49,11 +56,12 @@ public:
 	static Frame* get(const std::string& name);
 	
 	void makeActive();
+	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
 	Frame* splitVertically();
 	Frame* splitHorizontally();
 
 private:
-	void init(std::string name, int x, int y, unsigned int width, unsigned int height, Buffer* buffer = nullptr, bool isActive = false);
+	void init(std::string name, Vector4f dimensions, Buffer* buffer = nullptr, bool isActive = false);
 };
 
 #endif
