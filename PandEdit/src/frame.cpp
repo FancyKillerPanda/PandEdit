@@ -9,22 +9,22 @@ std::unordered_map<std::string, Frame*> Frame::framesMap;
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
-	init(name, dimensions, buffer, isActive);
+	init(name, dimensions, windowWidth, windowHeight, buffer, isActive);
 }
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, BufferType type, std::string bufferName, bool isActive)
-	: windowWidth(windowWidth), windowHeight(windowHeight)
 {
 	Buffer* buffer = new Buffer { type, bufferName };
-	init(name, dimensions, buffer, isActive);
+	init(name, dimensions, windowWidth, windowHeight, buffer, isActive);
 }
 
-void Frame::init(std::string name, Vector4f dimensions, Buffer* buffer, bool isActive)
+void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
 	this->name = name;
 	currentBuffer = buffer;
 	
-	// NOTE(fkp): windowWidth and windowHeight initialised in constructors
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
 	pcDimensions = dimensions;
 	
 	line = currentBuffer->lastLine;
@@ -158,7 +158,7 @@ Frame* Frame::splitVertically()
 	newFrameDimensions.x += pcDimensions.width;
 
 	std::string newFrameName = name + "_SplitRight";
-	Frame* result = new Frame(newFrameName, pcDimensions, windowWidth, windowHeight, currentBuffer, true);
+	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
 
 	result->line = line;
 	result->col = col;
@@ -175,7 +175,7 @@ Frame* Frame::splitHorizontally()
 	newFrameDimensions.y += pcDimensions.height;
 
 	std::string newFrameName = name + "_SplitDown";
-	Frame* result = new Frame(newFrameName, pcDimensions, windowWidth, windowHeight, currentBuffer, true);
+	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
 	
 	result->line = line;
 	result->col = col;

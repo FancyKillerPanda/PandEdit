@@ -61,7 +61,7 @@ public:
 	Frame* splitHorizontally();
 
 private:
-	void init(std::string name, Vector4f dimensions, Buffer* buffer = nullptr, bool isActive = false);
+	void init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);
 };
 
 #endif
