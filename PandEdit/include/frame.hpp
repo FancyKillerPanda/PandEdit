@@ -62,7 +62,7 @@ public:
 	Frame* splitVertically();
 	Frame* splitHorizontally();
 
-	void adjustOtherFramePointLocations(bool lineWrap = false);
+	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
 
 private:
 	void init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);

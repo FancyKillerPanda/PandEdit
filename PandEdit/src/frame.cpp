@@ -185,7 +185,9 @@ Frame* Frame::splitHorizontally()
 	return result;
 }
 
-void Frame::adjustOtherFramePointLocations(bool lineWrap)
+// TODO(fkp): Cleanup. This method is one big mess and probably
+// riddled with bugs.
+void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 {
 	for (Frame& frame : *allFrames)
 	{
@@ -193,26 +195,71 @@ void Frame::adjustOtherFramePointLocations(bool lineWrap)
 		
 		if (currentBuffer == frame.currentBuffer)
 		{
-			if (line == frame.line)
+			if (insertion)
 			{
-				if (lineWrap)
+				if (line == frame.line)
 				{
-					frame.col += col;
-				}
-				else
-				{
-					if (col < frame.col)
+					if (lineWrap)
 					{
-						frame.col -= 1;
+						frame.line += 1;
+					}
+					else
+					{
+						if (col <= frame.col + 1)
+						{
+							frame.col += 1;
+						}
+					}
+				}
+				else if (line == frame.line + 1)
+				{
+					if (lineWrap)
+					{
+						if (frame.col >= frame.currentBuffer->data[frame.line].size())
+						{
+							frame.col -= frame.currentBuffer->data[frame.line].size();
+							frame.line += 1;
+						}
+					}
+				}
+				else if (line < frame.line)
+				{
+					if (lineWrap)
+					{
+						frame.line += 1;
 					}
 				}
 			}
-			else if (line == frame.line - 1)
+			else
 			{
-				if (lineWrap)
+				if (line == frame.line)
 				{
-					frame.line -= 1;
-					frame.col += col;
+					if (lineWrap)
+					{
+						frame.col += col;
+					}
+					else
+					{
+						if (col < frame.col)
+						{
+							frame.col -= 1;
+						}
+					}
+				}
+				else if (line == frame.line - 1)
+				{
+					if (lineWrap)
+					{
+						frame.line -= 1;
+						frame.col += col;
+					}
+				}
+				else if (line < frame.line - 1)
+				{
+					if (lineWrap)
+					{
+						frame.line -= 1;
+					}
 				}
 			}
 		}

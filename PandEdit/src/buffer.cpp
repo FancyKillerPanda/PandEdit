@@ -132,6 +132,8 @@ void Buffer::insertChar(Frame& frame, char character)
 	data[frame.line].insert(data[frame.line].begin() + frame.col, character);
 	frame.col += 1;
 	frame.targetCol = frame.col;
+
+	frame.adjustOtherFramePointLocations(true, false);
 }
 
 void Buffer::backspaceChar(Frame& frame, unsigned int num)
@@ -154,7 +156,7 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 			frame.col -= 1;
 			data[frame.line].erase(frame.col, 1);
 
-			frame.adjustOtherFramePointLocations();
+			frame.adjustOtherFramePointLocations(false, false);
 		}
 		else
 		{
@@ -166,7 +168,7 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 				data[frame.line] += data[frame.line + 1];
 				data.erase(data.begin() + frame.line + 1);
 
-				frame.adjustOtherFramePointLocations(true);
+				frame.adjustOtherFramePointLocations(false, true);
 			}
 		}
 	}
@@ -185,7 +187,7 @@ void Buffer::deleteChar(Frame& frame, unsigned int num)
 		if (frame.col < data[frame.line].size())
 		{
 			data[frame.line].erase(frame.col, 1);
-			frame.adjustOtherFramePointLocations();
+			frame.adjustOtherFramePointLocations(false, false);
 		}
 		else
 		{
@@ -193,7 +195,7 @@ void Buffer::deleteChar(Frame& frame, unsigned int num)
 			{
 				data[frame.line] += data[frame.line + 1];
 				data.erase(data.begin() + frame.line + 1);
-				frame.adjustOtherFramePointLocations(true);
+				frame.adjustOtherFramePointLocations(false, true);
 			}
 		}
 	}
@@ -213,6 +215,7 @@ void Buffer::newLine(Frame& frame)
 	frame.targetCol = frame.col;
 
 	data.insert(data.begin() + frame.line, restOfLine);
+	frame.adjustOtherFramePointLocations(true, true);
 }
 
 unsigned int Buffer::findWordBoundaryLeft(Frame& frame)
