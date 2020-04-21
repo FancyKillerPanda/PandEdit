@@ -5,6 +5,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "buffer.hpp"
 
@@ -24,6 +25,7 @@ public:
 	static Frame* currentFrame;
 	static Frame* previousFrame;
 	static Frame* minibufferFrame;
+	static std::vector<Frame>* allFrames;
 
 	std::string name;
 
@@ -59,6 +61,8 @@ public:
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
 	Frame* splitVertically();
 	Frame* splitHorizontally();
+
+	void adjustOtherFramePointLocations(bool lineWrap = false);
 
 private:
 	void init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);

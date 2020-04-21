@@ -35,6 +35,7 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		Matrix4 projection = Matrix4::ortho(0, width, 0, height, -1, 1);
 		renderer = new Renderer { projection, (float) width, (float) height };
 
+		Frame::allFrames = &frames;
 		frames.emplace_back("mainFrame", Vector4f { 0.0f, 0.0f, 1.0f, 1.0f }, width, height, BufferType::Text, "*scratch*", true);
 		frames.emplace_back("minibufferFrame", Vector4f { 0.0f, 1.0f, 1.0f, 0.0f }, width, height, BufferType::MiniBuffer, "__minibuffer__", false);
 
@@ -172,14 +173,6 @@ void Window::draw()
 	for (Frame& frame : frames)
 	{
 		renderer->drawFrame(frame);
-
-		// Debug
-		GLuint shader = renderer->shapeShader.programID;
-		glUseProgram(shader);
-		glUniform4f(glGetUniformLocation(shader, "colour"), 1.0f, 0.0f, 0.0f, 1.0f);
-		
-		unsigned int frameHeight = frame.currentBuffer->type == BufferType::MiniBuffer ? renderer->currentFont->size : frame.pcDimensions.height * frame.windowHeight;
-		renderer->drawHollowRect(frame.pcDimensions.x * frame.windowWidth, frame.pcDimensions.y * frame.windowHeight, frame.pcDimensions.width * frame.windowWidth, frameHeight, 1);
 	}
 }
 

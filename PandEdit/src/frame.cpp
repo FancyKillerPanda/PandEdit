@@ -5,6 +5,7 @@
 Frame* Frame::currentFrame = nullptr;
 Frame* Frame::previousFrame = nullptr;
 Frame* Frame::minibufferFrame = nullptr;
+std::vector<Frame>* Frame::allFrames = nullptr;
 std::unordered_map<std::string, Frame*> Frame::framesMap;
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
@@ -182,4 +183,38 @@ Frame* Frame::splitHorizontally()
 	result->targetCol = targetCol;
 
 	return result;
+}
+
+void Frame::adjustOtherFramePointLocations(bool lineWrap)
+{
+	for (Frame& frame : *allFrames)
+	{
+		if (&frame == this) continue;
+		
+		if (currentBuffer == frame.currentBuffer)
+		{
+			if (line == frame.line)
+			{
+				if (lineWrap)
+				{
+					frame.col += col;
+				}
+				else
+				{
+					if (col < frame.col)
+					{
+						frame.col -= 1;
+					}
+				}
+			}
+			else if (line == frame.line - 1)
+			{
+				if (lineWrap)
+				{
+					frame.line -= 1;
+					frame.col += col;
+				}
+			}
+		}
+	}
 }

@@ -153,6 +153,8 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 			
 			frame.col -= 1;
 			data[frame.line].erase(frame.col, 1);
+
+			frame.adjustOtherFramePointLocations();
 		}
 		else
 		{
@@ -163,6 +165,8 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 
 				data[frame.line] += data[frame.line + 1];
 				data.erase(data.begin() + frame.line + 1);
+
+				frame.adjustOtherFramePointLocations(true);
 			}
 		}
 	}
@@ -181,6 +185,7 @@ void Buffer::deleteChar(Frame& frame, unsigned int num)
 		if (frame.col < data[frame.line].size())
 		{
 			data[frame.line].erase(frame.col, 1);
+			frame.adjustOtherFramePointLocations();
 		}
 		else
 		{
@@ -188,6 +193,7 @@ void Buffer::deleteChar(Frame& frame, unsigned int num)
 			{
 				data[frame.line] += data[frame.line + 1];
 				data.erase(data.begin() + frame.line + 1);
+				frame.adjustOtherFramePointLocations(true);
 			}
 		}
 	}
