@@ -40,6 +40,7 @@ public:
 	static Window* get(HWND handle);
 
 	void draw();
+	void resize(unsigned int newWidth, unsigned int newHeight);
 	void setFont(Font* font);
 
 	// If moveNext is false, will move backwards

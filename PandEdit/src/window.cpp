@@ -92,6 +92,11 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		PostQuitMessage(0);
 	} return 0;
 
+	case WM_SIZE:
+	{
+		window->resize(LOWORD(lParam), HIWORD(lParam));
+	} return 0;
+
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{
@@ -167,7 +172,30 @@ void Window::draw()
 	for (Frame& frame : frames)
 	{
 		renderer->drawFrame(frame);
+
+		// Debug
+		GLuint shader = renderer->shapeShader.programID;
+		glUseProgram(shader);
+		glUniform4f(glGetUniformLocation(shader, "colour"), 1.0f, 0.0f, 0.0f, 1.0f);
+		
+		unsigned int frameHeight = frame.currentBuffer->type == BufferType::MiniBuffer ? renderer->currentFont->size : frame.pcDimensions.height * frame.windowHeight;
+		renderer->drawHollowRect(frame.pcDimensions.x * frame.windowWidth, frame.pcDimensions.y * frame.windowHeight, frame.pcDimensions.width * frame.windowWidth, frameHeight, 1);
 	}
+}
+
+void Window::resize(unsigned int newWidth, unsigned int newHeight)
+{
+	width = newWidth;
+	height = newHeight;
+	
+	for (Frame& frame : frames)
+	{
+		frame.updateWindowSize(width, height - renderer->currentFont->size);
+	}
+
+	Matrix4 projection = Matrix4::ortho(0, width, 0, height, -1, 1);
+	renderer->updateShaderUniforms(projection, width, height);
+	glViewport(0, 0, width, height);
 }
 
 void Window::setFont(Font* font)
@@ -175,19 +203,7 @@ void Window::setFont(Font* font)
 	if (!font) return;
 
 	renderer->currentFont = font;
-
-	for (Frame& frame : frames)
-	{
-		frame.updateWindowSize(width, height - renderer->currentFont->size);
-	}
-	
-	// Updates minibuffer size
-//	Frame::minibufferFrame->y = height - renderer->currentFont->size;
-//	Frame::minibufferFrame->height = renderer->currentFont->size;
-
-	// Update other frame sizes
-//	Frame* mainFrame = Frame::get("mainFrame");
-//	mainFrame->height = height - renderer->currentFont->size;
+	resize(width, height);
 }
 
 void Window::moveToNextFrame(bool moveNext)
