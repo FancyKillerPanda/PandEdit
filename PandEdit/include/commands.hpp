@@ -6,12 +6,17 @@
 #include <unordered_map>
 #include <string>
 
+#define COMMAND_FUNC_SIG(...) bool (*__VA_ARGS__)(Window&, const std::string&)
+
 class Window;
 
 class Commands
 {
 public:
-	static std::unordered_map<std::string, bool (*)(Window&, const std::string&)> commandsMap;
+	// Essential commands can be used while another command is in progress
+	static std::unordered_map<std::string, COMMAND_FUNC_SIG()> essentialCommandsMap;
+	static std::unordered_map<std::string, COMMAND_FUNC_SIG()> nonEssentialCommandsMap;
+	static COMMAND_FUNC_SIG(currentCommand);
 
 public:
 	static void executeCommand(Window& window, const std::string& commandText);

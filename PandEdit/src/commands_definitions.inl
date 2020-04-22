@@ -154,3 +154,33 @@ DEFINE_COMMAND(movePointEnd)
 	return false;
 }
 
+
+//
+// NOTE(fkp): Buffer commands
+//
+
+DEFINE_COMMAND(switchToBuffer)
+{
+	if (Commands::currentCommand)
+	{
+		Commands::currentCommand = nullptr;
+		exitMinibuffer("");
+		
+		Buffer* buffer = Buffer::get(text.substr(0, text.find(' ')));
+
+		if (!buffer)
+		{
+			buffer = new Buffer { BufferType::Text, text.substr(0, text.find(' ')) };
+		}
+		
+		FRAME->switchToBuffer(buffer);
+		return true;
+	}
+	else
+	{
+		writeToMinibuffer("Buffer: ");
+		Commands::currentCommand = switchToBuffer;
+		
+		return false;
+	}
+}

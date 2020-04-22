@@ -22,16 +22,12 @@ Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, un
 void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
 	this->name = name;
-	currentBuffer = buffer;
 	
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
 	pcDimensions = dimensions;
-	
-	line = currentBuffer->lastLine;
-	col = currentBuffer->lastCol;
-	targetCol = currentBuffer->lastTargetCol;
-	
+
+	switchToBuffer(buffer);
 	framesMap.insert({ name, this });
 
 	if (isActive)
@@ -43,6 +39,14 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 	{
 		minibufferFrame = this;
 	}
+}
+
+void Frame::switchToBuffer(Buffer* buffer)
+{
+	currentBuffer = buffer;
+	line = currentBuffer->lastLine;
+	col = currentBuffer->lastCol;
+	targetCol = currentBuffer->lastTargetCol;
 }
 
 Frame::~Frame()

@@ -58,6 +58,7 @@ public:
 	static Frame* get(const std::string& name);
 	
 	void makeActive();
+	void switchToBuffer(Buffer* buffer);
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
 	Frame* splitVertically();
 	Frame* splitHorizontally();

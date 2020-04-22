@@ -31,6 +31,9 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::DownArrow }, "movePointLineDown");
 	KeyMap::bindKey({ Key::Home }, "movePointHome");
 	KeyMap::bindKey({ Key::End }, "movePointEnd");
+	
+	// TODO(fkp): Fix this. It needs to activate the second part of the command.
+	// KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
 }
 
 #endif

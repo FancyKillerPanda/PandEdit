@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 class Frame;
 
@@ -17,6 +18,8 @@ enum class BufferType
 class Buffer
 {
 public:
+	static std::unordered_map<std::string, Buffer*> buffersMap;
+	
 	BufferType type;
 	std::string name;
 	
@@ -33,7 +36,14 @@ public:
 
 public:
 	Buffer(BufferType type, std::string name);
-
+	~Buffer();
+	Buffer(const Buffer&) = delete;
+	Buffer& operator=(const Buffer&) = delete;
+	Buffer(Buffer&& other);
+	Buffer& operator=(Buffer&& other);
+	
+	static Buffer* get(const std::string& name);
+	
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();
 	

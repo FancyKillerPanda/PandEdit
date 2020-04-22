@@ -4,7 +4,7 @@
 #include "frame.hpp"
 #include "window.hpp"
 
-// TODO(fkp): Write to minibuffer function
+COMMAND_FUNC_SIG(Commands::currentCommand) = nullptr;
 
 void writeToMinibuffer(std::string message)
 {
@@ -29,16 +29,9 @@ void exitMinibuffer(std::string message)
 
 #include "commands_definitions.inl"
 
-std::unordered_map<std::string, bool (*)(Window&, const std::string& text)> Commands::commandsMap = {
-	{ "echo", echo },
-	{ "minibufferEnter", minibufferEnter },
+std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsMap = {
 	{ "minibufferQuit", minibufferQuit },
 	
-	{ "frameSplitVertically", frameSplitVertically },
-	{ "frameSplitHorizontally", frameSplitHorizontally },
-	{ "frameMoveNext", frameMoveNext },
-	{ "frameMovePrevious", frameMovePrevious },
-
 	{ "backspaceChar", backspaceChar },
 	{ "deleteChar", deleteChar },
 	{ "backspaceWord", backspaceWord },
@@ -52,6 +45,18 @@ std::unordered_map<std::string, bool (*)(Window&, const std::string& text)> Comm
 	{ "movePointLineDown", movePointLineDown },
 	{ "movePointHome", movePointHome },
 	{ "movePointEnd", movePointEnd },
+};
+
+std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {
+	{ "echo", echo },
+	{ "minibufferEnter", minibufferEnter },
+
+	{ "frameSplitVertically", frameSplitVertically },
+	{ "frameSplitHorizontally", frameSplitHorizontally },
+	{ "frameMoveNext", frameMoveNext },
+	{ "frameMovePrevious", frameMovePrevious },
+	
+	{ "switchToBuffer", switchToBuffer },
 };
 
 void Commands::executeCommand(Window& window, const std::string& commandText)
@@ -70,9 +75,9 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 		argumentsText.erase(0, 1);
 	}
 
-	auto result = commandsMap.find(commandName);
+	auto result = essentialCommandsMap.find(commandName);
 
-	if (result != commandsMap.end())
+	if (result != essentialCommandsMap.end())
 	{
 		if (result->second(window, argumentsText))
 		{
@@ -81,6 +86,25 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 	}
 	else
 	{
-		exitMinibuffer("Error: Unknown command");
+		if (currentCommand)
+		{
+			currentCommand(window, commandText);
+		}
+		else
+		{
+			result = nonEssentialCommandsMap.find(commandName);
+
+			if (result != nonEssentialCommandsMap.end())
+			{
+				if (result->second(window, argumentsText))
+				{
+					exitMinibuffer();
+				}
+			}
+			else
+			{
+				exitMinibuffer("Error: Unknown command");
+			}
+		}
 	}
 }

@@ -3,11 +3,72 @@
 #include "buffer.hpp"
 #include "frame.hpp"
 
+std::unordered_map<std::string, Buffer*> Buffer::buffersMap;
+
 Buffer::Buffer(BufferType type, std::string name)
 	: type(type), name(name)
 {
 	// Makes sure there's at least one line in the buffer
 	data.emplace_back();
+
+	buffersMap.insert({ name, this });
+}
+
+Buffer::~Buffer()
+{
+	buffersMap.erase(name);
+
+	for (Frame& frame : *Frame::allFrames)
+	{
+		if (this == frame.currentBuffer)
+		{
+			// TODO(fkp): Go to previous
+			frame.currentBuffer = get("*scratch*");
+		}
+	}
+}
+
+Buffer::Buffer(Buffer&& other)
+	: type(other.type), name(std::move(other.name)), data(std::move(other.data)),
+	  lastLine(other.lastLine), lastCol(other.lastCol), lastTargetCol(other.lastTargetCol),
+	  pointFlashFrameCounter(other.pointFlashFrameCounter)
+{
+	buffersMap[name] = this;
+	other.name = "";
+}
+
+Buffer& Buffer::operator=(Buffer&& other)
+{
+	if (this != &other)
+	{
+		type = other.type;
+		name = std::move(other.name);
+		data = std::move(other.data);
+
+		lastLine = other.lastLine;
+		lastCol = other.lastCol;
+		lastTargetCol = other.lastTargetCol;
+		pointFlashFrameCounter = other.pointFlashFrameCounter;
+
+		buffersMap[name] = this;
+		other.name = "";
+	}
+
+	return *this;
+}
+
+Buffer* Buffer::get(const std::string& name)
+{
+	auto result = buffersMap.find(name);
+
+	if (result != buffersMap.end())
+	{
+		return result->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void Buffer::doCommonPointManipulationTasks()
