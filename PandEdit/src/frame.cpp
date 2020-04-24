@@ -43,6 +43,13 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 
 void Frame::switchToBuffer(Buffer* buffer)
 {
+	if (currentBuffer)
+	{
+		currentBuffer->lastLine = line;
+		currentBuffer->lastCol = col;
+		currentBuffer->lastTargetCol = col; // Don't want to save the target col
+	}
+	
 	currentBuffer = buffer;
 	line = currentBuffer->lastLine;
 	col = currentBuffer->lastCol;
