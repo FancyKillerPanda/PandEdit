@@ -120,6 +120,11 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				}
 			}
 		} break;
+
+		case VK_TAB:
+		{
+			buffer.insertChar(*Frame::currentFrame, '\t');
+		} break;
 		
 		case VK_RETURN:
 		{

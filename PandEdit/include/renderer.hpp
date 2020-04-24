@@ -8,6 +8,9 @@
 
 #include "shader.hpp"
 
+// TODO(fkp): Make this editable
+constexpr unsigned int tabWidth = 4;
+
 class Font;
 class Matrix4;
 class Frame;

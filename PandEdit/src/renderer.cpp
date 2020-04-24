@@ -187,6 +187,15 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 			}
 		}
 
+		// Tabs
+		if (currentChar == '\t')
+		{
+			x += font.chars[' '].advanceX * tabWidth;
+			y += font.chars[' '].advanceY * tabWidth;
+			
+			continue;
+		}
+
 		// Calculates vertex dimensions
 		float coordX = x + font.chars[currentChar].bitmapLeft;
 		float coordY = y + font.maxGlyphBearingY - font.chars[currentChar].bitmapTop;
@@ -309,7 +318,20 @@ void Renderer::drawFrame(Frame& frame)
 	for (unsigned int i = 0; i < frame.col; i++)
 	{
 		const Character& character = currentFont->chars[buffer.data[frame.line][i]];
-		pointX += character.advanceX;
+
+		if (buffer.data[frame.line][i] == '\n')
+		{
+			pointX = 0;
+			pointY += currentFont->size;
+		}
+		else if (buffer.data[frame.line][i] == '\t')
+		{
+			pointX += currentFont->chars[' '].advanceX * tabWidth;
+		}
+		else
+		{
+			pointX += character.advanceX;
+		}
 	}
 
 	if (frame.col == buffer.data[frame.line].size())
@@ -318,7 +340,16 @@ void Renderer::drawFrame(Frame& frame)
 	}
 	else
 	{
-		pointWidth = currentFont->chars[buffer.data[frame.line][frame.col]].advanceX;
+		char currentChar = buffer.data[frame.line][frame.col];
+
+		if (currentChar == '\n' || currentChar == '\t')
+		{
+			pointWidth = currentFont->chars[' '].advanceX;
+		}
+		else
+		{
+			pointWidth = currentFont->chars[currentChar].advanceX;
+		}
 	}
 
 	glUseProgram(shapeShader.programID);
