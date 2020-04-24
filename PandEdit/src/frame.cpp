@@ -1,5 +1,7 @@
 //  ===== Date Created: 15 April, 2020 =====
 
+#include <algorithm>
+
 #include "frame.hpp"
 
 Frame* Frame::currentFrame = nullptr;
@@ -22,7 +24,7 @@ Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, un
 void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
 	this->name = name;
-	
+
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
 	pcDimensions = dimensions;
@@ -49,7 +51,7 @@ void Frame::switchToBuffer(Buffer* buffer)
 		currentBuffer->lastCol = col;
 		currentBuffer->lastTargetCol = col; // Don't want to save the target col
 	}
-	
+
 	currentBuffer = buffer;
 	line = currentBuffer->lastLine;
 	col = currentBuffer->lastCol;
@@ -86,7 +88,7 @@ Frame::Frame(Frame&& other)
 	{
 		Frame::previousFrame = this;
 	}
-	
+
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
 		minibufferFrame = this;
@@ -100,11 +102,11 @@ Frame& Frame::operator=(Frame&& other)
 		framesMap.erase(name);
 
 		name = other.name;
-		
+
 		pcDimensions = other.pcDimensions;
 		windowWidth = other.windowWidth;
 		windowHeight = other.windowHeight;
-		
+
 		currentBuffer = other.currentBuffer;
 		line = other.line;
 		col = other.col;
@@ -120,7 +122,7 @@ Frame& Frame::operator=(Frame&& other)
 		{
 			Frame::previousFrame = this;
 		}
-	
+
 		if (currentBuffer->type == BufferType::MiniBuffer)
 		{
 			minibufferFrame = this;
@@ -188,12 +190,74 @@ Frame* Frame::splitHorizontally()
 
 	std::string newFrameName = name + "_SplitDown";
 	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
-	
+
 	result->line = line;
 	result->col = col;
 	result->targetCol = targetCol;
 
 	return result;
+}
+
+std::string Frame::getTextPointToMark()
+{
+	std::string result;
+	int startLine;
+	int endLine;
+	int startCol;
+	int endCol;
+
+	if (line == markLine)
+	{
+		startLine = line;
+		endLine = line;
+		startCol = std::min(col, markCol);
+		endCol = std::max(col, markCol);
+	}
+	else if (line < markLine)
+	{
+		startLine = line;
+		endLine = markLine;
+		startCol = col;
+		endCol = markCol;
+	}
+	else
+	{
+		startLine = markLine;
+		endLine = line;
+		startCol = markCol;
+		endCol = col;
+	}
+
+	for (int currentLine = startLine; currentLine <= endLine; currentLine++)
+	{
+		if (currentLine == startLine)
+		{
+			// Checks if the mark is on the same line as the point
+			if (startLine == endLine)
+			{
+				result = currentBuffer->data[currentLine].substr(startCol, endCol);
+			}
+			else
+			{
+				result += currentBuffer->data[currentLine].substr(startCol, std::string::npos);
+				result += '\n';
+			}
+		}
+		else if (currentLine == endLine)
+		{
+			// NOTE(fkp): We don't need to check if line == markLine
+			// here because this is in an else if from the previous
+			// if.
+			result += currentBuffer->data[currentLine].substr(0, endCol);
+		}
+		else
+		{
+			result += currentBuffer->data[currentLine];
+			result += '\n';
+		}
+	}
+
+	return std::move(result);
 }
 
 // TODO(fkp): Cleanup. This method is one big mess and probably
@@ -203,7 +267,7 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 	for (Frame& frame : *allFrames)
 	{
 		if (&frame == this) continue;
-		
+
 		if (currentBuffer == frame.currentBuffer)
 		{
 			if (insertion)

@@ -6,6 +6,8 @@
 #include "frame.hpp"
 
 std::unordered_map<std::string, Buffer*> Buffer::buffersMap;
+std::vector<std::string> Buffer::killRing;
+int Buffer::killRingPointer = -1;
 
 Buffer::Buffer(BufferType type, std::string name)
 	: type(type), name(name)
@@ -294,6 +296,34 @@ void Buffer::insertString(Frame& frame, const std::string& string)
 			insertChar(frame, character);
 		}
 	}
+}
+
+void Buffer::copyToClipboard(Frame& frame)
+{
+	std::string textToCopy = frame.getTextPointToMark();
+	
+	if (!OpenClipboard(GetDesktopWindow()))
+	{
+		printf("Error: Failed to open clipboard for copying to.\n");
+		return;
+	}
+
+	EmptyClipboard();
+	HGLOBAL clipboardData = GlobalAlloc(GMEM_MOVEABLE, textToCopy.size() + 1);
+
+	if (!clipboardData)
+	{
+		printf("Error: Failed to allocate global memory for text.\n");
+		CloseClipboard();
+
+		return;
+	}
+
+	memcpy(GlobalLock(clipboardData), textToCopy.c_str(), textToCopy.size() + 1);
+	GlobalUnlock(clipboardData);
+	SetClipboardData(CF_TEXT, clipboardData);
+	CloseClipboard();
+	GlobalFree(clipboardData);
 }
 
 void Buffer::pasteClipboard(Frame& frame)

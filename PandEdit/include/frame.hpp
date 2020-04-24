@@ -66,6 +66,7 @@ public:
 	Frame* splitVertically();
 	Frame* splitHorizontally();
 
+	std::string getTextPointToMark();
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
 
 private:

@@ -182,6 +182,12 @@ DEFINE_COMMAND(swapPointAndMark)
 // NOTE(fkp): Copy/cut/paste
 //
 
+DEFINE_COMMAND(copyRegion)
+{
+	BUFFER->copyToClipboard(*FRAME);
+	return false;
+}
+
 DEFINE_COMMAND(paste)
 {
 	BUFFER->pasteClipboard(*FRAME);

@@ -19,6 +19,8 @@ class Buffer
 {
 public:
 	static std::unordered_map<std::string, Buffer*> buffersMap;
+	static std::vector<std::string> killRing;
+	static int killRingPointer; // -1 when nothing in the kill ring
 	
 	BufferType type;
 	std::string name;
@@ -63,6 +65,7 @@ public:
 	void insertString(Frame& frame, const std::string& string);
 
 	// Copy/cut/paste
+	void copyToClipboard(Frame& frame);
 	void pasteClipboard(Frame& frame);
 
 	// Utility

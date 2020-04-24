@@ -34,6 +34,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::Space, true }, "setMark");
 	KeyMap::bindKey({ Key::Semicolon, false, false, true }, "swapPointAndMark");
 
+	KeyMap::bindKey({ Key::C, true }, "copyRegion");
 	KeyMap::bindKey({ Key::V, true }, "paste");
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
