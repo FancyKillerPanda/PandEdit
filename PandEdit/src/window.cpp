@@ -66,7 +66,7 @@ Window* Window::get(HWND handle)
 
 LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
-#define IS_KEY_PRESSED(key) GetKeyState(key) & 0xFF00
+#define IS_KEY_PRESSED(key) (GetKeyState(key) & 0xFF00)
 
 	// TODO(fkp): Only get this when needed?
 	Window* window = Window::get(windowHandle);
@@ -161,7 +161,8 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	
 	case WM_CHAR:
 	{
-		if (wParam >= 32 && wParam < 127)
+		if (!IS_KEY_PRESSED(VK_CONTROL) &&
+			wParam >= 32 && wParam < 127)
 		{
 			buffer.insertChar(*Frame::currentFrame, (char) wParam);
 		}

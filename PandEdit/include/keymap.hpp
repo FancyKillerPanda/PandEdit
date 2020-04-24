@@ -61,10 +61,11 @@ enum class Key
 	Hyphen,
 	Comma,
 	Period,
+	Semicolon,
 	ForwardSlash,
-	BackSlash,
 	Backtick,
 	OpenBracket,
+	BackSlash,
 	CloseBracket,
 	Apostrophe,
 	

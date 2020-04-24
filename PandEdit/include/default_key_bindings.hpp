@@ -31,6 +31,8 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::DownArrow }, "movePointLineDown");
 	KeyMap::bindKey({ Key::Home }, "movePointHome");
 	KeyMap::bindKey({ Key::End }, "movePointEnd");
+	KeyMap::bindKey({ Key::Space, true }, "setMark");
+	KeyMap::bindKey({ Key::Semicolon, false, false, true }, "swapPointAndMark");
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
 }

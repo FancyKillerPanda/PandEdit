@@ -154,6 +154,29 @@ DEFINE_COMMAND(movePointEnd)
 	return false;
 }
 
+DEFINE_COMMAND(setMark)
+{
+	FRAME->markLine = FRAME->line;
+	FRAME->markCol = FRAME->col;
+
+	return false;
+}
+
+DEFINE_COMMAND(swapPointAndMark)
+{
+	unsigned int tempLine = FRAME->line;
+	unsigned int tempCol = FRAME->col;
+
+	FRAME->line = FRAME->markLine;
+	FRAME->col = FRAME->markCol;
+	FRAME->markLine = tempLine;
+	FRAME->markCol = tempCol;
+
+	FRAME->targetCol = FRAME->col;
+
+	return false;
+}
+
 
 //
 // NOTE(fkp): Buffer commands

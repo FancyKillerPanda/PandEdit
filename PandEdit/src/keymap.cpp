@@ -167,10 +167,11 @@ Key KeyMap::convertWin32CodeToKey(WPARAM code)
 	case VK_OEM_MINUS:	return Key::Hyphen;
 	case VK_OEM_COMMA:	return Key::Comma;
 	case VK_OEM_PERIOD:	return Key::Period;
+	case VK_OEM_1:		return Key::Semicolon;
 	case VK_OEM_2:		return Key::ForwardSlash;
-	case VK_OEM_5:		return Key::BackSlash;
 	case VK_OEM_3:		return Key::Backtick;
 	case VK_OEM_4:		return Key::OpenBracket;
+	case VK_OEM_5:		return Key::BackSlash;
 	case VK_OEM_6:		return Key::CloseBracket;
 	case VK_OEM_7:		return Key::Apostrophe;
 
