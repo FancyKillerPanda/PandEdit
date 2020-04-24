@@ -178,6 +178,7 @@ DEFINE_COMMAND(switchToBuffer)
 	}
 	else
 	{
+		Frame::minibufferFrame->makeActive();
 		writeToMinibuffer("Buffer: ");
 		Commands::currentCommand = switchToBuffer;
 		

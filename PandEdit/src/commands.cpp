@@ -60,7 +60,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 };
 
 void Commands::executeCommand(Window& window, const std::string& commandText)
-{
+{	
 	std::string commandName = commandText.substr(0, commandText.find(' '));
 	std::string argumentsText = "";
 
