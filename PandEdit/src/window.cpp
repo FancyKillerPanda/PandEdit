@@ -167,7 +167,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			buffer.insertChar(*Frame::currentFrame, (char) wParam);
 		}
 	} return 0;
-
+	
 	default:
 	{
 	} return DefWindowProc(windowHandle, message, wParam, lParam);

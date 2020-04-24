@@ -47,6 +47,8 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	{ "movePointEnd", movePointEnd },
 	{ "setMark", setMark },
 	{ "swapPointAndMark", swapPointAndMark },
+
+	{ "paste", paste },
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {

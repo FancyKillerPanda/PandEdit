@@ -1,4 +1,6 @@
-//  ===== Date Created: 15 April, 2020 ===== 
+//  ===== Date Created: 15 April, 2020 =====
+
+#include <windows.h>
 
 #include "buffer.hpp"
 #include "frame.hpp"
@@ -87,7 +89,7 @@ void Buffer::movePointLeft(Frame& frame, unsigned int num)
 	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
-	
+
 	for (int i = 0; i < num; i++)
 	{
 		if (frame.col > 0)
@@ -98,7 +100,7 @@ void Buffer::movePointLeft(Frame& frame, unsigned int num)
 				// Should not be able to move into the 'Execute: ' part
 				break;
 			}
-			
+
 			frame.col -= 1;
 		}
 		else
@@ -119,7 +121,7 @@ void Buffer::movePointRight(Frame& frame, unsigned int num)
 	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
-	
+
 	for (int i = 0; i < num; i++)
 	{
 		if (frame.col < data[frame.line].size())
@@ -142,7 +144,7 @@ void Buffer::movePointRight(Frame& frame, unsigned int num)
 void Buffer::movePointUp(Frame& frame)
 {
 	doCommonPointManipulationTasks();
-	
+
 	if (frame.line > 0)
 	{
 		frame.line -= 1;
@@ -163,7 +165,7 @@ void Buffer::movePointDown(Frame& frame)
 
 void Buffer::movePointHome(Frame& frame)
 {
-	doCommonPointManipulationTasks();	
+	doCommonPointManipulationTasks();
 
 	if (type == BufferType::MiniBuffer)
 	{
@@ -174,13 +176,13 @@ void Buffer::movePointHome(Frame& frame)
 	{
 		frame.col = 0;
 	}
-	
+
 	frame.targetCol = frame.col;
 }
 
 void Buffer::movePointEnd(Frame& frame)
 {
-	doCommonPointManipulationTasks();	
+	doCommonPointManipulationTasks();
 
 	frame.col = data[frame.line].size();
 	frame.targetCol = frame.col;
@@ -202,7 +204,7 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 	doCommonPointManipulationTasks();
 
 	if (num == 0) num = 1;
-	
+
 	for (int i = 0; i < num; i++)
 	{
 		if (frame.col > 0)
@@ -213,7 +215,7 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 				// Should not be able to backspace into the 'Execute: ' part
 				break;
 			}
-			
+
 			frame.col -= 1;
 			data[frame.line].erase(frame.col, 1);
 
@@ -233,16 +235,16 @@ void Buffer::backspaceChar(Frame& frame, unsigned int num)
 			}
 		}
 	}
-	
+
 	frame.targetCol = frame.col;
 }
 
 void Buffer::deleteChar(Frame& frame, unsigned int num)
 {
 	doCommonPointManipulationTasks();
-	
+
 	if (num == 0) num = 1;
-	
+
 	for (int i = 0; i < num; i++)
 	{
 		if (frame.col < data[frame.line].size())
@@ -260,23 +262,68 @@ void Buffer::deleteChar(Frame& frame, unsigned int num)
 			}
 		}
 	}
-	
+
 	frame.targetCol = frame.col;
 }
 
 void Buffer::newLine(Frame& frame)
 {
 	doCommonPointManipulationTasks();
-	
+
 	std::string restOfLine { data[frame.line].begin() + frame.col, data[frame.line].end() };
 	data[frame.line].erase(data[frame.line].begin() + frame.col, data[frame.line].end());
-	
+
 	frame.line += 1;
 	frame.col = 0;
 	frame.targetCol = frame.col;
 
 	data.insert(data.begin() + frame.line, restOfLine);
 	frame.adjustOtherFramePointLocations(true, true);
+}
+
+void Buffer::insertString(Frame& frame, const std::string& string)
+{
+	for (char character : string)
+	{
+		if (character == '\n')
+		{
+			newLine(frame);
+		}
+		else if (character != '\r') // Windows has CRLF endings
+		{
+			insertChar(frame, character);
+		}
+	}
+}
+
+void Buffer::pasteClipboard(Frame& frame)
+{
+	if (!IsClipboardFormatAvailable(CF_TEXT))
+	{
+		printf("Error: Pasting text not supported.\n");
+		return;
+	}
+
+	if (!OpenClipboard(GetDesktopWindow()))
+	{
+		printf("Error: Failed to open clipboard for pasting.\n");
+		return;
+	}
+
+	HGLOBAL clipboardData = GetClipboardData(CF_TEXT);
+
+	if (clipboardData)
+	{
+		LPCSTR clipboardString = (LPCSTR) GlobalLock(clipboardData);;
+
+		if (clipboardString)
+		{
+			insertString(frame, clipboardString);
+			GlobalUnlock(clipboardData);
+		}
+	}
+
+	CloseClipboard();
 }
 
 unsigned int Buffer::findWordBoundaryLeft(Frame& frame)

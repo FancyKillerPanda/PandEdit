@@ -179,6 +179,17 @@ DEFINE_COMMAND(swapPointAndMark)
 
 
 //
+// NOTE(fkp): Copy/cut/paste
+//
+
+DEFINE_COMMAND(paste)
+{
+	BUFFER->pasteClipboard(*FRAME);
+	return false;
+}
+
+
+//
 // NOTE(fkp): Buffer commands
 //
 

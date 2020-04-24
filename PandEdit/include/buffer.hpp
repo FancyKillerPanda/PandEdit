@@ -60,6 +60,10 @@ public:
 	void backspaceChar(Frame& frame, unsigned int num = 1);
 	void deleteChar(Frame& frame, unsigned int num = 1);
 	void newLine(Frame& frame);
+	void insertString(Frame& frame, const std::string& string);
+
+	// Copy/cut/paste
+	void pasteClipboard(Frame& frame);
 
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries
