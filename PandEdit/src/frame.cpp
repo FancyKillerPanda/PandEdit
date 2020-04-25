@@ -235,7 +235,7 @@ std::string Frame::getTextPointToMark()
 			// Checks if the mark is on the same line as the point
 			if (startLine == endLine)
 			{
-				result = currentBuffer->data[currentLine].substr(startCol, endCol);
+				result = currentBuffer->data[currentLine].substr(startCol, endCol - startCol);
 			}
 			else
 			{
