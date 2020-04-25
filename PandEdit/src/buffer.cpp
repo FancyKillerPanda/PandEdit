@@ -326,8 +326,13 @@ void Buffer::copyRegion(Frame& frame)
 	CloseClipboard();
 	GlobalFree(clipboardData);
 
-	// TODO(fkp): Overwrite at pointer
-	killRing.push_back(std::move(textToCopy));
+	// TODO(fkp): Kill ring size limiting
+	if (textToCopy != killRing.back())
+	{
+		killRing.push_back(std::move(textToCopy));
+		killRingPointer = killRing.size() - 1;
+	}
+	
 	lastClipboardSequenceNumber = GetClipboardSequenceNumber();
 }
 
@@ -336,13 +341,14 @@ void Buffer::paste(Frame& frame)
 	if (GetClipboardSequenceNumber() != lastClipboardSequenceNumber)
 	{
 		pasteClipboard(frame);
+		
 	}
 	else
 	{
 		// TODO(fkp): Use the kill ring pointer
 		if (killRing.size() > 0)
 		{
-			insertString(frame, killRing.back());
+			insertString(frame, killRing[killRingPointer]);
 		}
 	}
 }
@@ -371,6 +377,9 @@ void Buffer::pasteClipboard(Frame& frame)
 		{
 			insertString(frame, clipboardString);
 			GlobalUnlock(clipboardData);
+
+			killRing.push_back(std::string { clipboardString });
+			killRingPointer = killRing.size() - 1;
 		}
 	}
 
