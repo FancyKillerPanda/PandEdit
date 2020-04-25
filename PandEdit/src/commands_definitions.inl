@@ -184,13 +184,13 @@ DEFINE_COMMAND(swapPointAndMark)
 
 DEFINE_COMMAND(copyRegion)
 {
-	BUFFER->copyToClipboard(*FRAME);
+	BUFFER->copyRegion(*FRAME);
 	return false;
 }
 
 DEFINE_COMMAND(paste)
 {
-	BUFFER->pasteClipboard(*FRAME);
+	BUFFER->paste(*FRAME);
 	return false;
 }
 

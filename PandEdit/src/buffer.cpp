@@ -8,6 +8,7 @@
 std::unordered_map<std::string, Buffer*> Buffer::buffersMap;
 std::vector<std::string> Buffer::killRing;
 int Buffer::killRingPointer = -1;
+DWORD Buffer::lastClipboardSequenceNumber = 0;
 
 Buffer::Buffer(BufferType type, std::string name)
 	: type(type), name(name)
@@ -298,7 +299,7 @@ void Buffer::insertString(Frame& frame, const std::string& string)
 	}
 }
 
-void Buffer::copyToClipboard(Frame& frame)
+void Buffer::copyRegion(Frame& frame)
 {
 	std::string textToCopy = frame.getTextPointToMark();
 	
@@ -324,6 +325,26 @@ void Buffer::copyToClipboard(Frame& frame)
 	SetClipboardData(CF_TEXT, clipboardData);
 	CloseClipboard();
 	GlobalFree(clipboardData);
+
+	// TODO(fkp): Overwrite at pointer
+	killRing.push_back(std::move(textToCopy));
+	lastClipboardSequenceNumber = GetClipboardSequenceNumber();
+}
+
+void Buffer::paste(Frame& frame)
+{
+	if (GetClipboardSequenceNumber() != lastClipboardSequenceNumber)
+	{
+		pasteClipboard(frame);
+	}
+	else
+	{
+		// TODO(fkp): Use the kill ring pointer
+		if (killRing.size() > 0)
+		{
+			insertString(frame, killRing.back());
+		}
+	}
 }
 
 void Buffer::pasteClipboard(Frame& frame)

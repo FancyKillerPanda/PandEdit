@@ -7,6 +7,10 @@
 #include <vector>
 #include <unordered_map>
 
+// NOTE(fkp): This is for DWORD, including <windows.h> gives errors
+// for some reason.
+#include <IntSafe.h>
+
 class Frame;
 
 enum class BufferType
@@ -21,6 +25,7 @@ public:
 	static std::unordered_map<std::string, Buffer*> buffersMap;
 	static std::vector<std::string> killRing;
 	static int killRingPointer; // -1 when nothing in the kill ring
+	static DWORD lastClipboardSequenceNumber;
 	
 	BufferType type;
 	std::string name;
@@ -65,7 +70,8 @@ public:
 	void insertString(Frame& frame, const std::string& string);
 
 	// Copy/cut/paste
-	void copyToClipboard(Frame& frame);
+	void copyRegion(Frame& frame);
+	void paste(Frame& frame);
 	void pasteClipboard(Frame& frame);
 
 	// Utility
