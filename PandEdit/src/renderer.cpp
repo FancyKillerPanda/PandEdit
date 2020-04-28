@@ -5,6 +5,7 @@
 #include "text.hpp"
 #include "matrix.hpp"
 #include "frame.hpp"
+#include "common.hpp"
 
 Renderer::Renderer(const Matrix4& projection, float windowWidth, float windowHeight)
 	: shapeShader("shape", "res/shape.vert", "res/shape.frag"),
@@ -101,13 +102,8 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 {
 	if (!currentFont)
 	{
-		static bool hasWarned = false;
-
-		if (!hasWarned)
-		{
-			printf("Error: No font selected.\n");
-			return;
-		}
+		ERROR_ONCE("Error: No font selected.\n");
+		return;
 	}
 
 	glUseProgram(textureShader.programID);
@@ -121,30 +117,15 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 	// Warns about a maxWidth that is too small
 	if (maxWidth != 0.0f && maxWidth < (float) font.maxGlyphAdvanceX)
 	{
-		// TODO(fkp): Warn once macro
-		static bool hasWarned = false;
-
-		if (!hasWarned)
-		{
-			hasWarned = true;
-			printf("Warning: Max width smaller than glyph.\n");
-
-			return;
-		}
+		ERROR_ONCE("Warning: Max width smaller than glyph.\n");
+		return;
 	}
 
 	// Warns about wrap set but no width provided
 	if (wrap && maxWidth <= 0.0f)
 	{
-		static bool hasWarned = false;
-
-		if (!hasWarned)
-		{
-			hasWarned = true;
-			printf("Warning: Max width not provided but wrap requested.\n");
-
-			return;
-		}		
+		ERROR_ONCE("Warning: Max width not provided but wrap requested.\n");
+		return;
 	}
 
 	glBindVertexArray(font.vao);

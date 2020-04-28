@@ -23,6 +23,7 @@ endforeach ()
 
 # Files to use
 set(HEADERS
+	common.hpp
 	window.hpp
 	shader.hpp
 	matrix.hpp

@@ -3,6 +3,7 @@
 #include "point.hpp"
 #include "buffer.hpp"
 #include "frame.hpp"
+#include "common.hpp"
 
 Point::Point(const Buffer* buffer)
 	: buffer(buffer)
@@ -55,14 +56,7 @@ Point& Point::operator++()
 {
 	if (!buffer)
 	{
-		static bool hasWarned = false;
-
-		if (!hasWarned)
-		{
-			printf("Error: Cannot use point++, no buffer provided.");
-			hasWarned = true;
-		}
-
+		ERROR_ONCE("Error: Cannot use point++, no buffer provided.\n");
 		return *this;
 	}
 	
@@ -86,14 +80,7 @@ Point& Point::operator--()
 {
 	if (!buffer)
 	{
-		static bool hasWarned = false;
-
-		if (!hasWarned)
-		{
-			printf("Error: Cannot use point--, no buffer provided.");
-			hasWarned = true;
-		}
-
+		ERROR_ONCE("Error: Cannot use point--, no buffer provided.\n");
 		return *this;
 	}
 
