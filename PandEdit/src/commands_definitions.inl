@@ -196,7 +196,7 @@ DEFINE_COMMAND(paste)
 
 DEFINE_COMMAND(pastePop)
 {
-	if (Commands::lastCommand == "paste")
+	if (Commands::lastCommand == "paste" || Commands::lastCommand == "pastePop")
 	{
 		BUFFER->pastePop(*FRAME);
 	}

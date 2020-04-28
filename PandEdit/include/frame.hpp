@@ -65,7 +65,7 @@ public:
 
 	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();
-	void deleteTextPointToMark();
+	void deleteTextPointToMark(bool appendToKillRing = true);
 	
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
 

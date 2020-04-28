@@ -256,8 +256,13 @@ std::string Frame::getTextPointToMark()
 	return std::move(result);
 }
 
-void Frame::deleteTextPointToMark()
+void Frame::deleteTextPointToMark(bool appendToKillRing)
 {
+	if (appendToKillRing)
+	{
+		currentBuffer->copyRegion(*this);
+	}
+	
 	auto startAndEnd = getPointStartAndEnd();
 	Point start = startAndEnd.first;
 	Point end = startAndEnd.second;

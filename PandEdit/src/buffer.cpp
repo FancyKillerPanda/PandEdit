@@ -391,7 +391,7 @@ void Buffer::pasteClipboard(Frame& frame)
 
 void Buffer::pastePop(Frame& frame)
 {
-	frame.deleteTextPointToMark();
+	frame.deleteTextPointToMark(false);
 	killRingPointer -= 1;
 	
 	if (killRingPointer < 0)
