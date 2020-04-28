@@ -47,15 +47,12 @@ void Frame::switchToBuffer(Buffer* buffer)
 {
 	if (currentBuffer)
 	{
-		currentBuffer->lastLine = line;
-		currentBuffer->lastCol = col;
-		currentBuffer->lastTargetCol = col; // Don't want to save the target col
+		currentBuffer->lastPoint = point;
+		currentBuffer->lastPoint.targetCol = point.col; // Don't want to save the target col
 	}
 
 	currentBuffer = buffer;
-	line = currentBuffer->lastLine;
-	col = currentBuffer->lastCol;
-	targetCol = currentBuffer->lastTargetCol;
+	point = currentBuffer->lastPoint;
 }
 
 Frame::~Frame()
@@ -72,8 +69,7 @@ Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
 	  pcDimensions(std::move(other.pcDimensions)),
 	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
-	  currentBuffer(other.currentBuffer),
-	  line(other.line), col(other.col), targetCol(other.targetCol)
+	  currentBuffer(other.currentBuffer), point(other.point)
 {
 	framesMap[name] = this;
 	other.name = "";
@@ -108,10 +104,8 @@ Frame& Frame::operator=(Frame&& other)
 		windowHeight = other.windowHeight;
 
 		currentBuffer = other.currentBuffer;
-		line = other.line;
-		col = other.col;
-		targetCol = other.targetCol;
-
+		point = other.point;
+		
 		if (&other == Frame::currentFrame)
 		{
 			Frame::currentFrame = this;
@@ -173,10 +167,7 @@ Frame* Frame::splitVertically()
 
 	std::string newFrameName = name + "_SplitRight";
 	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
-
-	result->line = line;
-	result->col = col;
-	result->targetCol = targetCol;
+	result->point = point;
 
 	return result;
 }
@@ -190,10 +181,7 @@ Frame* Frame::splitHorizontally()
 
 	std::string newFrameName = name + "_SplitDown";
 	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
-
-	result->line = line;
-	result->col = col;
-	result->targetCol = targetCol;
+	result->point = point;
 
 	return result;
 }
@@ -205,26 +193,26 @@ std::pair<std::pair<int, int>, std::pair<int, int>> Frame::getPointStartAndEnd()
 	int startCol;
 	int endCol;
 
-	if (line == markLine)
+	if (point.line == mark.line)
 	{
-		startLine = line;
-		endLine = line;
-		startCol = std::min(col, markCol);
-		endCol = std::max(col, markCol);
+		startLine = point.line;
+		endLine = point.line;
+		startCol = std::min(point.col, mark.col);
+		endCol = std::max(point.col, mark.col);
 	}
-	else if (line < markLine)
+	else if (point.line < mark.line)
 	{
-		startLine = line;
-		endLine = markLine;
-		startCol = col;
-		endCol = markCol;
+		startLine = point.line;
+		endLine = mark.line;
+		startCol = point.col;
+		endCol = mark.col;
 	}
 	else
 	{
-		startLine = markLine;
-		endLine = line;
-		startCol = markCol;
-		endCol = col;
+		startLine = mark.line;
+		endLine = point.line;
+		startCol = mark.col;
+		endCol = point.col;
 	}
 
 	return { { startLine, startCol }, { endLine, endCol } };
@@ -258,7 +246,7 @@ std::string Frame::getTextPointToMark()
 		}
 		else if (currentLine == endLine)
 		{
-			// NOTE(fkp): We don't need to check if line == markLine
+			// NOTE(fkp): We don't need to check if point.line == mark.line
 			// here because this is in an else if from the previous
 			// if.
 			result += currentBuffer->data[currentLine].substr(0, endCol);
@@ -306,10 +294,10 @@ void Frame::deleteTextPointToMark()
 		}
 	}
 
-	line = startLine;
-	col = startCol;
-	markLine = startLine;
-	markCol = startCol;
+	point.line = startLine;
+	point.col = startCol;
+	mark.line = startLine;
+	mark.col = startCol;
 }
 
 // TODO(fkp): Cleanup. This method is one big mess and probably
@@ -324,68 +312,68 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 		{
 			if (insertion)
 			{
-				if (line == frame.line)
+				if (point.line == frame.point.line)
 				{
 					if (lineWrap)
 					{
-						frame.line += 1;
+						frame.point.line += 1;
 					}
 					else
 					{
-						if (col <= frame.col + 1)
+						if (point.col <= frame.point.col + 1)
 						{
-							frame.col += 1;
+							frame.point.col += 1;
 						}
 					}
 				}
-				else if (line == frame.line + 1)
+				else if (point.line == frame.point.line + 1)
 				{
 					if (lineWrap)
 					{
-						if (frame.col >= frame.currentBuffer->data[frame.line].size())
+						if (frame.point.col >= frame.currentBuffer->data[frame.point.line].size())
 						{
-							frame.col -= frame.currentBuffer->data[frame.line].size();
-							frame.line += 1;
+							frame.point.col -= frame.currentBuffer->data[frame.point.line].size();
+							frame.point.line += 1;
 						}
 					}
 				}
-				else if (line < frame.line)
+				else if (point.line < frame.point.line)
 				{
 					if (lineWrap)
 					{
-						frame.line += 1;
+						frame.point.line += 1;
 					}
 				}
 			}
 			else
 			{
-				if (line == frame.line)
+				if (point.line == frame.point.line)
 				{
 					if (lineWrap)
 					{
-						frame.col += col;
+						frame.point.col += point.col;
 					}
 					else
 					{
-						if (col < frame.col)
+						if (point.col < frame.point.col)
 						{
-							frame.col -= 1;
+							frame.point.col -= 1;
 						}
 					}
 				}
-				else if (line == frame.line - 1)
+				else if (point.line == frame.point.line - 1)
 				{
 					if (lineWrap)
 					{
-						frame.line -= 1;
-						frame.col += col;
+						frame.point.line -= 1;
+						frame.point.col += point.col;
 					}
 				}
-				else if (line < frame.line - 1)
+				else if (point.line < frame.point.line - 1)
 				{
 					if (lineWrap)
 					{
-						frame.line -= 1;
+						frame.point.line -= 1;
 					}
 				}
 			}

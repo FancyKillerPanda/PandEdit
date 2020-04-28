@@ -11,6 +11,8 @@
 // for some reason.
 #include <IntSafe.h>
 
+#include "point.hpp"
+
 class Frame;
 
 enum class BufferType
@@ -34,10 +36,8 @@ public:
 	
 	// The frame will take a copy of this when opened, and the last
 	// frame to close this buffer will write its values in.
-	unsigned int lastLine = 0;
-	unsigned int lastCol = 0;
-	unsigned int lastTargetCol = 0;
-
+	Point lastPoint;
+	
 	// TODO(fkp): Make this a timer
 	unsigned int pointFlashFrameCounter = 0;
 

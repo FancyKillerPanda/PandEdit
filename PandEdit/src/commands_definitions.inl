@@ -156,23 +156,23 @@ DEFINE_COMMAND(movePointEnd)
 
 DEFINE_COMMAND(setMark)
 {
-	FRAME->markLine = FRAME->line;
-	FRAME->markCol = FRAME->col;
+	FRAME->mark.line = FRAME->point.line;
+	FRAME->mark.col = FRAME->point.col;
 
 	return false;
 }
 
 DEFINE_COMMAND(swapPointAndMark)
 {
-	unsigned int tempLine = FRAME->line;
-	unsigned int tempCol = FRAME->col;
+	unsigned int tempLine = FRAME->point.line;
+	unsigned int tempCol = FRAME->point.col;
 
-	FRAME->line = FRAME->markLine;
-	FRAME->col = FRAME->markCol;
-	FRAME->markLine = tempLine;
-	FRAME->markCol = tempCol;
+	FRAME->point.line = FRAME->mark.line;
+	FRAME->point.col = FRAME->mark.col;
+	FRAME->mark.line = tempLine;
+	FRAME->mark.col = tempCol;
 
-	FRAME->targetCol = FRAME->col;
+	FRAME->point.targetCol = FRAME->point.col;
 
 	return false;
 }

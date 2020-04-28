@@ -311,20 +311,20 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = framePixelX;
-	float pointY = framePixelY + (frame.line * currentFont->size);
+	float pointY = framePixelY + (frame.point.line * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 
-	for (unsigned int i = 0; i < frame.col; i++)
+	for (unsigned int i = 0; i < frame.point.col; i++)
 	{
-		const Character& character = currentFont->chars[buffer.data[frame.line][i]];
+		const Character& character = currentFont->chars[buffer.data[frame.point.line][i]];
 
-		if (buffer.data[frame.line][i] == '\n')
+		if (buffer.data[frame.point.line][i] == '\n')
 		{
 			pointX = 0;
 			pointY += currentFont->size;
 		}
-		else if (buffer.data[frame.line][i] == '\t')
+		else if (buffer.data[frame.point.line][i] == '\t')
 		{
 			pointX += currentFont->chars[' '].advanceX * tabWidth;
 		}
@@ -334,13 +334,13 @@ void Renderer::drawFrame(Frame& frame)
 		}
 	}
 
-	if (frame.col == buffer.data[frame.line].size())
+	if (frame.point.col == buffer.data[frame.point.line].size())
 	{
 		pointWidth = (float) currentFont->maxGlyphAdvanceX;
 	}
 	else
 	{
-		char currentChar = buffer.data[frame.line][frame.col];
+		char currentChar = buffer.data[frame.point.line][frame.point.col];
 
 		if (currentChar == '\n' || currentChar == '\t')
 		{
@@ -412,9 +412,9 @@ void Renderer::drawFrame(Frame& frame)
 
 		std::string modeLineText = buffer.name;
 		modeLineText += " (LINE: ";
-		modeLineText += std::to_string(frame.line + 1);
+		modeLineText += std::to_string(frame.point.line + 1);
 		modeLineText += ", COL: ";
-		modeLineText += std::to_string(frame.col);
+		modeLineText += std::to_string(frame.point.col);
 		modeLineText += ")";
 
 		drawText(modeLineText, modeLineText.size(), framePixelX, framePixelY + framePixelHeight - currentFont->size, framePixelWidth, false);

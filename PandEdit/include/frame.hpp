@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "buffer.hpp"
+#include "point.hpp"
 
 constexpr unsigned int FRAME_BORDER_WIDTH = 5;
 
@@ -39,12 +40,8 @@ public:
 	unsigned int windowHeight;
 	
 	Buffer* currentBuffer = nullptr;
-	unsigned int line = 0;
-	unsigned int col = 0;
-	unsigned int targetCol = 0;
-	
-	unsigned int markLine = 0;
-	unsigned int markCol = 0;
+	Point point;
+	Point mark;	
 
 private:
 	static std::unordered_map<std::string, Frame*> framesMap;
