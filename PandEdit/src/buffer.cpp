@@ -327,7 +327,7 @@ void Buffer::copyRegion(Frame& frame)
 	GlobalFree(clipboardData);
 
 	// TODO(fkp): Kill ring size limiting
-	if (textToCopy != killRing.back())
+	if (killRing.size() == 0 || textToCopy != killRing.back())
 	{
 		killRing.push_back(std::move(textToCopy));
 		killRingPointer = killRing.size() - 1;
@@ -341,13 +341,15 @@ void Buffer::paste(Frame& frame)
 	if (GetClipboardSequenceNumber() != lastClipboardSequenceNumber)
 	{
 		pasteClipboard(frame);
-		
 	}
 	else
 	{
 		// TODO(fkp): Use the kill ring pointer
 		if (killRing.size() > 0)
 		{
+			frame.markLine = frame.line;
+			frame.markCol = frame.col;
+			
 			insertString(frame, killRing[killRingPointer]);
 		}
 	}
@@ -375,6 +377,9 @@ void Buffer::pasteClipboard(Frame& frame)
 
 		if (clipboardString)
 		{
+			frame.markLine = frame.line;
+			frame.markCol = frame.col;
+			
 			insertString(frame, clipboardString);
 			GlobalUnlock(clipboardData);
 
@@ -384,6 +389,24 @@ void Buffer::pasteClipboard(Frame& frame)
 	}
 
 	CloseClipboard();
+}
+
+void Buffer::pastePop(Frame& frame)
+{
+	frame.deleteTextPointToMark();
+	killRingPointer -= 1;
+	
+	if (killRingPointer < 0)
+	{
+		killRingPointer = killRing.size() - 1;
+		
+		if (killRing.size() == 0)
+		{
+			return;
+		}
+	}
+	
+	paste(frame);
 }
 
 unsigned int Buffer::findWordBoundaryLeft(Frame& frame)

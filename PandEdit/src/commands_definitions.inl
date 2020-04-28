@@ -194,6 +194,16 @@ DEFINE_COMMAND(paste)
 	return false;
 }
 
+DEFINE_COMMAND(pastePop)
+{
+	if (Commands::lastCommand == "paste")
+	{
+		BUFFER->pastePop(*FRAME);
+	}
+
+	return false;
+}
+
 
 //
 // NOTE(fkp): Buffer commands

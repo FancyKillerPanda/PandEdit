@@ -17,6 +17,7 @@ public:
 	static std::unordered_map<std::string, COMMAND_FUNC_SIG()> essentialCommandsMap;
 	static std::unordered_map<std::string, COMMAND_FUNC_SIG()> nonEssentialCommandsMap;
 	static COMMAND_FUNC_SIG(currentCommand);
+	static std::string lastCommand;
 
 public:
 	static void executeCommand(Window& window, const std::string& commandText);

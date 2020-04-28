@@ -198,9 +198,8 @@ Frame* Frame::splitHorizontally()
 	return result;
 }
 
-std::string Frame::getTextPointToMark()
+std::pair<std::pair<int, int>, std::pair<int, int>> Frame::getPointStartAndEnd()
 {
-	std::string result;
 	int startLine;
 	int endLine;
 	int startCol;
@@ -228,6 +227,20 @@ std::string Frame::getTextPointToMark()
 		endCol = col;
 	}
 
+	return { { startLine, startCol }, { endLine, endCol } };
+}
+
+std::string Frame::getTextPointToMark()
+{
+	std::string result;
+
+	// TODO(fkp): This can be better
+	auto startAndEnd = getPointStartAndEnd();
+	int startLine = startAndEnd.first.first;
+	int endLine = startAndEnd.second.first;
+	int startCol = startAndEnd.first.second;
+	int endCol = startAndEnd.second.second;
+	
 	for (int currentLine = startLine; currentLine <= endLine; currentLine++)
 	{
 		if (currentLine == startLine)
@@ -258,6 +271,45 @@ std::string Frame::getTextPointToMark()
 	}
 
 	return std::move(result);
+}
+
+void Frame::deleteTextPointToMark()
+{
+	// TODO(fkp): This can be better
+	auto startAndEnd = getPointStartAndEnd();
+	int startLine = startAndEnd.first.first;
+	int endLine = startAndEnd.second.first;
+	int startCol = startAndEnd.first.second;
+	int endCol = startAndEnd.second.second;
+	
+	// TODO(fkp): This is basically a copy of the loop in getTextPointToMark()
+	for (int currentLine = startLine; currentLine <= endLine; currentLine++)
+	{
+		if (currentLine == startLine)
+		{
+			if (startLine == endLine)
+			{
+				currentBuffer->data[currentLine].erase(startCol, endCol - startCol);
+			}
+			else
+			{
+				currentBuffer->data[currentLine].erase(startCol, std::string::npos);
+			}
+		}
+		else if (currentLine == endLine)
+		{
+			currentBuffer->data[currentLine].erase(0, endCol);
+		}
+		else
+		{
+			currentBuffer->data.erase(currentBuffer->data.begin() + currentLine);
+		}
+	}
+
+	line = startLine;
+	col = startCol;
+	markLine = startLine;
+	markCol = startCol;
 }
 
 // TODO(fkp): Cleanup. This method is one big mess and probably

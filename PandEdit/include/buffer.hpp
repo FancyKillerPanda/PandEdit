@@ -73,6 +73,7 @@ public:
 	void copyRegion(Frame& frame);
 	void paste(Frame& frame);
 	void pasteClipboard(Frame& frame);
+	void pastePop(Frame& frame);
 
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries

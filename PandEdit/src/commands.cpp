@@ -5,6 +5,7 @@
 #include "window.hpp"
 
 COMMAND_FUNC_SIG(Commands::currentCommand) = nullptr;
+std::string Commands::lastCommand = "";
 
 void writeToMinibuffer(std::string message)
 {
@@ -50,6 +51,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 
 	{ "copyRegion", copyRegion },
 	{ "paste", paste },
+	{ "pastePop", pastePop },
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {
@@ -88,6 +90,8 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 		{
 			exitMinibuffer();
 		}
+		
+		lastCommand = commandName;
 	}
 	else
 	{
@@ -105,6 +109,8 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 				{
 					exitMinibuffer();
 				}
+				
+				lastCommand = commandName;
 			}
 			else
 			{

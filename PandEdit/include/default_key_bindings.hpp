@@ -36,6 +36,7 @@ void mapDefaultKeyBindings()
 
 	KeyMap::bindKey({ Key::C, true }, "copyRegion");
 	KeyMap::bindKey({ Key::V, true }, "paste");
+	KeyMap::bindKey({ Key::V, false, false, true }, "pastePop");
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
 }
