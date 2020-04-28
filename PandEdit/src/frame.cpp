@@ -186,70 +186,65 @@ Frame* Frame::splitHorizontally()
 	return result;
 }
 
-std::pair<std::pair<int, int>, std::pair<int, int>> Frame::getPointStartAndEnd()
+std::pair<Point, Point> Frame::getPointStartAndEnd()
 {
-	int startLine;
-	int endLine;
-	int startCol;
-	int endCol;
-
+	Point start { currentBuffer };
+	Point end { currentBuffer };
+	
 	if (point.line == mark.line)
 	{
-		startLine = point.line;
-		endLine = point.line;
-		startCol = std::min(point.col, mark.col);
-		endCol = std::max(point.col, mark.col);
+		start.line = point.line;
+		end.line = point.line;
+		start.col = std::min(point.col, mark.col);
+		end.col = std::max(point.col, mark.col);
 	}
 	else if (point.line < mark.line)
 	{
-		startLine = point.line;
-		endLine = mark.line;
-		startCol = point.col;
-		endCol = mark.col;
+		start.line = point.line;
+		end.line = mark.line;
+		start.col = point.col;
+		end.col = mark.col;
 	}
 	else
 	{
-		startLine = mark.line;
-		endLine = point.line;
-		startCol = mark.col;
-		endCol = point.col;
+		start.line = mark.line;
+		end.line = point.line;
+		start.col = mark.col;
+		end.col = point.col;
 	}
 
-	return { { startLine, startCol }, { endLine, endCol } };
+	return { start, end };
 }
 
 std::string Frame::getTextPointToMark()
 {
 	std::string result;
 
-	// TODO(fkp): This can be better
 	auto startAndEnd = getPointStartAndEnd();
-	int startLine = startAndEnd.first.first;
-	int endLine = startAndEnd.second.first;
-	int startCol = startAndEnd.first.second;
-	int endCol = startAndEnd.second.second;
+	Point start = startAndEnd.first;
+	Point end = startAndEnd.second;
 	
-	for (int currentLine = startLine; currentLine <= endLine; currentLine++)
+	for (int currentLine = start.line; currentLine <= end.line; currentLine++)
 	{
-		if (currentLine == startLine)
+		if (currentLine == start.line)
 		{
 			// Checks if the mark is on the same line as the point
-			if (startLine == endLine)
+			if (start.line == end.line)
 			{
-				result = currentBuffer->data[currentLine].substr(startCol, endCol - startCol);
+				result = currentBuffer->data[currentLine].substr(start.col, end.col - start.col);
 			}
 			else
 			{
-				result += currentBuffer->data[currentLine].substr(startCol, std::string::npos);
+				result += currentBuffer->data[currentLine].substr(start.col, std::string::npos);
 				result += '\n';
 			}
 		}
-		else if (currentLine == endLine)
+		else if (currentLine == end.line)
 		{
 			// NOTE(fkp): We don't need to check if point.line == mark.line
 			// here because this is in an else if from the previous
 			// if.
-			result += currentBuffer->data[currentLine].substr(0, endCol);
+			result += currentBuffer->data[currentLine].substr(0, end.col);
 		}
 		else
 		{
@@ -263,41 +258,18 @@ std::string Frame::getTextPointToMark()
 
 void Frame::deleteTextPointToMark()
 {
-	// TODO(fkp): This can be better
 	auto startAndEnd = getPointStartAndEnd();
-	int startLine = startAndEnd.first.first;
-	int endLine = startAndEnd.second.first;
-	int startCol = startAndEnd.first.second;
-	int endCol = startAndEnd.second.second;
+	Point start = startAndEnd.first;
+	Point end = startAndEnd.second;
+	point = end;
 	
-	// TODO(fkp): This is basically a copy of the loop in getTextPointToMark()
-	for (int currentLine = startLine; currentLine <= endLine; currentLine++)
+	while (point > start)
 	{
-		if (currentLine == startLine)
-		{
-			if (startLine == endLine)
-			{
-				currentBuffer->data[currentLine].erase(startCol, endCol - startCol);
-			}
-			else
-			{
-				currentBuffer->data[currentLine].erase(startCol, std::string::npos);
-			}
-		}
-		else if (currentLine == endLine)
-		{
-			currentBuffer->data[currentLine].erase(0, endCol);
-		}
-		else
-		{
-			currentBuffer->data.erase(currentBuffer->data.begin() + currentLine);
-		}
+		currentBuffer->backspaceChar(*this);
 	}
 
-	point.line = startLine;
-	point.col = startCol;
-	mark.line = startLine;
-	mark.col = startCol;
+	point = start;
+	mark = start;
 }
 
 // TODO(fkp): Cleanup. This method is one big mess and probably

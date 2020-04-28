@@ -204,6 +204,12 @@ DEFINE_COMMAND(pastePop)
 	return false;
 }
 
+DEFINE_COMMAND(deleteRegion)
+{
+	FRAME->deleteTextPointToMark();
+	return false;
+}
+
 
 //
 // NOTE(fkp): Buffer commands

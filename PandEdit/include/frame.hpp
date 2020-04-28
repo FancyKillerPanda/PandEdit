@@ -63,9 +63,7 @@ public:
 	Frame* splitVertically();
 	Frame* splitHorizontally();
 
-	// TODO(fkp): This should have a better return type
-	// TODO(fkp): Maybe overload comparison operators in a point struct?
-	std::pair<std::pair<int, int>, std::pair<int, int>> getPointStartAndEnd();
+	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();
 	void deleteTextPointToMark();
 	
