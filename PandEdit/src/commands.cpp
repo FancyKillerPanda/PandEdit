@@ -65,6 +65,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 	{ "frameMovePrevious", frameMovePrevious },
 	
 	{ "switchToBuffer", switchToBuffer },
+	{ "findFile", findFile },
 };
 
 void Commands::executeCommand(Window& window, const std::string& commandText)

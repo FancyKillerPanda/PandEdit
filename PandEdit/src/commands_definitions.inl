@@ -226,7 +226,7 @@ DEFINE_COMMAND(switchToBuffer)
 
 		if (!buffer)
 		{
-			buffer = new Buffer { BufferType::Text, text.substr(0, text.find(' ')) };
+			buffer = new Buffer { BufferType::Text, text.substr(0, text.find(' ')), "" };
 		}
 		
 		FRAME->switchToBuffer(buffer);
@@ -238,6 +238,35 @@ DEFINE_COMMAND(switchToBuffer)
 		writeToMinibuffer("Buffer: ");
 		Commands::currentCommand = switchToBuffer;
 		
+		return false;
+	}
+}
+
+// TODO(fkp): This command is very similar to switchToBuffer.
+DEFINE_COMMAND(findFile)
+{
+	if (Commands::currentCommand)
+	{
+		Commands::currentCommand = nullptr;
+		exitMinibuffer("");
+
+		Buffer* buffer = Buffer::getFromFilePath(text.substr(0, text.find(' ')));
+
+		if (!buffer)
+		{
+			// TODO(fkp): Work out name
+			buffer = new Buffer { BufferType::Text, "filename", text.substr(0, text.find(' ')) };
+		}
+
+		FRAME->switchToBuffer(buffer);
+		return true;
+	}
+	else
+	{
+		Frame::minibufferFrame->makeActive();
+		writeToMinibuffer("Path: ");
+		Commands::currentCommand = findFile;
+
 		return false;
 	}
 }

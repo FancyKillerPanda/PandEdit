@@ -1,8 +1,7 @@
 //  ===== Date Created: 14 April, 2020 ===== 
 
 #include "shader.hpp"
-
-std::string readFile(const char* path);
+#include "file_util.hpp"
 
 std::unordered_map<std::string, Shader*> Shader::shadersMap;
 

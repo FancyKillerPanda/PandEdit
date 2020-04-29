@@ -13,27 +13,6 @@
 #include "text.hpp"
 #include "default_key_bindings.hpp"
 
-// TODO(fkp): Find somewhere better to put this
-std::string readFile(const char* filename)
-{
-	std::ifstream file(filename);
-
-	if (!file)
-	{
-		printf("Error: Failed to read file '%s'.\n", filename);
-		return "";
-	}
-
-	file.seekg(0, std::ios::end);
-	std::size_t size = file.tellg();
-	file.seekg(0);
-
-	std::string buffer(size, ' ');
-	file.read(&buffer[0], size);
-
-	return buffer;
-}
-
 int main(int argc, char* argv[])
 {
 	Window window { 960, 540, "PandEdit" };

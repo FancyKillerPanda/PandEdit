@@ -31,6 +31,7 @@ public:
 	
 	BufferType type;
 	std::string name;
+	std::string path;
 	
 	std::vector<std::string> data;
 	
@@ -42,7 +43,7 @@ public:
 	unsigned int pointFlashFrameCounter = 0;
 
 public:
-	Buffer(BufferType type, std::string name);
+	Buffer(BufferType type, std::string name, std::string path);
 	~Buffer();
 	Buffer(const Buffer&) = delete;
 	Buffer& operator=(const Buffer&) = delete;
@@ -50,6 +51,7 @@ public:
 	Buffer& operator=(Buffer&& other);
 	
 	static Buffer* get(const std::string& name);
+	static Buffer* getFromFilePath(const std::string& path);
 	
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();

@@ -35,6 +35,7 @@ set(HEADERS
 	keymap.hpp
 	default_key_bindings.hpp
 	point.hpp
+	file_util.hpp
 )
 set(SOURCES
 	main.cpp
@@ -48,6 +49,7 @@ set(SOURCES
 	commands.cpp
 	keymap.cpp
 	point.cpp
+	file_util.cpp
 )
 
 # Prepends directories to the files

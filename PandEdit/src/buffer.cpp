@@ -4,18 +4,38 @@
 
 #include "buffer.hpp"
 #include "frame.hpp"
+#include "file_util.hpp"
 
 std::unordered_map<std::string, Buffer*> Buffer::buffersMap;
 std::vector<std::string> Buffer::killRing;
 int Buffer::killRingPointer = -1;
 DWORD Buffer::lastClipboardSequenceNumber = 0;
 
-Buffer::Buffer(BufferType type, std::string name)
-	: type(type), name(name)
+Buffer::Buffer(BufferType type, std::string name, std::string path)
+	: type(type), name(name), path(path)
 {
-	// Makes sure there's at least one line in the buffer
-	data.emplace_back();
+	if (path == "")
+	{
+		// Makes sure there's at least one line in the buffer
+		data.emplace_back();
+	}
+	else
+	{
+		std::string fileContents = readFile(path.c_str(), true);
 
+		std::string::size_type pos = 0;
+		std::string::size_type previous = 0;
+
+		while ((pos = fileContents.find("\n", previous)) != std::string::npos)
+		{
+			data.emplace_back(std::move(fileContents.substr(previous, pos - previous)));
+			previous = pos + 1;
+		}
+
+		// Last one
+		data.emplace_back(std::move(fileContents.substr(previous)));
+	}
+	
 	buffersMap.insert({ name, this });
 }
 
@@ -72,6 +92,20 @@ Buffer* Buffer::get(const std::string& name)
 	{
 		return nullptr;
 	}
+}
+
+Buffer* Buffer::getFromFilePath(const std::string& path)
+{
+	// TODO(fkp): Iterating an unordered_map is really bad.
+	for (std::pair<const std::string, Buffer*>& pair : buffersMap)
+	{
+		if (pair.second->path == path)
+		{
+			return pair.second;
+		}
+	}
+
+	return nullptr;
 }
 
 void Buffer::doCommonPointManipulationTasks()

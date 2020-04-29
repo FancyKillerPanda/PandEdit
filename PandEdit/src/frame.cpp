@@ -17,7 +17,7 @@ Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, un
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, BufferType type, std::string bufferName, bool isActive)
 {
-	Buffer* buffer = new Buffer { type, bufferName };
+	Buffer* buffer = new Buffer { type, bufferName, "" };
 	init(name, dimensions, windowWidth, windowHeight, buffer, isActive);
 }
 
