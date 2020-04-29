@@ -281,8 +281,14 @@ void Renderer::drawFrame(Frame& frame)
 	Buffer& buffer = *frame.currentBuffer;
 	int y = framePixelY;
 
-	for (const std::string& line : buffer.data)
+	for (unsigned int i = 0; i < buffer.data.size(); i++)
 	{
+		if (y + currentFont->size > framePixelY + framePixelHeight)
+		{
+			break;
+		}
+
+		const std::string& line = buffer.data[i];
 		drawText(line, -1, framePixelX, y, framePixelWidth);
 		y += currentFont->size;
 	}

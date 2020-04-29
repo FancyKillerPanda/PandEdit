@@ -283,7 +283,6 @@ DEFINE_COMMAND(findFile)
 	}
 }
 
-// TODO(fkp): Current working directory
 DEFINE_COMMAND(saveCurrentBuffer)
 {
 	if (Commands::currentCommand)
