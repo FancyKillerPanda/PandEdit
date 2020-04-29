@@ -344,7 +344,7 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (&frame == Frame::currentFrame)
 	{
-		if (buffer.pointFlashFrameCounter++ % 90 < 45)
+		if (frame.pointFlashFrameCounter++ % 90 < 45)
 		{
 			drawRect(pointX, pointY, pointWidth, pointHeight);
 		}

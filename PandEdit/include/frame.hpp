@@ -46,6 +46,9 @@ public:
 	Point mark;	
 	unsigned int lineTop = 0;
 
+	// TODO(fkp): Make this a timer
+	unsigned int pointFlashFrameCounter = 0;
+
 private:
 	static std::unordered_map<std::string, Frame*> framesMap;
 
@@ -70,7 +73,23 @@ public:
 	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();
 	void deleteTextPointToMark(bool appendToKillRing = true);
+
+	// This is stuff that is common to all point manipulations
+	void doCommonPointManipulationTasks();
 	
+	// Movement of the point
+	void movePointLeft(unsigned int num = 1);
+	void movePointRight(unsigned int num = 1);
+	void movePointUp();
+	void movePointDown();
+	void movePointHome();
+	void movePointEnd();
+	
+	// Utility
+	// TODO(fkp): Currently only registers space, do other word boundaries
+	unsigned int findWordBoundaryLeft();
+	unsigned int findWordBoundaryRight();
+	void moveColToTarget();
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
 
 private:

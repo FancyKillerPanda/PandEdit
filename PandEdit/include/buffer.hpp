@@ -39,9 +39,6 @@ public:
 	// frame to close this buffer will write its values in.
 	Point lastPoint;
 	
-	// TODO(fkp): Make this a timer
-	unsigned int pointFlashFrameCounter = 0;
-
 public:
 	Buffer(BufferType type, std::string name, std::string path);
 	~Buffer();
@@ -55,17 +52,6 @@ public:
 	
 	void saveToFile();
 	
-	// This is stuff that is common to all point manipulations
-	void doCommonPointManipulationTasks();
-	
-	// Movement of the point
-	void movePointLeft(Frame& frame, unsigned int num = 1);
-	void movePointRight(Frame& frame, unsigned int num = 1);
-	void movePointUp(Frame& frame);
-	void movePointDown(Frame& frame);
-	void movePointHome(Frame& frame);
-	void movePointEnd(Frame& frame);
-	
 	// Manipulations at the point
 	void insertChar(Frame& frame, char character);
 	void backspaceChar(Frame& frame, unsigned int num = 1);
@@ -78,12 +64,6 @@ public:
 	void paste(Frame& frame);
 	void pasteClipboard(Frame& frame);
 	void pastePop(Frame& frame);
-
-	// Utility
-	// TODO(fkp): Currently only registers space, do other word boundaries
-	unsigned int findWordBoundaryLeft(Frame& frame);
-	unsigned int findWordBoundaryRight(Frame& frame);
-	void moveColToTarget(Frame& frame);
 };
 
 #endif

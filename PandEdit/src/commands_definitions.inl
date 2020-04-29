@@ -102,13 +102,13 @@ DEFINE_COMMAND(deleteChar)
 
 DEFINE_COMMAND(backspaceWord)
 {
-	BUFFER->backspaceChar(*FRAME, BUFFER->findWordBoundaryLeft(*FRAME));
+	BUFFER->backspaceChar(*FRAME, FRAME->findWordBoundaryLeft());
 	return false;
 }
 
 DEFINE_COMMAND(deleteWord)
 {
-	BUFFER->deleteChar(*FRAME, BUFFER->findWordBoundaryRight(*FRAME));
+	BUFFER->deleteChar(*FRAME, FRAME->findWordBoundaryRight());
 	return false;
 }
 
@@ -119,49 +119,49 @@ DEFINE_COMMAND(deleteWord)
 
 DEFINE_COMMAND(movePointLeftChar)
 {
-	BUFFER->movePointLeft(*FRAME, 1);
+	FRAME->movePointLeft(1);
 	return false;
 }
 
 DEFINE_COMMAND(movePointRightChar)
 {
-	BUFFER->movePointRight(*FRAME, 1);
+	FRAME->movePointRight(1);
 	return false;
 }
 
 DEFINE_COMMAND(movePointLeftWord)
 {
-	BUFFER->movePointLeft(*FRAME, BUFFER->findWordBoundaryLeft(*FRAME));
+	FRAME->movePointLeft(FRAME->findWordBoundaryLeft());
 	return false;
 }
 
 DEFINE_COMMAND(movePointRightWord)
 {
-	BUFFER->movePointLeft(*FRAME, BUFFER->findWordBoundaryRight(*FRAME));
+	FRAME->movePointLeft(FRAME->findWordBoundaryRight());
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineUp)
 {
-	BUFFER->movePointUp(*FRAME);
+	FRAME->movePointUp();
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineDown)
 {
-	BUFFER->movePointDown(*FRAME);
+	FRAME->movePointDown();
 	return false;
 }
 
 DEFINE_COMMAND(movePointHome)
 {
-	BUFFER->movePointHome(*FRAME);
+	FRAME->movePointHome();
 	return false;
 }
 
 DEFINE_COMMAND(movePointEnd)
 {
-	BUFFER->movePointEnd(*FRAME);
+	FRAME->movePointEnd();
 	return false;
 }
 

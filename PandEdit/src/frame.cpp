@@ -284,6 +284,178 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 	mark = start;
 }
 
+void Frame::doCommonPointManipulationTasks()
+{
+	pointFlashFrameCounter = 0;
+
+	if (currentBuffer->type != BufferType::MiniBuffer)
+	{
+		Frame::minibufferFrame->currentBuffer->data[0] = "";
+		Frame::minibufferFrame->point.col = 0;
+	}
+}
+
+void Frame::movePointLeft(unsigned int num)
+{
+	doCommonPointManipulationTasks();
+
+	if (num == 0) num = 1;
+
+	for (int i = 0; i < num; i++)
+	{
+		if (point.col > 0)
+		{
+			if (currentBuffer->type == BufferType::MiniBuffer &&
+				point.col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+			{
+				// Should not be able to move into the 'Execute: ' part
+				break;
+			}
+
+			point.col -= 1;
+		}
+		else
+		{
+			if (point.line > 0)
+			{
+				point.line -= 1;
+				point.col = currentBuffer->data[point.line].size();
+			}
+		}
+	}
+
+	point.targetCol = point.col;
+}
+
+void Frame::movePointRight(unsigned int num)
+{
+	doCommonPointManipulationTasks();
+
+	if (num == 0) num = 1;
+
+	for (int i = 0; i < num; i++)
+	{
+		if (point.col < currentBuffer->data[point.line].size())
+		{
+			point.col += 1;
+		}
+		else
+		{
+			if (point.line < currentBuffer->data.size() - 1)
+			{
+				point.line += 1;
+				point.col = 0;
+			}
+		}
+	}
+
+	point.targetCol = point.col;
+}
+
+void Frame::movePointUp()
+{
+	doCommonPointManipulationTasks();
+
+	if (point.line > 0)
+	{
+		point.line -= 1;
+		moveColToTarget();
+	}
+}
+
+void Frame::movePointDown()
+{
+	doCommonPointManipulationTasks();
+
+	if (point.line < currentBuffer->data.size() - 1)
+	{
+		point.line += 1;
+		moveColToTarget();
+	}
+}
+
+void Frame::movePointHome()
+{
+	doCommonPointManipulationTasks();
+
+	if (currentBuffer->type == BufferType::MiniBuffer)
+	{
+		// Should move to after the 'Execute: ' part
+		point.col = Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1;
+	}
+	else
+	{
+		point.col = 0;
+	}
+
+	point.targetCol = point.col;
+}
+
+void Frame::movePointEnd()
+{
+	doCommonPointManipulationTasks();
+
+	point.col = currentBuffer->data[point.line].size();
+	point.targetCol = point.col;
+}
+
+unsigned int Frame::findWordBoundaryLeft()
+{
+	unsigned int numberOfChars = 0;
+
+	while (point.col - numberOfChars > 0)
+	{
+		// Stops at space, only if not the first character
+		if (numberOfChars != 0 &&
+			currentBuffer->data[point.line][point.col - numberOfChars - 1] == ' ')
+		{
+			break;
+		}
+
+		numberOfChars += 1;
+	}
+
+	return numberOfChars;
+}
+
+unsigned int Frame::findWordBoundaryRight()
+{
+	unsigned int numberOfChars = 0;
+
+	while (point.col + numberOfChars < currentBuffer->data[point.line].size())
+	{
+		// Stops at space, only if not the first character
+		if (numberOfChars != 0 &&
+			currentBuffer->data[point.line][point.col + numberOfChars] == ' ')
+		{
+			break;
+		}
+
+		numberOfChars += 1;
+	}
+
+	return numberOfChars;
+}
+
+void Frame::moveColToTarget()
+{
+	if (point.col > currentBuffer->data[point.line].size())
+	{
+		point.col = currentBuffer->data[point.line].size();
+	}
+	else
+	{
+		if (point.targetCol > currentBuffer->data[point.line].size())
+		{
+			point.col = currentBuffer->data[point.line].size();
+		}
+		else
+		{
+			point.col = point.targetCol;
+		}
+	}
+}
+
 // TODO(fkp): Cleanup. This method is one big mess and probably
 // riddled with bugs.
 void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
