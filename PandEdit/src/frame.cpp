@@ -1,5 +1,7 @@
 //  ===== Date Created: 15 April, 2020 =====
 
+#define NOMINMAX
+#include <windows.h>
 #include <algorithm>
 
 #include "frame.hpp"
@@ -10,6 +12,10 @@ Frame* Frame::previousFrame = nullptr;
 Frame* Frame::minibufferFrame = nullptr;
 std::vector<Frame>* Frame::allFrames = nullptr;
 std::unordered_map<std::string, Frame*> Frame::framesMap;
+
+std::vector<std::string> Frame::killRing;
+int Frame::killRingPointer = -1;
+DWORD Frame::lastClipboardSequenceNumber = 0;
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
@@ -267,7 +273,7 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 {
 	if (appendToKillRing)
 	{
-		currentBuffer->copyRegion(*this);
+		copyRegion();
 	}
 	
 	auto startAndEnd = getPointStartAndEnd();
@@ -643,4 +649,114 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 			}
 		}
 	}
+}
+
+void Frame::copyRegion()
+{
+	std::string textToCopy = getTextPointToMark();
+	
+	if (!OpenClipboard(GetDesktopWindow()))
+	{
+		printf("Error: Failed to open clipboard for copying to.\n");
+		return;
+	}
+
+	EmptyClipboard();
+	HGLOBAL clipboardData = GlobalAlloc(GMEM_MOVEABLE, textToCopy.size() + 1);
+
+	if (!clipboardData)
+	{
+		printf("Error: Failed to allocate global memory for text.\n");
+		CloseClipboard();
+
+		return;
+	}
+
+	memcpy(GlobalLock(clipboardData), textToCopy.c_str(), textToCopy.size() + 1);
+	GlobalUnlock(clipboardData);
+	SetClipboardData(CF_TEXT, clipboardData);
+	CloseClipboard();
+	GlobalFree(clipboardData);
+
+	// TODO(fkp): Kill ring size limiting
+	if (killRing.size() == 0 || textToCopy != killRing.back())
+	{
+		killRing.push_back(std::move(textToCopy));
+		killRingPointer = killRing.size() - 1;
+	}
+	
+	lastClipboardSequenceNumber = GetClipboardSequenceNumber();
+}
+
+void Frame::paste()
+{
+	if (GetClipboardSequenceNumber() != lastClipboardSequenceNumber)
+	{
+		pasteClipboard();
+	}
+	else
+	{
+		// TODO(fkp): Use the kill ring pointer
+		if (killRing.size() > 0)
+		{
+			mark.line = point.line;
+			mark.col = point.col;
+			
+			insertString(killRing[killRingPointer]);
+		}
+	}
+}
+
+void Frame::pasteClipboard()
+{
+	if (!IsClipboardFormatAvailable(CF_TEXT))
+	{
+		printf("Error: Pasting text not supported.\n");
+		return;
+	}
+
+	if (!OpenClipboard(GetDesktopWindow()))
+	{
+		printf("Error: Failed to open clipboard for pasting.\n");
+		return;
+	}
+
+	HGLOBAL clipboardData = GetClipboardData(CF_TEXT);
+
+	if (clipboardData)
+	{
+		LPCSTR clipboardString = (LPCSTR) GlobalLock(clipboardData);;
+
+		if (clipboardString)
+		{
+			mark.line = point.line;
+			mark.col = point.col;
+			
+			insertString(clipboardString);
+			GlobalUnlock(clipboardData);
+
+			killRing.push_back(std::string { clipboardString });
+			killRingPointer = killRing.size() - 1;
+		}
+	}
+
+	CloseClipboard();
+}
+
+void Frame::pastePop()
+{
+	deleteTextPointToMark(false);
+	killRingPointer -= 1;
+	
+	if (killRingPointer < 0)
+	{
+		killRingPointer = killRing.size() - 1;
+		
+		if (killRing.size() == 0)
+		{
+			return;
+		}
+	}
+	
+	paste();
 }

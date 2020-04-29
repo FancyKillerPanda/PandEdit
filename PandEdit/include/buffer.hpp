@@ -25,9 +25,6 @@ class Buffer
 {
 public:
 	static std::unordered_map<std::string, Buffer*> buffersMap;
-	static std::vector<std::string> killRing;
-	static int killRingPointer; // -1 when nothing in the kill ring
-	static DWORD lastClipboardSequenceNumber;
 	
 	BufferType type;
 	std::string name;
@@ -51,12 +48,6 @@ public:
 	static Buffer* getFromFilePath(const std::string& path);
 	
 	void saveToFile();
-	
-	// Copy/cut/paste
-	void copyRegion(Frame& frame);
-	void paste(Frame& frame);
-	void pasteClipboard(Frame& frame);
-	void pastePop(Frame& frame);
 };
 
 #endif

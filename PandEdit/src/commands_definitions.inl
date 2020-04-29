@@ -252,13 +252,13 @@ DEFINE_COMMAND(pageDown)
 
 DEFINE_COMMAND(copyRegion)
 {
-	BUFFER->copyRegion(*FRAME);
+	FRAME->copyRegion();
 	return false;
 }
 
 DEFINE_COMMAND(paste)
 {
-	BUFFER->paste(*FRAME);
+	FRAME->paste();
 	return false;
 }
 
@@ -266,7 +266,7 @@ DEFINE_COMMAND(pastePop)
 {
 	if (Commands::lastCommand == "paste" || Commands::lastCommand == "pastePop")
 	{
-		BUFFER->pastePop(*FRAME);
+		FRAME->pastePop();
 	}
 
 	return false;

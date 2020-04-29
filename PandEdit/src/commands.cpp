@@ -54,7 +54,6 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(pageUp),
 	COMMAND(pageDown),
 
-	// TODO(fkp): Cut
 	COMMAND(copyRegion),
 	COMMAND(paste),
 	COMMAND(pastePop),

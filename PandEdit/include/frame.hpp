@@ -30,6 +30,10 @@ public:
 	static Frame* minibufferFrame;
 	static std::vector<Frame>* allFrames;
 
+	static std::vector<std::string> killRing;
+	static int killRingPointer; // -1 when nothing in the kill ring
+	static DWORD lastClipboardSequenceNumber;
+	
 	std::string name;
 
 	// The real dimensions of the frame, as a percentage of the window
@@ -98,6 +102,12 @@ public:
 	unsigned int findWordBoundaryRight();
 	void moveColToTarget();
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
+
+	// Copy/cut/paste
+	void copyRegion();
+	void paste();
+	void pasteClipboard();
+	void pastePop();
 
 private:
 	void init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);
