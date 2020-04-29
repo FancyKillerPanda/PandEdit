@@ -3,8 +3,6 @@
 #include "shader.hpp"
 #include "file_util.hpp"
 
-std::unordered_map<std::string, Shader*> Shader::shadersMap;
-
 Shader::Shader(std::string name, const char* vertexPath, const char* fragmentPath)
 	: name(name)
 {

@@ -6,8 +6,6 @@
 #include "frame.hpp"
 #include "file_util.hpp"
 
-std::unordered_map<std::string, Buffer*> Buffer::buffersMap;
-
 Buffer::Buffer(BufferType type, std::string name, std::string path)
 	: type(type), name(name), path(path)
 {

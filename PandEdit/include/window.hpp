@@ -34,7 +34,7 @@ public:
 	std::string currentWorkingDirectory;
 
 private:
-	static std::unordered_map<HWND, Window*> windowsMap;
+	inline static std::unordered_map<HWND, Window*> windowsMap;
 
 public:
 	Window(unsigned int width, unsigned int height, const char* title);

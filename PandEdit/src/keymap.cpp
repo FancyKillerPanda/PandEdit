@@ -4,9 +4,6 @@
 #include "window.hpp"
 #include "commands.hpp"
 
-bool KeyMap::modifiersPressed[4] {};
-std::unordered_map<KeyCombo, std::vector<std::string>, KeyComboHash> KeyMap::keyMap;
-
 void KeyMap::bindKey(KeyCombo keyCombo, std::string function)
 {
 	auto result = keyMap.find(keyCombo);
@@ -178,4 +175,3 @@ Key KeyMap::convertWin32CodeToKey(WPARAM code)
 	default:			return Key::Unknown;
 	}
 }
-

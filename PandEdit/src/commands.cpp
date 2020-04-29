@@ -4,9 +4,6 @@
 #include "frame.hpp"
 #include "window.hpp"
 
-COMMAND_FUNC_SIG(Commands::currentCommand) = nullptr;
-std::string Commands::lastCommand = "";
-
 void writeToMinibuffer(std::string message)
 {
 	Frame::minibufferFrame->currentBuffer->data[0] = message;

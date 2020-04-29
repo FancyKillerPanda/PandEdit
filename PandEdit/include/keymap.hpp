@@ -113,8 +113,8 @@ class KeyMap
 {
 public:
 	// TODO(fkp): This will need to increase when left/right modifiers are done
-	static bool modifiersPressed[4];
-	static std::unordered_map<KeyCombo, std::vector<std::string>, KeyComboHash> keyMap;
+	inline static bool modifiersPressed[4] {};
+	inline static std::unordered_map<KeyCombo, std::vector<std::string>, KeyComboHash> keyMap;
 	
 public:
 	static void bindKey(KeyCombo keyCombo, std::string function);

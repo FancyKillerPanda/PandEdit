@@ -7,16 +7,6 @@
 #include "frame.hpp"
 #include "text.hpp"
 
-Frame* Frame::currentFrame = nullptr;
-Frame* Frame::previousFrame = nullptr;
-Frame* Frame::minibufferFrame = nullptr;
-std::vector<Frame>* Frame::allFrames = nullptr;
-std::unordered_map<std::string, Frame*> Frame::framesMap;
-
-std::vector<std::string> Frame::killRing;
-int Frame::killRingPointer = -1;
-DWORD Frame::lastClipboardSequenceNumber = 0;
-
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
 	init(name, dimensions, windowWidth, windowHeight, buffer, isActive);

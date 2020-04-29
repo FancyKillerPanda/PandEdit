@@ -25,14 +25,14 @@ class Font;
 class Frame
 {
 public:
-	static Frame* currentFrame;
-	static Frame* previousFrame;
-	static Frame* minibufferFrame;
-	static std::vector<Frame>* allFrames;
+	inline static Frame* currentFrame = nullptr;
+	inline static Frame* previousFrame = nullptr;
+	inline static Frame* minibufferFrame = nullptr;
+	inline static std::vector<Frame>* allFrames = nullptr;
 
-	static std::vector<std::string> killRing;
-	static int killRingPointer; // -1 when nothing in the kill ring
-	static DWORD lastClipboardSequenceNumber;
+	inline static std::vector<std::string> killRing;
+	inline static int killRingPointer = -1; // -1 when nothing in the kill ring
+	inline static DWORD lastClipboardSequenceNumber = 0;
 	
 	std::string name;
 
@@ -54,7 +54,7 @@ public:
 	unsigned int pointFlashFrameCounter = 0;
 
 private:
-	static std::unordered_map<std::string, Frame*> framesMap;
+	inline static std::unordered_map<std::string, Frame*> framesMap;
 
 public:
 	Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);

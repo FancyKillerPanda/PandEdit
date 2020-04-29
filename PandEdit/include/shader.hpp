@@ -14,7 +14,7 @@ public:
 	GLuint programID;
 
 private:
-	static std::unordered_map<std::string, Shader*> shadersMap;
+	inline static std::unordered_map<std::string, Shader*> shadersMap;
 	
 public:
 	Shader(std::string name, const char* vertexPath, const char* fragmentPath);

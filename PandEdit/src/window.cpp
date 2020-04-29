@@ -18,8 +18,6 @@
 #include "keymap.hpp"
 #include "file_util.hpp"
 
-std::unordered_map<HWND, Window*> Window::windowsMap;
-
 Window::Window(unsigned int width, unsigned int height, const char* title)
 	: isOpen(false),
 	  width(width), height(height),

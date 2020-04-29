@@ -24,7 +24,7 @@ enum class BufferType
 class Buffer
 {
 public:
-	static std::unordered_map<std::string, Buffer*> buffersMap;
+	inline static std::unordered_map<std::string, Buffer*> buffersMap;
 	
 	BufferType type;
 	std::string name;

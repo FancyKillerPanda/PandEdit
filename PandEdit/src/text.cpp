@@ -7,8 +7,6 @@
 
 #define MAX_TEXTURE_ATLAS_WIDTH 512
 
-std::unordered_map<std::string, Font*> Font::fontsMap;
-
 Font::Font(std::string name, const char* path, unsigned int size)
 	: size(size), name(name)
 {

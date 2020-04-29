@@ -41,7 +41,7 @@ public:
 	Character chars[128];
 
 private:
-	static std::unordered_map<std::string, Font*> fontsMap;
+	inline static std::unordered_map<std::string, Font*> fontsMap;
 
 public:
 	Font(std::string name, const char* path, unsigned int size);
