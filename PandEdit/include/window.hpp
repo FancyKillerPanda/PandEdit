@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 #include "frame.hpp"
 
@@ -30,6 +31,8 @@ public:
 	Renderer* renderer;
 	std::vector<Frame> frames;
 
+	std::string currentWorkingDirectory;
+
 private:
 	static std::unordered_map<HWND, Window*> windowsMap;
 
@@ -42,6 +45,7 @@ public:
 	void draw();
 	void resize(unsigned int newWidth, unsigned int newHeight);
 	void setFont(Font* font);
+	void parseArguments(std::vector<std::string>&& args);
 
 	// If moveNext is false, will move backwards
 	void moveToNextFrame(bool moveNext = true);

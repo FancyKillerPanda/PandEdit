@@ -56,6 +56,10 @@ set(SOURCES
 list(TRANSFORM HEADERS PREPEND include/)
 list(TRANSFORM SOURCES PREPEND src/)
 
+# C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 add_executable(PandEdit_Core ${SOURCES} ${HEADERS})
 set_target_properties(PandEdit_Core PROPERTIES OUTPUT_NAME "PandEdit")
 target_include_directories(PandEdit_Core PRIVATE ${PROJECT_SOURCE_DIR}/include)

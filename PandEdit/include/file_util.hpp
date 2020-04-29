@@ -7,5 +7,6 @@
 
 std::string readFile(const char* filename, bool createIfNotExists = false);
 std::string getFilenameFromPath(const std::string& path);
+std::string getPathOnly(const std::string& path);
 
 #endif

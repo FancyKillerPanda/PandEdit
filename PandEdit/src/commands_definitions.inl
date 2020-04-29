@@ -274,8 +274,10 @@ DEFINE_COMMAND(findFile)
 	else
 	{
 		Frame::minibufferFrame->makeActive();
-		writeToMinibuffer("Path: ");
 		Commands::currentCommand = findFile;
+		
+		std::string message = "Path: " + window.currentWorkingDirectory;
+		writeToMinibuffer(message);
 
 		return false;
 	}
@@ -323,8 +325,10 @@ DEFINE_COMMAND(saveCurrentBuffer)
 		else
 		{
 			Frame::minibufferFrame->makeActive();
-			writeToMinibuffer("Path: ");
 			Commands::currentCommand = saveCurrentBuffer;
+			
+			std::string message = "Path: " + window.currentWorkingDirectory;		
+			writeToMinibuffer(message);
 
 			return false;
 		}

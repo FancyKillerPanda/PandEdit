@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include <glad/glad.h>
 
@@ -16,6 +17,9 @@
 int main(int argc, char* argv[])
 {
 	Window window { 960, 540, "PandEdit" };
+
+	std::vector<std::string> args(argv, argv + argc);
+	window.parseArguments(std::move(args));
 
 	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 255.0f);
 	glEnable(GL_BLEND);

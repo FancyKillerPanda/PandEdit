@@ -38,3 +38,9 @@ std::string getFilenameFromPath(const std::string& path)
 
 	return path.substr(startIndex);
 }
+
+std::string getPathOnly(const std::string& path)
+{
+	std::size_t lastSlashIndex = path.find_last_of("/\\");
+	return path.substr(0, lastSlashIndex + 1);
+}

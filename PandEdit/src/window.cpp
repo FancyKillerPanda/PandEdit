@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <windows.h>
+#include <filesystem>
 
 #include <glad/glad.h>
 #include <glad/glad_wgl.h>
@@ -15,6 +16,7 @@
 #include "text.hpp"
 #include "commands.hpp"
 #include "keymap.hpp"
+#include "file_util.hpp"
 
 std::unordered_map<HWND, Window*> Window::windowsMap;
 
@@ -203,6 +205,12 @@ void Window::setFont(Font* font)
 
 	renderer->currentFont = font;
 	resize(width, height);
+}
+
+void Window::parseArguments(std::vector<std::string>&& args)
+{
+	std::string relativeExePath = getPathOnly(args[0]);
+	currentWorkingDirectory = std::filesystem::absolute(".").generic_string() + '/';
 }
 
 void Window::moveToNextFrame(bool moveNext)
