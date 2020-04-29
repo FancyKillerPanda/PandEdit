@@ -46,10 +46,12 @@ void Frame::switchToBuffer(Buffer* buffer)
 	{
 		currentBuffer->lastPoint = point;
 		currentBuffer->lastPoint.targetCol = point.col; // Don't want to save the target col
+		currentBuffer->lastLineTop = lineTop;
 	}
 
 	currentBuffer = buffer;
 	point = currentBuffer->lastPoint;
+	lineTop = currentBuffer->lastLineTop;
 }
 
 Frame::~Frame()
