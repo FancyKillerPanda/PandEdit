@@ -277,14 +277,35 @@ DEFINE_COMMAND(findFile)
 
 DEFINE_COMMAND(saveCurrentBuffer)
 {
-	// TODO(fkp): Request path if not a file already
-	exitMinibuffer();
-
-	if (BUFFER->path != "")
+	if (Commands::currentCommand)
 	{
+		exitMinibuffer();
+		Commands::currentCommand = nullptr;
+		
+		// TODO(fkp): Deal with buffers like scratch
+		BUFFER->path = text;
 		BUFFER->saveToFile();
 		writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+		
+		return true;
 	}
+	else
+	{
+		if (BUFFER->path != "")
+		{
+			exitMinibuffer();
+			BUFFER->saveToFile();
+			writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+		
+			return true;
+		}
+		else
+		{
+			Frame::minibufferFrame->makeActive();
+			writeToMinibuffer("Path: ");
+			Commands::currentCommand = saveCurrentBuffer;
 
-	return true;
+			return false;
+		}
+	}
 }
