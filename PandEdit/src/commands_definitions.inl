@@ -36,6 +36,8 @@ DEFINE_COMMAND(minibufferQuit)
 {
 	exitMinibuffer("Quit");
 	Frame::previousFrame->makeActive();
+	Commands::currentCommand = nullptr;
+	
 	return true;
 }
 

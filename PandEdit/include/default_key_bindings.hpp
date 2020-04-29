@@ -40,6 +40,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::W, true }, "deleteRegion");
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
+	KeyMap::bindKey({ Key::F, false, false, true }, "findFile");
 }
 
 #endif
