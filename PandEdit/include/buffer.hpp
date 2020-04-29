@@ -53,6 +53,8 @@ public:
 	static Buffer* get(const std::string& name);
 	static Buffer* getFromFilePath(const std::string& path);
 	
+	void saveToFile();
+	
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();
 	

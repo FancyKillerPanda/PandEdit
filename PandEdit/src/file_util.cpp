@@ -10,7 +10,7 @@ std::string readFile(const char* filename, bool createIfNotExists)
 	if (createIfNotExists)
 	{
 		// ifstream will fail if the file doesn't exist, but this will not
-		std::ofstream file(filename);
+		std::ofstream file(filename, std::ios::app);
 	}
 	
 	std::ifstream file(filename);

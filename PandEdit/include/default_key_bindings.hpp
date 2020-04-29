@@ -41,6 +41,7 @@ void mapDefaultKeyBindings()
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
 	KeyMap::bindKey({ Key::F, false, false, true }, "findFile");
+	KeyMap::bindKey({ Key::S, false, false, true }, "saveCurrentBuffer");
 }
 
 #endif

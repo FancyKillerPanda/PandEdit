@@ -1,6 +1,7 @@
 //  ===== Date Created: 15 April, 2020 =====
 
 #include <windows.h>
+#include <fstream>
 
 #include "buffer.hpp"
 #include "frame.hpp"
@@ -106,6 +107,31 @@ Buffer* Buffer::getFromFilePath(const std::string& path)
 	}
 
 	return nullptr;
+}
+
+void Buffer::saveToFile()
+{
+	// TODO(fkp): Check if changes need to be saved
+	if (path == "")
+	{
+		printf("Error: Cannot save non-file-visiting buffer.\n");
+		return;
+	}
+
+	std::ofstream file(path, std::ios::trunc);
+
+	if (!file)
+	{
+		printf("Error: Failed to open file '%s' for saving to.\n", path.c_str());
+		return;
+	}
+
+	for (const std::string& line : data)
+	{
+		file << line << '\n';
+	}
+
+	printf("Info: Saved buffer to file '%s'.\n", path.c_str());
 }
 
 void Buffer::doCommonPointManipulationTasks()

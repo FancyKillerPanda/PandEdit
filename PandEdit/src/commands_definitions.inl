@@ -272,3 +272,19 @@ DEFINE_COMMAND(findFile)
 		return false;
 	}
 }
+
+DEFINE_COMMAND(saveCurrentBuffer)
+{
+	// TODO(fkp): Request path if not a file already
+	exitMinibuffer();
+
+	if (BUFFER->path != "")
+	{
+		BUFFER->saveToFile();
+		
+		// TODO(fkp): Make writeToMinibuffer varidic
+		// writeToMinibuffer("Saved \"%s\"", BUFFER->path.c_str());
+	}
+
+	return true;
+}
