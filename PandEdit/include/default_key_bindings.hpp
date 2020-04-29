@@ -9,7 +9,8 @@ void mapDefaultKeyBindings()
 {
 	// NOTE(fkp): KeyCombo constructor is in the order:
 	// Key, Control, Shift, Alt, Windows
-	
+
+	KeyMap::bindKey({ Key::F4, false, false, true }, "quit");
 	KeyMap::bindKey({ Key::X, false, false, true }, "minibufferEnter");
 	KeyMap::bindKey({ Key::G, true }, "minibufferQuit");
 	

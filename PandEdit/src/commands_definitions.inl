@@ -24,6 +24,12 @@ DEFINE_COMMAND(echo)
 	return true;
 }
 
+DEFINE_COMMAND(quit)
+{
+	window.isOpen = false;
+	return true;
+}
+
 DEFINE_COMMAND(minibufferEnter)
 {
 	if (Frame::currentFrame != Frame::minibufferFrame)

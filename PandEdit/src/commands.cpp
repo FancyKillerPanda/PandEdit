@@ -29,45 +29,49 @@ void exitMinibuffer(std::string message)
 }
 
 #include "commands_definitions.inl"
+#define COMMAND(name) { #name, name }
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsMap = {
-	{ "minibufferQuit", minibufferQuit },
+	COMMAND(quit),
+	COMMAND(minibufferQuit),
 	
-	{ "backspaceChar", backspaceChar },
-	{ "deleteChar", deleteChar },
-	{ "backspaceWord", backspaceWord },
-	{ "deleteWord", deleteWord },
+	COMMAND(backspaceChar),
+	COMMAND(deleteChar),
+	COMMAND(backspaceWord),
+	COMMAND(deleteWord),
 	
-	{ "movePointLeftChar", movePointLeftChar },
-	{ "movePointRightChar", movePointRightChar },
-	{ "movePointLeftWord", movePointLeftWord },
-	{ "movePointRightWord", movePointRightWord },
-	{ "movePointLineUp", movePointLineUp },
-	{ "movePointLineDown", movePointLineDown },
-	{ "movePointHome", movePointHome },
-	{ "movePointEnd", movePointEnd },
-	{ "setMark", setMark },
-	{ "swapPointAndMark", swapPointAndMark },
+	COMMAND(movePointLeftChar),
+	COMMAND(movePointRightChar),
+	COMMAND(movePointLeftWord),
+	COMMAND(movePointRightWord),
+	COMMAND(movePointLineUp),
+	COMMAND(movePointLineDown),
+	COMMAND(movePointHome),
+	COMMAND(movePointEnd),
+	COMMAND(setMark),
+	COMMAND(swapPointAndMark),
 
-	{ "copyRegion", copyRegion },
-	{ "paste", paste },
-	{ "pastePop", pastePop },
-	{ "deleteRegion", deleteRegion },
+	COMMAND(copyRegion),
+	COMMAND(paste),
+	COMMAND(pastePop),
+	COMMAND(deleteRegion),
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {
-	{ "echo", echo },
-	{ "minibufferEnter", minibufferEnter },
+	COMMAND(echo),
+	COMMAND(minibufferEnter),
 
-	{ "frameSplitVertically", frameSplitVertically },
-	{ "frameSplitHorizontally", frameSplitHorizontally },
-	{ "frameMoveNext", frameMoveNext },
-	{ "frameMovePrevious", frameMovePrevious },
+	COMMAND(frameSplitVertically),
+	COMMAND(frameSplitHorizontally),
+	COMMAND(frameMoveNext),
+	COMMAND(frameMovePrevious),
 	
-	{ "switchToBuffer", switchToBuffer },
-	{ "findFile", findFile },
-	{ "saveCurrentBuffer", saveCurrentBuffer },
+	COMMAND(switchToBuffer),
+	COMMAND(findFile),
+	COMMAND(saveCurrentBuffer),
 };
+
+#undef COMMAND
 
 void Commands::executeCommand(Window& window, const std::string& commandText)
 {	
