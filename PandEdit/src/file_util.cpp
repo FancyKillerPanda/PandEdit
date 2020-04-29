@@ -30,3 +30,11 @@ std::string readFile(const char* filename, bool createIfNotExists)
 
 	return buffer;
 }
+
+std::string getFilenameFromPath(const std::string& path)
+{
+	std::size_t lastSlashIndex = path.find_last_of("/\\");
+	std::size_t startIndex = lastSlashIndex == std::string::npos ? 0 : lastSlashIndex + 1;
+
+	return path.substr(startIndex);
+}

@@ -1,6 +1,8 @@
 // NOTE(fkp): This file is not to be compiled, it will be included in
 // commands.cpp
 
+#include "file_util.hpp"
+
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
 #define FRAME Frame::currentFrame
 #define BUFFER Frame::currentFrame->currentBuffer
@@ -256,8 +258,8 @@ DEFINE_COMMAND(findFile)
 
 		if (!buffer)
 		{
-			// TODO(fkp): Work out name
-			buffer = new Buffer { BufferType::Text, "filename", text.substr(0, text.find(' ')) };
+			std::string filename = getFilenameFromPath(text.substr(0, text.find(' ')));
+			buffer = new Buffer { BufferType::Text, filename, text.substr(0, text.find(' ')) };
 		}
 
 		FRAME->switchToBuffer(buffer);
@@ -281,9 +283,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 	if (BUFFER->path != "")
 	{
 		BUFFER->saveToFile();
-		
-		// TODO(fkp): Make writeToMinibuffer varidic
-		// writeToMinibuffer("Saved \"%s\"", BUFFER->path.c_str());
+		writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
 	}
 
 	return true;
