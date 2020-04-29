@@ -275,17 +275,32 @@ DEFINE_COMMAND(findFile)
 	}
 }
 
+// TODO(fkp): Current working directory
 DEFINE_COMMAND(saveCurrentBuffer)
 {
 	if (Commands::currentCommand)
 	{
 		exitMinibuffer();
 		Commands::currentCommand = nullptr;
-		
-		// TODO(fkp): Deal with buffers like scratch
-		BUFFER->path = text;
-		BUFFER->saveToFile();
-		writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+
+		if (text == "")
+		{
+			writeToMinibuffer("Error: No file path supplied.");
+		}
+		else
+		{		
+			if (text[text.size() - 1] == '/' || text[text.size() - 1] == '\\')
+			{
+				BUFFER->path = text + BUFFER->name;
+			}
+			else
+			{
+				BUFFER->path = text;
+			}
+
+			BUFFER->saveToFile();
+			writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+		}
 		
 		return true;
 	}
