@@ -277,7 +277,7 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 	
 	while (point > start)
 	{
-		currentBuffer->backspaceChar(*this);
+		backspaceChar();
 	}
 
 	point = start;
@@ -292,6 +292,114 @@ void Frame::doCommonPointManipulationTasks()
 	{
 		Frame::minibufferFrame->currentBuffer->data[0] = "";
 		Frame::minibufferFrame->point.col = 0;
+	}
+}
+
+void Frame::insertChar(char character)
+{
+	doCommonPointManipulationTasks();
+
+	currentBuffer->data[point.line].insert(currentBuffer->data[point.line].begin() + point.col, character);
+	point.col += 1;
+	point.targetCol = point.col;
+
+	adjustOtherFramePointLocations(true, false);
+}
+
+void Frame::backspaceChar(unsigned int num)
+{
+	doCommonPointManipulationTasks();
+
+	if (num == 0) num = 1;
+
+	for (int i = 0; i < num; i++)
+	{
+		if (point.col > 0)
+		{
+			if (currentBuffer->type == BufferType::MiniBuffer &&
+				point.col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+			{
+				// Should not be able to backspace into the 'Execute: ' part
+				break;
+			}
+
+			point.col -= 1;
+			currentBuffer->data[point.line].erase(point.col, 1);
+
+			adjustOtherFramePointLocations(false, false);
+		}
+		else
+		{
+			if (point.line > 0)
+			{
+				point.line -= 1;
+				point.col = currentBuffer->data[point.line].size();
+
+				currentBuffer->data[point.line] += currentBuffer->data[point.line + 1];
+				currentBuffer->data.erase(currentBuffer->data.begin() + point.line + 1);
+
+				adjustOtherFramePointLocations(false, true);
+			}
+		}
+	}
+
+	point.targetCol = point.col;
+}
+
+void Frame::deleteChar(unsigned int num)
+{
+	doCommonPointManipulationTasks();
+
+	if (num == 0) num = 1;
+
+	for (int i = 0; i < num; i++)
+	{
+		if (point.col < currentBuffer->data[point.line].size())
+		{
+			currentBuffer->data[point.line].erase(point.col, 1);
+			adjustOtherFramePointLocations(false, false);
+		}
+		else
+		{
+			if (point.line < currentBuffer->data.size() - 1)
+			{
+				currentBuffer->data[point.line] += currentBuffer->data[point.line + 1];
+				currentBuffer->data.erase(currentBuffer->data.begin() + point.line + 1);
+				adjustOtherFramePointLocations(false, true);
+			}
+		}
+	}
+
+	point.targetCol = point.col;
+}
+
+void Frame::newLine()
+{
+	doCommonPointManipulationTasks();
+
+	std::string restOfLine { currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end() };
+	currentBuffer->data[point.line].erase(currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end());
+
+	point.line += 1;
+	point.col = 0;
+	point.targetCol = point.col;
+
+	currentBuffer->data.insert(currentBuffer->data.begin() + point.line, restOfLine);
+	adjustOtherFramePointLocations(true, true);
+}
+
+void Frame::insertString(const std::string& string)
+{
+	for (char character : string)
+	{
+		if (character == '\n')
+		{
+			newLine();
+		}
+		else if (character != '\r') // Windows has CRLF endings
+		{
+			insertChar(character);
+		}
 	}
 }
 

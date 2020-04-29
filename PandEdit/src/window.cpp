@@ -125,7 +125,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 		case VK_TAB:
 		{
-			buffer.insertChar(*Frame::currentFrame, '\t');
+			Frame::currentFrame->insertChar('\t');
 		} break;
 		
 		case VK_RETURN:
@@ -144,7 +144,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			}
 			else
 			{
-				buffer.newLine(*Frame::currentFrame);
+				Frame::currentFrame->newLine();
 			}
 		} break;
 		}
@@ -166,7 +166,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		if (!IS_KEY_PRESSED(VK_CONTROL) &&
 			wParam >= 32 && wParam < 127)
 		{
-			buffer.insertChar(*Frame::currentFrame, (char) wParam);
+			Frame::currentFrame->insertChar((char) wParam);
 		}
 	} return 0;
 	

@@ -90,25 +90,25 @@ DEFINE_COMMAND(frameMovePrevious)
 
 DEFINE_COMMAND(backspaceChar)
 {
-	BUFFER->backspaceChar(*FRAME, 1);
+	FRAME->backspaceChar(1);
 	return false;
 }
 
 DEFINE_COMMAND(deleteChar)
 {
-	BUFFER->deleteChar(*FRAME, 1);
+	FRAME->deleteChar(1);
 	return false;
 }
 
 DEFINE_COMMAND(backspaceWord)
 {
-	BUFFER->backspaceChar(*FRAME, FRAME->findWordBoundaryLeft());
+	FRAME->backspaceChar(FRAME->findWordBoundaryLeft());
 	return false;
 }
 
 DEFINE_COMMAND(deleteWord)
 {
-	BUFFER->deleteChar(*FRAME, FRAME->findWordBoundaryRight());
+	FRAME->deleteChar(FRAME->findWordBoundaryRight());
 	return false;
 }
 

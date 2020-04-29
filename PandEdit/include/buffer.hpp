@@ -52,13 +52,6 @@ public:
 	
 	void saveToFile();
 	
-	// Manipulations at the point
-	void insertChar(Frame& frame, char character);
-	void backspaceChar(Frame& frame, unsigned int num = 1);
-	void deleteChar(Frame& frame, unsigned int num = 1);
-	void newLine(Frame& frame);
-	void insertString(Frame& frame, const std::string& string);
-
 	// Copy/cut/paste
 	void copyRegion(Frame& frame);
 	void paste(Frame& frame);

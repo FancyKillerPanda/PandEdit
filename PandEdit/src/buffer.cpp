@@ -132,114 +132,6 @@ void Buffer::saveToFile()
 	printf("Info: Saved buffer to file '%s'.\n", path.c_str());
 }
 
-void Buffer::insertChar(Frame& frame, char character)
-{
-	frame.doCommonPointManipulationTasks();
-
-	data[frame.point.line].insert(data[frame.point.line].begin() + frame.point.col, character);
-	frame.point.col += 1;
-	frame.point.targetCol = frame.point.col;
-
-	frame.adjustOtherFramePointLocations(true, false);
-}
-
-void Buffer::backspaceChar(Frame& frame, unsigned int num)
-{
-	frame.doCommonPointManipulationTasks();
-
-	if (num == 0) num = 1;
-
-	for (int i = 0; i < num; i++)
-	{
-		if (frame.point.col > 0)
-		{
-			if (type == BufferType::MiniBuffer &&
-				frame.point.col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
-			{
-				// Should not be able to backspace into the 'Execute: ' part
-				break;
-			}
-
-			frame.point.col -= 1;
-			data[frame.point.line].erase(frame.point.col, 1);
-
-			frame.adjustOtherFramePointLocations(false, false);
-		}
-		else
-		{
-			if (frame.point.line > 0)
-			{
-				frame.point.line -= 1;
-				frame.point.col = data[frame.point.line].size();
-
-				data[frame.point.line] += data[frame.point.line + 1];
-				data.erase(data.begin() + frame.point.line + 1);
-
-				frame.adjustOtherFramePointLocations(false, true);
-			}
-		}
-	}
-
-	frame.point.targetCol = frame.point.col;
-}
-
-void Buffer::deleteChar(Frame& frame, unsigned int num)
-{
-	frame.doCommonPointManipulationTasks();
-
-	if (num == 0) num = 1;
-
-	for (int i = 0; i < num; i++)
-	{
-		if (frame.point.col < data[frame.point.line].size())
-		{
-			data[frame.point.line].erase(frame.point.col, 1);
-			frame.adjustOtherFramePointLocations(false, false);
-		}
-		else
-		{
-			if (frame.point.line < data.size() - 1)
-			{
-				data[frame.point.line] += data[frame.point.line + 1];
-				data.erase(data.begin() + frame.point.line + 1);
-				frame.adjustOtherFramePointLocations(false, true);
-			}
-		}
-	}
-
-	frame.point.targetCol = frame.point.col;
-}
-
-void Buffer::newLine(Frame& frame)
-{
-	frame.doCommonPointManipulationTasks();
-
-	std::string restOfLine { data[frame.point.line].begin() + frame.point.col, data[frame.point.line].end() };
-	data[frame.point.line].erase(data[frame.point.line].begin() + frame.point.col, data[frame.point.line].end());
-
-	frame.point.line += 1;
-	frame.point.col = 0;
-	frame.point.targetCol = frame.point.col;
-
-	data.insert(data.begin() + frame.point.line, restOfLine);
-	frame.adjustOtherFramePointLocations(true, true);
-}
-
-void Buffer::insertString(Frame& frame, const std::string& string)
-{
-	for (char character : string)
-	{
-		if (character == '\n')
-		{
-			newLine(frame);
-		}
-		else if (character != '\r') // Windows has CRLF endings
-		{
-			insertChar(frame, character);
-		}
-	}
-}
-
 void Buffer::copyRegion(Frame& frame)
 {
 	std::string textToCopy = frame.getTextPointToMark();
@@ -291,7 +183,7 @@ void Buffer::paste(Frame& frame)
 			frame.mark.line = frame.point.line;
 			frame.mark.col = frame.point.col;
 			
-			insertString(frame, killRing[killRingPointer]);
+			frame.insertString(killRing[killRingPointer]);
 		}
 	}
 }
@@ -321,7 +213,7 @@ void Buffer::pasteClipboard(Frame& frame)
 			frame.mark.line = frame.point.line;
 			frame.mark.col = frame.point.col;
 			
-			insertString(frame, clipboardString);
+			frame.insertString(clipboardString);
 			GlobalUnlock(clipboardData);
 
 			killRing.push_back(std::string { clipboardString });

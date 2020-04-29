@@ -77,6 +77,13 @@ public:
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();
 	
+	// Manipulations at the point
+	void insertChar(char character);
+	void backspaceChar(unsigned int num = 1);
+	void deleteChar(unsigned int num = 1);
+	void newLine();
+	void insertString(const std::string& string);
+
 	// Movement of the point
 	void movePointLeft(unsigned int num = 1);
 	void movePointRight(unsigned int num = 1);
