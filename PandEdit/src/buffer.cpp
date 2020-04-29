@@ -50,7 +50,7 @@ Buffer::~Buffer()
 
 Buffer::Buffer(Buffer&& other)
 	: type(other.type), name(std::move(other.name)), data(std::move(other.data)),
-	  lastPoint(other.lastPoint), lastLineTop(other.lastLineTop)
+	  lastPoint(other.lastPoint), lastTopLine(other.lastTopLine)
 {
 	buffersMap[name] = this;
 	other.name = "";
@@ -65,7 +65,7 @@ Buffer& Buffer::operator=(Buffer&& other)
 		data = std::move(other.data);
 
 		lastPoint = other.lastPoint;
-		lastLineTop = other.lastLineTop;
+		lastTopLine = other.lastTopLine;
 
 		buffersMap[name] = this;
 		other.name = "";

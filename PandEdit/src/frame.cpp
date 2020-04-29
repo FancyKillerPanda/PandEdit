@@ -46,12 +46,12 @@ void Frame::switchToBuffer(Buffer* buffer)
 	{
 		currentBuffer->lastPoint = point;
 		currentBuffer->lastPoint.targetCol = point.col; // Don't want to save the target col
-		currentBuffer->lastLineTop = lineTop;
+		currentBuffer->lastTopLine = topLine;
 	}
 
 	currentBuffer = buffer;
 	point = currentBuffer->lastPoint;
-	lineTop = currentBuffer->lastLineTop;
+	topLine = currentBuffer->lastTopLine;
 }
 
 Frame::~Frame()
@@ -68,7 +68,7 @@ Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
 	  pcDimensions(std::move(other.pcDimensions)),
 	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
-	  currentBuffer(other.currentBuffer), point(other.point)
+	  currentBuffer(other.currentBuffer), point(other.point), topLine(other.topLine)
 {
 	framesMap[name] = this;
 	other.name = "";
@@ -104,6 +104,7 @@ Frame& Frame::operator=(Frame&& other)
 
 		currentBuffer = other.currentBuffer;
 		point = other.point;
+		topLine = other.topLine;
 		
 		if (&other == Frame::currentFrame)
 		{
@@ -468,7 +469,7 @@ void Frame::movePointUp(Font* currentFont)
 		moveColToTarget();
 	}
 
-	if (point.line < lineTop)
+	if (point.line < topLine)
 	{
 		recenterBufferAroundPoint(currentFont);
 	}
@@ -484,7 +485,7 @@ void Frame::movePointDown(Font* currentFont)
 		moveColToTarget();
 	}
 
-	if (point.line >= lineTop + getNumberOfLines(currentFont))
+	if (point.line >= topLine + getNumberOfLines(currentFont))
 	{
 		recenterBufferAroundPoint(currentFont);
 	}
@@ -517,8 +518,8 @@ void Frame::movePointEnd()
 
 void Frame::moveView(int numberOfLines, bool movePoint)
 {
-	unsigned int oldLineTop = lineTop;
-	int newLineTop = (int) lineTop + numberOfLines;
+	unsigned int oldLineTop = topLine;
+	int newLineTop = (int) topLine + numberOfLines;
 
 	if (newLineTop < 0)
 	{
@@ -530,8 +531,8 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 		newLineTop = currentBuffer->data.size() - 2;
 	}
 
-	lineTop = newLineTop;;
-	int numberOfLinesMoved = (int) lineTop - (int) oldLineTop;
+	topLine = newLineTop;;
+	int numberOfLinesMoved = (int) topLine - (int) oldLineTop;
 
 	if (movePoint)
 	{
@@ -552,7 +553,7 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 void Frame::recenterBufferAroundPoint(Font* currentFont)
 {
 	unsigned int numberOfFrameLines = getNumberOfLines(currentFont);
-	int numberOfLinesToMove = point.line - ((int) lineTop + (numberOfFrameLines / 2));
+	int numberOfLinesToMove = point.line - ((int) topLine + (numberOfFrameLines / 2));
 	moveView(numberOfLinesToMove, false);
 }
 

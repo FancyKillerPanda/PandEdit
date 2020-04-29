@@ -35,7 +35,7 @@ public:
 	// The frame will take a copy of this when opened, and the last
 	// frame to close this buffer will write its values in.
 	Point lastPoint;
-	unsigned int lastLineTop = 0;
+	unsigned int lastTopLine = 0;
 	
 public:
 	Buffer(BufferType type, std::string name, std::string path);

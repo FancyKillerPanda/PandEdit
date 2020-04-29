@@ -48,7 +48,7 @@ public:
 	Buffer* currentBuffer = nullptr;
 	Point point;
 	Point mark;	
-	unsigned int lineTop = 0;
+	unsigned int topLine = 0;
 
 	// TODO(fkp): Make this a timer
 	unsigned int pointFlashFrameCounter = 0;
