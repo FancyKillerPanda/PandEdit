@@ -185,7 +185,7 @@ Frame* Frame::splitHorizontally()
 
 unsigned int Frame::getNumberOfLines(Font* currentFont)
 {
-	unsigned int pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
+	unsigned int pixelHeight = (unsigned int) (pcDimensions.height * windowHeight) - currentFont->size;
 	return pixelHeight / currentFont->size;
 }
 
@@ -456,7 +456,7 @@ void Frame::movePointRight(unsigned int num)
 	point.targetCol = point.col;
 }
 
-void Frame::movePointUp()
+void Frame::movePointUp(Font* currentFont)
 {
 	doCommonPointManipulationTasks();
 
@@ -465,9 +465,14 @@ void Frame::movePointUp()
 		point.line -= 1;
 		moveColToTarget();
 	}
+
+	if (point.line < lineTop)
+	{
+		recenterBufferAroundPoint(currentFont);
+	}
 }
 
-void Frame::movePointDown()
+void Frame::movePointDown(Font* currentFont)
 {
 	doCommonPointManipulationTasks();
 
@@ -475,6 +480,11 @@ void Frame::movePointDown()
 	{
 		point.line += 1;
 		moveColToTarget();
+	}
+
+	if (point.line >= lineTop + getNumberOfLines(currentFont))
+	{
+		recenterBufferAroundPoint(currentFont);
 	}
 }
 
@@ -501,6 +511,47 @@ void Frame::movePointEnd()
 
 	point.col = currentBuffer->data[point.line].size();
 	point.targetCol = point.col;
+}
+
+void Frame::moveView(int numberOfLines, bool movePoint)
+{
+	unsigned int oldLineTop = lineTop;
+	int newLineTop = (int) lineTop + numberOfLines;
+
+	if (newLineTop < 0)
+	{
+		newLineTop = 0;
+	}	
+	
+	if (newLineTop > currentBuffer->data.size() - 2)
+	{
+		newLineTop = currentBuffer->data.size() - 2;
+	}
+
+	lineTop = newLineTop;;
+	int numberOfLinesMoved = (int) lineTop - (int) oldLineTop;
+
+	if (movePoint)
+	{
+		point.line += numberOfLinesMoved;
+
+		if (point.line < 0)
+		{
+			point.line = 0;
+		}
+
+		if (point.line > currentBuffer->data.size() - 2)
+		{
+			point.line = currentBuffer->data.size() - 2;
+		}
+	}
+}
+
+void Frame::recenterBufferAroundPoint(Font* currentFont)
+{
+	unsigned int numberOfFrameLines = getNumberOfLines(currentFont);
+	int numberOfLinesToMove = point.line - ((int) lineTop + (numberOfFrameLines / 2));
+	moveView(numberOfLinesToMove, false);
 }
 
 unsigned int Frame::findWordBoundaryLeft()

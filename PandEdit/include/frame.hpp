@@ -91,10 +91,14 @@ public:
 	// Movement of the point
 	void movePointLeft(unsigned int num = 1);
 	void movePointRight(unsigned int num = 1);
-	void movePointUp();
-	void movePointDown();
+	// TODO(fkp): Maybe store the number of lines once?
+	void movePointUp(Font* currentFont);
+	void movePointDown(Font* currentFont);
 	void movePointHome();
 	void movePointEnd();
+
+	void moveView(int numberOfLines, bool movePoint);
+	void recenterBufferAroundPoint(Font* currentFont);
 	
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries

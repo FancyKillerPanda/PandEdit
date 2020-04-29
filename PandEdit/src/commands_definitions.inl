@@ -143,13 +143,13 @@ DEFINE_COMMAND(movePointRightWord)
 
 DEFINE_COMMAND(movePointLineUp)
 {
-	FRAME->movePointUp();
+	FRAME->movePointUp(window.renderer->currentFont);
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineDown)
 {
-	FRAME->movePointDown();
+	FRAME->movePointDown(window.renderer->currentFont);
 	return false;
 }
 
@@ -193,24 +193,7 @@ DEFINE_COMMAND(pageUp)
 	// Minibuffer shouldn't have scrolling
 	if (BUFFER->type != BufferType::MiniBuffer)
 	{
-		unsigned int oldTop = FRAME->lineTop;
-		int newTop = (int) FRAME->lineTop - (FRAME->getNumberOfLines(window.renderer->currentFont) - 3);
-
-		if (newTop >= 0)
-		{
-			FRAME->lineTop = newTop;
-		}
-		else
-		{
-			FRAME->lineTop = newTop = 0;
-		}
-
-		FRAME->point.line -= oldTop - newTop;
-
-		if (FRAME->point.line < 0)
-		{
-			FRAME->point.line = 0;
-		}
+		FRAME->moveView(-(FRAME->getNumberOfLines(window.renderer->currentFont) - 3), true);
 	}
 
 	return false;
@@ -221,25 +204,7 @@ DEFINE_COMMAND(pageDown)
 	// Minibuffer shouldn't have scrolling
 	if (BUFFER->type != BufferType::MiniBuffer)
 	{
-		unsigned int oldTop = FRAME->lineTop;
-		int newTop = (int) FRAME->lineTop + (FRAME->getNumberOfLines(window.renderer->currentFont) - 3);
-
-		// Subtract 1 to be in bounds and another so one line is visible
-		if (newTop < BUFFER->data.size() - 2)
-		{
-			FRAME->lineTop = newTop;
-		}
-		else
-		{
-			FRAME->lineTop = newTop = BUFFER->data.size() - 2;
-		}
-
-		FRAME->point.line += newTop - oldTop;
-
-		if (FRAME->point.line >= BUFFER->data.size())
-		{
-			FRAME->point.line = BUFFER->data.size() - 2;
-		}
+		FRAME->moveView(FRAME->getNumberOfLines(window.renderer->currentFont) - 3, true);
 	}
 
 	return false;
