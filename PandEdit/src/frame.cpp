@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "frame.hpp"
-#include "text.hpp"
+#include "font.hpp"
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {

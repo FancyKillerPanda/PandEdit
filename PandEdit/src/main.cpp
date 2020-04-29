@@ -11,7 +11,7 @@
 #include "window.hpp"
 #include "shader.hpp"
 #include "renderer.hpp"
-#include "text.hpp"
+#include "font.hpp"
 #include "default_key_bindings.hpp"
 
 int main(int argc, char* argv[])

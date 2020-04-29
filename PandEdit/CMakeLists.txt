@@ -27,7 +27,7 @@ set(HEADERS
 	window.hpp
 	shader.hpp
 	matrix.hpp
-	text.hpp
+	font.hpp
 	renderer.hpp
 	frame.hpp
 	buffer.hpp
@@ -42,7 +42,7 @@ set(SOURCES
 	window.cpp
 	shader.cpp
 	matrix.cpp
-	text.cpp
+	font.cpp
 	renderer.cpp
 	frame.cpp
 	buffer.cpp

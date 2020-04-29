@@ -3,7 +3,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "text.hpp"
+#include "font.hpp"
 
 #define MAX_TEXTURE_ATLAS_WIDTH 512
 

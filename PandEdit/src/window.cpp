@@ -11,9 +11,8 @@
 
 #include "window.hpp"
 #include "renderer.hpp"
-#include "text.hpp"
 #include "matrix.hpp"
-#include "text.hpp"
+#include "font.hpp"
 #include "commands.hpp"
 #include "keymap.hpp"
 #include "file_util.hpp"

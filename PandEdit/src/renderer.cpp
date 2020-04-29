@@ -2,7 +2,7 @@
 
 #include "renderer.hpp"
 #include "shader.hpp"
-#include "text.hpp"
+#include "font.hpp"
 #include "matrix.hpp"
 #include "frame.hpp"
 #include "common.hpp"
