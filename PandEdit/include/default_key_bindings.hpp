@@ -35,6 +35,9 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::Space, true }, "setMark");
 	KeyMap::bindKey({ Key::Semicolon, false, false, true }, "swapPointAndMark");
 
+	KeyMap::bindKey({ Key::PageUp }, "pageUp");
+	KeyMap::bindKey({ Key::PageDown }, "pageDown");
+
 	KeyMap::bindKey({ Key::C, true }, "copyRegion");
 	KeyMap::bindKey({ Key::V, true }, "paste");
 	KeyMap::bindKey({ Key::V, false, false, true }, "pastePop");

@@ -20,6 +20,8 @@ struct Vector4f
 	float height;
 };
 
+class Font;
+
 class Frame
 {
 public:
@@ -42,6 +44,7 @@ public:
 	Buffer* currentBuffer = nullptr;
 	Point point;
 	Point mark;	
+	unsigned int lineTop = 0;
 
 private:
 	static std::unordered_map<std::string, Frame*> framesMap;
@@ -62,6 +65,7 @@ public:
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
 	Frame* splitVertically();
 	Frame* splitHorizontally();
+	unsigned int getNumberOfLines(Font* currentFont);
 
 	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();

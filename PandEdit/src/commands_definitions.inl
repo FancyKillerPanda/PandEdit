@@ -2,6 +2,7 @@
 // commands.cpp
 
 #include "file_util.hpp"
+#include "renderer.hpp"
 
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
 #define FRAME Frame::currentFrame
@@ -183,6 +184,63 @@ DEFINE_COMMAND(swapPointAndMark)
 	FRAME->mark.col = tempCol;
 
 	FRAME->point.targetCol = FRAME->point.col;
+
+	return false;
+}
+
+DEFINE_COMMAND(pageUp)
+{
+	// Minibuffer shouldn't have scrolling
+	if (BUFFER->type != BufferType::MiniBuffer)
+	{
+		unsigned int oldTop = FRAME->lineTop;
+		int newTop = (int) FRAME->lineTop - (FRAME->getNumberOfLines(window.renderer->currentFont) - 3);
+
+		if (newTop >= 0)
+		{
+			FRAME->lineTop = newTop;
+		}
+		else
+		{
+			FRAME->lineTop = newTop = 0;
+		}
+
+		FRAME->point.line -= oldTop - newTop;
+
+		if (FRAME->point.line < 0)
+		{
+			FRAME->point.line = 0;
+		}
+	}
+
+	return false;
+}
+
+DEFINE_COMMAND(pageDown)
+{
+	// Minibuffer shouldn't have scrolling
+	if (BUFFER->type != BufferType::MiniBuffer)
+	{
+		unsigned int oldTop = FRAME->lineTop;
+		int newTop = (int) FRAME->lineTop + (FRAME->getNumberOfLines(window.renderer->currentFont) - 3);
+
+		// Subtract 1 to be in bounds and another so one line is visible
+		if (newTop < BUFFER->data.size() - 2)
+		{
+			FRAME->lineTop = newTop;
+		}
+		else
+		{
+			FRAME->lineTop = newTop = BUFFER->data.size() - 2;
+		}
+
+		FRAME->point.line += newTop - oldTop;
+
+		if (FRAME->point.line >= BUFFER->data.size())
+		{
+			FRAME->point.line = BUFFER->data.size() - 2;
+		}
+	}
 
 	return false;
 }

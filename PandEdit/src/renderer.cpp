@@ -281,7 +281,7 @@ void Renderer::drawFrame(Frame& frame)
 	Buffer& buffer = *frame.currentBuffer;
 	int y = framePixelY;
 
-	for (unsigned int i = 0; i < buffer.data.size(); i++)
+	for (unsigned int i = frame.lineTop; i < buffer.data.size(); i++)
 	{
 		if (y + currentFont->size > framePixelY + framePixelHeight)
 		{
@@ -298,7 +298,7 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = framePixelX;
-	float pointY = framePixelY + (frame.point.line * currentFont->size);
+	float pointY = framePixelY + ((frame.point.line - frame.lineTop) * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 

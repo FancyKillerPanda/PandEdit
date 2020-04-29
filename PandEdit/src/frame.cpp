@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "frame.hpp"
+#include "text.hpp"
 
 Frame* Frame::currentFrame = nullptr;
 Frame* Frame::previousFrame = nullptr;
@@ -184,6 +185,12 @@ Frame* Frame::splitHorizontally()
 	result->point = point;
 
 	return result;
+}
+
+unsigned int Frame::getNumberOfLines(Font* currentFont)
+{
+	unsigned int pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
+	return pixelHeight / currentFont->size;
 }
 
 std::pair<Point, Point> Frame::getPointStartAndEnd()
