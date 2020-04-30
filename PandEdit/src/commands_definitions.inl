@@ -210,6 +210,17 @@ DEFINE_COMMAND(pageDown)
 	return false;
 }
 
+DEFINE_COMMAND(centerPoint)
+{
+	// Minibuffer shouldn't have scrolling
+	if (BUFFER->type != BufferType::MiniBuffer)
+	{
+		FRAME->centerPoint(window.renderer->currentFont);
+	}
+
+	return false;
+}
+
 
 //
 // NOTE(fkp): Copy/cut/paste

@@ -471,7 +471,7 @@ void Frame::movePointUp(Font* currentFont)
 
 	if (point.line < topLine)
 	{
-		recenterBufferAroundPoint(currentFont);
+		centerPoint(currentFont);
 	}
 }
 
@@ -487,7 +487,7 @@ void Frame::movePointDown(Font* currentFont)
 
 	if (point.line >= topLine + getNumberOfLines(currentFont))
 	{
-		recenterBufferAroundPoint(currentFont);
+		centerPoint(currentFont);
 	}
 }
 
@@ -550,7 +550,7 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 	}
 }
 
-void Frame::recenterBufferAroundPoint(Font* currentFont)
+void Frame::centerPoint(Font* currentFont)
 {
 	unsigned int numberOfFrameLines = getNumberOfLines(currentFont);
 	int numberOfLinesToMove = point.line - ((int) topLine + (numberOfFrameLines / 2));

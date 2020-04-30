@@ -50,6 +50,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	
 	COMMAND(pageUp),
 	COMMAND(pageDown),
+	COMMAND(centerPoint),
 
 	COMMAND(copyRegion),
 	COMMAND(paste),

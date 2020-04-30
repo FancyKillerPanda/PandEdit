@@ -98,7 +98,7 @@ public:
 	void movePointEnd();
 
 	void moveView(int numberOfLines, bool movePoint);
-	void recenterBufferAroundPoint(Font* currentFont);
+	void centerPoint(Font* currentFont);
 	
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries

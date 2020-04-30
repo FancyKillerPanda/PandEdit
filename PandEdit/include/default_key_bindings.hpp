@@ -37,6 +37,7 @@ void mapDefaultKeyBindings()
 
 	KeyMap::bindKey({ Key::PageUp }, "pageUp");
 	KeyMap::bindKey({ Key::PageDown }, "pageDown");
+	KeyMap::bindKey({ Key::L, true }, "centerPoint");
 
 	KeyMap::bindKey({ Key::C, true }, "copyRegion");
 	KeyMap::bindKey({ Key::V, true }, "paste");
