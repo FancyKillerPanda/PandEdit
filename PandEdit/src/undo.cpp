@@ -2,13 +2,14 @@
 
 #include "undo.hpp"
 
-Action Action::insertion(Point start, Point end)
+Action Action::insertion(Point start, Point end, std::string data)
 {
 	Action result;
 	
 	result.type = ActionType::Insertion;
 	result.start = start;
 	result.end = end;
+	result.data = data;
 
 	return result;
 }

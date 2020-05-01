@@ -304,7 +304,7 @@ void Frame::insertChar(char character)
 	point.col += 1;
 	point.targetCol = point.col;
 
-	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point));
+	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, character)));
 
 	adjustOtherFramePointLocations(true, false);
 }
@@ -389,6 +389,7 @@ void Frame::deleteChar(unsigned int num)
 void Frame::newLine()
 {
 	doCommonPointManipulationTasks();
+	Point startLocation = point;
 
 	std::string restOfLine { currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end() };
 	currentBuffer->data[point.line].erase(currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end());
@@ -397,6 +398,7 @@ void Frame::newLine()
 	point.col = 0;
 	point.targetCol = point.col;
 
+	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, "\n"));
 	currentBuffer->data.insert(currentBuffer->data.begin() + point.line, restOfLine);
 	adjustOtherFramePointLocations(true, true);
 }
@@ -404,6 +406,7 @@ void Frame::newLine()
 void Frame::insertString(const std::string& string)
 {
 	Point startLocation = point;
+	currentBuffer->shouldAddToUndoInformation = false;
 	
 	for (char character : string)
 	{
@@ -417,7 +420,8 @@ void Frame::insertString(const std::string& string)
 		}
 	}
 
-	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point));
+	currentBuffer->shouldAddToUndoInformation = true;
+	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, string));
 }
 
 void Frame::movePointLeft(unsigned int num)

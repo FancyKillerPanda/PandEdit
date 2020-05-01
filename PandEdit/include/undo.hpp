@@ -23,7 +23,7 @@ public:
 	Point end;
 
 public:
-	static Action insertion(Point start, Point end);
+	static Action insertion(Point start, Point end, std::string data);
 	static Action deletion(Point start, Point end, std::string data);
 };
 
