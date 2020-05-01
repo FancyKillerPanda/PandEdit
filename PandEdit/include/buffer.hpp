@@ -12,6 +12,7 @@
 #include <IntSafe.h>
 
 #include "point.hpp"
+#include "undo.hpp"
 
 class Frame;
 
@@ -32,6 +33,10 @@ public:
 	
 	std::vector<std::string> data;
 	
+	bool shouldAddToUndoInformation = true;
+	std::vector<Action> undoInformation;
+	unsigned int undoInformationPointer = 0;
+	
 	// The frame will take a copy of this when opened, and the last
 	// frame to close this buffer will write its values in.
 	Point lastPoint;
@@ -48,6 +53,8 @@ public:
 	static Buffer* get(const std::string& name);
 	static Buffer* getFromFilePath(const std::string& path);
 	
+	void addActionToUndoBuffer(Action&& action);
+	void undo(Frame& frame);
 	void saveToFile();
 };
 

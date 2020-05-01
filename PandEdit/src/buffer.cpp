@@ -102,6 +102,54 @@ Buffer* Buffer::getFromFilePath(const std::string& path)
 	return nullptr;
 }
 
+void Buffer::addActionToUndoBuffer(Action&& action)
+{
+	if (!shouldAddToUndoInformation) return;
+	
+	if (undoInformationPointer < undoInformation.size())
+	{
+		undoInformation.erase(undoInformation.begin() + undoInformationPointer, undoInformation.end());
+	}
+
+	undoInformation.push_back(std::move(action));
+	undoInformationPointer = undoInformation.size();
+}
+
+void Buffer::undo(Frame& frame)
+{
+	if (undoInformationPointer == 0 || undoInformation.size() == 0)
+	{
+		printf("Info: Nothing left to undo!\n");
+		return;
+	}
+
+	shouldAddToUndoInformation = false;
+	undoInformationPointer -= 1;
+	const Action& action = undoInformation[undoInformationPointer];
+
+	switch (action.type)
+	{
+	case ActionType::Insertion:
+	{
+		frame.point = action.end;
+
+		while (frame.point > action.start)
+		{
+			frame.backspaceChar();
+		}
+	} break;
+
+	case ActionType::Deletion:
+	{
+		frame.point = action.start;
+		frame.insertString(action.data);
+		frame.point = action.end;
+	} break;
+	}
+
+	shouldAddToUndoInformation = true;
+}
+
 void Buffer::saveToFile()
 {
 	// TODO(fkp): Check if changes need to be saved

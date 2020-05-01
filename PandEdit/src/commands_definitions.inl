@@ -223,7 +223,7 @@ DEFINE_COMMAND(centerPoint)
 
 
 //
-// NOTE(fkp): Copy/cut/paste
+// NOTE(fkp): Copy/cut/paste/undo/redo
 //
 
 DEFINE_COMMAND(copyRegion)
@@ -251,6 +251,12 @@ DEFINE_COMMAND(pastePop)
 DEFINE_COMMAND(deleteRegion)
 {
 	FRAME->deleteTextPointToMark();
+	return false;
+}
+
+DEFINE_COMMAND(undo)
+{
+	BUFFER->undo(*FRAME);
 	return false;
 }
 
