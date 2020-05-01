@@ -111,6 +111,23 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 		undoInformation.erase(undoInformation.begin() + undoInformationPointer, undoInformation.end());
 	}
 
+	// Appending to the last insertion
+	if (action.type == ActionType::Insertion &&
+		undoInformation.size() > 0 && undoInformation.back().type == ActionType::Insertion)
+	{
+		Action& lastAction = undoInformation.back();
+
+		// TODO(fkp): This is is a little unwieldy
+		if (lastAction.end.line == lastAction.start.line &&
+			lastAction.end.col - lastAction.start.col < 16 &&
+			data[lastAction.end.line][lastAction.end.col - 1] != ' ' &&
+			data[lastAction.end.line][lastAction.end.col - 1] != '\t')
+		{
+			lastAction.end.col += 1;
+			return;
+		}
+	}
+
 	undoInformation.push_back(std::move(action));
 	undoInformationPointer = undoInformation.size();
 }
