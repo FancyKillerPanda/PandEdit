@@ -113,17 +113,22 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 
 	// Appending to the last insertion
 	if (action.type == ActionType::Insertion &&
-		undoInformation.size() > 0 && undoInformation.back().type == ActionType::Insertion)
+		undoInformation.size() > 0 && undoInformation.back().type == ActionType::Insertion &&
+		action.data.size() == 1)
 	{
 		Action& lastAction = undoInformation.back();
 
 		// TODO(fkp): This is is a little unwieldy
 		if (lastAction.end.line == lastAction.start.line &&
 			lastAction.end.col - lastAction.start.col < 16 &&
+			lastAction.end.col > 0 &&
 			data[lastAction.end.line][lastAction.end.col - 1] != ' ' &&
-			data[lastAction.end.line][lastAction.end.col - 1] != '\t')
+			data[lastAction.end.line][lastAction.end.col - 1] != '\t' &&
+			lastAction.end.col - 1 != data[lastAction.end.line].size())
 		{
 			lastAction.end.col += 1;
+			lastAction.data += action.data;
+
 			return;
 		}
 	}
