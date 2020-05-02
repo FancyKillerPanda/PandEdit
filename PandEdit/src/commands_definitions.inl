@@ -256,7 +256,11 @@ DEFINE_COMMAND(deleteRegion)
 
 DEFINE_COMMAND(undo)
 {
-	BUFFER->undo(*FRAME);
+	if (!BUFFER->undo(*FRAME) && BUFFER->type != BufferType::MiniBuffer)
+	{
+		writeToMinibuffer("Nothing to undo.");
+	}
+	
 	return false;
 }
 

@@ -137,12 +137,11 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 	undoInformationPointer = undoInformation.size();
 }
 
-void Buffer::undo(Frame& frame)
+bool Buffer::undo(Frame& frame)
 {
 	if (undoInformationPointer == 0 || undoInformation.size() == 0)
 	{
-		printf("Info: Nothing left to undo!\n");
-		return;
+		return false;
 	}
 
 	shouldAddToUndoInformation = false;
@@ -170,6 +169,7 @@ void Buffer::undo(Frame& frame)
 	}
 
 	shouldAddToUndoInformation = true;
+	return true;
 }
 
 void Buffer::saveToFile()

@@ -54,7 +54,7 @@ public:
 	static Buffer* getFromFilePath(const std::string& path);
 	
 	void addActionToUndoBuffer(Action&& action);
-	void undo(Frame& frame);
+	bool undo(Frame& frame);
 	void saveToFile();
 };
 
