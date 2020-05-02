@@ -329,7 +329,7 @@ void Frame::backspaceChar(unsigned int num)
 			}
 
 			point.col -= 1;
-			textDeleted += currentBuffer->data[point.line].substr(point.col, 1);
+			textDeleted.insert(0, currentBuffer->data[point.line].substr(point.col, 1));
 			currentBuffer->data[point.line].erase(point.col, 1);
 
 			adjustOtherFramePointLocations(false, false);
@@ -341,7 +341,7 @@ void Frame::backspaceChar(unsigned int num)
 				point.line -= 1;
 				point.col = currentBuffer->data[point.line].size();
 
-				textDeleted += '\n';
+				textDeleted.insert(0, "\n");
 				currentBuffer->data[point.line] += currentBuffer->data[point.line + 1];
 				currentBuffer->data.erase(currentBuffer->data.begin() + point.line + 1);
 
@@ -406,8 +406,9 @@ void Frame::newLine()
 void Frame::insertString(const std::string& string)
 {
 	Point startLocation = point;
+	bool oldShouldAddInformation = currentBuffer->shouldAddToUndoInformation;
 	currentBuffer->shouldAddToUndoInformation = false;
-	
+
 	for (char character : string)
 	{
 		if (character == '\n')
@@ -420,7 +421,7 @@ void Frame::insertString(const std::string& string)
 		}
 	}
 
-	currentBuffer->shouldAddToUndoInformation = true;
+	currentBuffer->shouldAddToUndoInformation = oldShouldAddInformation;
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, string));
 }
 
