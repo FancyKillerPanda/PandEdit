@@ -284,6 +284,19 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 	mark = start;
 }
 
+void Frame::deleteRestOfLine()
+{
+	unsigned int numberOfCharsToDelete = currentBuffer->data[point.line].size() - point.col;
+	
+	if (numberOfCharsToDelete == 0)
+	{
+		// Will delete the newline if already at the end of the line
+		numberOfCharsToDelete = 1;
+	}
+	
+	deleteChar(numberOfCharsToDelete);
+}
+
 void Frame::doCommonPointManipulationTasks()
 {
 	pointFlashFrameCounter = 0;

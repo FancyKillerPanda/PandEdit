@@ -112,6 +112,12 @@ DEFINE_COMMAND(deleteWord)
 	return false;
 }
 
+DEFINE_COMMAND(deleteRestOfLine)
+{
+	FRAME->deleteRestOfLine();
+	return false;
+}
+
 
 //
 // NOTE(fkp): Point movement commands

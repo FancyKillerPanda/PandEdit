@@ -23,6 +23,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::Delete }, "deleteChar");
 	KeyMap::bindKey({ Key::Backspace, true }, "backspaceWord");
 	KeyMap::bindKey({ Key::Delete, true }, "deleteWord");
+	KeyMap::bindKey({ Key::K, true }, "deleteRestOfLine");
 	
 	KeyMap::bindKey({ Key::LeftArrow }, "movePointLeftChar");
 	KeyMap::bindKey({ Key::RightArrow }, "movePointRightChar");

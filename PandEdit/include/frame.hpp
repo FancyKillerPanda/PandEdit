@@ -77,6 +77,7 @@ public:
 	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();
 	void deleteTextPointToMark(bool appendToKillRing = true);
+	void deleteRestOfLine();
 
 	// This is stuff that is common to all point manipulations
 	void doCommonPointManipulationTasks();
