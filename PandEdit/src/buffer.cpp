@@ -126,9 +126,17 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 			data[lastAction.end.line][lastAction.end.col - 1] != '\t' &&
 			lastAction.end.col - 1 != data[lastAction.end.line].size())
 		{
-			lastAction.end.col += 1;
+			if (action.data[0] == '\n')
+			{
+				lastAction.end.line += 1;
+				lastAction.end.col = 0;
+			}
+			else
+			{
+				lastAction.end.col += 1;
+			}
+			
 			lastAction.data += action.data;
-
 			return;
 		}
 	}
@@ -169,6 +177,43 @@ bool Buffer::undo(Frame& frame)
 	}
 
 	shouldAddToUndoInformation = true;
+	return true;
+}
+
+// NOTE(fkp): This is basically the exact opposite to undo()
+bool Buffer::redo(Frame& frame)
+{
+	if (undoInformationPointer == undoInformation.size())
+	{
+		return false;
+	}
+
+	shouldAddToUndoInformation = false;
+	const Action& action = undoInformation[undoInformationPointer];
+
+	switch (action.type)
+	{
+	case ActionType::Insertion:
+	{
+		frame.point = action.start;
+		frame.insertString(action.data);
+		frame.point = action.end;
+	} break;
+
+	case ActionType::Deletion:
+	{
+		frame.point = action.end;
+
+		while (frame.point > action.start)
+		{
+			frame.backspaceChar();
+		}
+	} break;
+	}
+	
+	undoInformationPointer += 1;
+	shouldAddToUndoInformation = true;
+
 	return true;
 }
 

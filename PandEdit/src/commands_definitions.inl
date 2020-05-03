@@ -264,6 +264,16 @@ DEFINE_COMMAND(undo)
 	return false;
 }
 
+DEFINE_COMMAND(redo)
+{
+	if (!BUFFER->redo(*FRAME) && BUFFER->type != BufferType::MiniBuffer)
+	{
+		writeToMinibuffer("Nothing to redo.");
+	}
+	
+	return false;	
+}
+
 
 //
 // NOTE(fkp): Buffer commands

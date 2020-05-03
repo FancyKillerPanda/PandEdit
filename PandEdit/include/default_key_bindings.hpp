@@ -44,6 +44,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::V, false, false, true }, "pastePop");
 	KeyMap::bindKey({ Key::W, true }, "deleteRegion");
 	KeyMap::bindKey({ Key::Z, true }, "undo");
+	KeyMap::bindKey({ Key::Y, true }, "redo");
 	
 	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
 	KeyMap::bindKey({ Key::F, false, false, true }, "findFile");

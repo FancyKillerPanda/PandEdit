@@ -57,6 +57,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(pastePop),
 	COMMAND(deleteRegion),
 	COMMAND(undo),
+	COMMAND(redo),
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {

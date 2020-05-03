@@ -398,8 +398,8 @@ void Frame::newLine()
 	point.col = 0;
 	point.targetCol = point.col;
 
-	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, "\n"));
 	currentBuffer->data.insert(currentBuffer->data.begin() + point.line, restOfLine);
+	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, '\n')));
 	adjustOtherFramePointLocations(true, true);
 }
 

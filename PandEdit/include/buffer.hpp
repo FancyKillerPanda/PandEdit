@@ -55,6 +55,7 @@ public:
 	
 	void addActionToUndoBuffer(Action&& action);
 	bool undo(Frame& frame);
+	bool redo(Frame& frame);
 	void saveToFile();
 };
 
