@@ -1,6 +1,7 @@
 //  ===== Date Created: 14 April, 2020 =====
 
 #define PANDEDIT_DEBUG_WINDOW
+// #define PANDEDIT_VSYNC
 
 #include <stdio.h>
 #include <windows.h>
@@ -492,7 +493,11 @@ bool Window::createActualWindow()
 		return false;
 	}
 
+#if defined(PANDEDIT_VSYNC)
 	wglSwapIntervalEXT(1);
+#else
+	wglSwapIntervalEXT(0);
+#endif
 
 	// Loads all OpenGL function pointers
 	gladLoadGL();

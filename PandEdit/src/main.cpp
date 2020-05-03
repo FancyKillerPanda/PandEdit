@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 			numberOfFrames = 0;
 		}
 		
-		window.renderer->drawText(fpsText, fpsText.size(), window.width - 100, 0);
+		window.renderer->drawText(fpsText, fpsText.size(), window.width - 128, 0);
 		numberOfFrames += 1;
 		
 		SwapBuffers(window.deviceContext);
