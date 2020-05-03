@@ -141,6 +141,11 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 		}
 	}
 
+	if (undoInformation.size() >= 64)
+	{
+		undoInformation.pop_front();
+	}
+	
 	undoInformation.push_back(std::move(action));
 	undoInformationPointer = undoInformation.size();
 }

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <unordered_map>
 
 // NOTE(fkp): This is for DWORD, including <windows.h> gives errors
@@ -34,7 +35,7 @@ public:
 	std::vector<std::string> data;
 	
 	bool shouldAddToUndoInformation = true;
-	std::vector<Action> undoInformation;
+	std::deque<Action> undoInformation;
 	unsigned int undoInformationPointer = 0;
 	
 	// The frame will take a copy of this when opened, and the last
