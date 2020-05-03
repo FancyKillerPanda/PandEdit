@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 #include <glad/glad.h>
 
@@ -31,6 +32,10 @@ int main(int argc, char* argv[])
 
 	mapDefaultKeyBindings();	
 	
+	std::string fpsText = "FPS: 0";
+	auto lastTime = std::chrono::high_resolution_clock::now();
+	unsigned int numberOfFrames = 0;
+	
 	while (window.isOpen)
 	{
 		MSG message;
@@ -42,6 +47,21 @@ int main(int argc, char* argv[])
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		window.draw();
+
+		// NOTE(fkp): FPS for debugging
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> diff = currentTime - lastTime;
+
+		if (diff.count() > 1000)
+		{
+			fpsText = "FPS: " + std::to_string(numberOfFrames);
+			lastTime = currentTime;
+			numberOfFrames = 0;
+		}
+		
+		window.renderer->drawText(fpsText, fpsText.size(), window.width - 100, 0);
+		numberOfFrames += 1;
+		
 		SwapBuffers(window.deviceContext);
 	}
 
