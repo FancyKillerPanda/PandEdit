@@ -354,9 +354,15 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (&frame == Frame::currentFrame)
 	{
-		if (frame.pointFlashFrameCounter++ % 90 < 45)
+		constexpr double FLASH_TIME = 600.0;
+		
+		if (frame.pointFlashTimer.getElapsedMs() < FLASH_TIME)
 		{
 			drawRect(pointX, pointY, pointWidth, pointHeight);
+		}
+		else if (frame.pointFlashTimer.getElapsedMs() > FLASH_TIME * 2)
+		{
+			frame.pointFlashTimer.reset();
 		}
 	}
 	else

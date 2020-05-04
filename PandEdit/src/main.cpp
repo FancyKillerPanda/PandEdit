@@ -14,6 +14,7 @@
 #include "renderer.hpp"
 #include "font.hpp"
 #include "default_key_bindings.hpp"
+#include "timer.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 	mapDefaultKeyBindings();	
 	
 	std::string fpsText = "FPS: 0";
-	auto lastTime = std::chrono::high_resolution_clock::now();
+	Timer fpsTimer;
 	unsigned int numberOfFrames = 0;
 	
 	while (window.isOpen)
@@ -49,13 +50,10 @@ int main(int argc, char* argv[])
 		window.draw();
 
 		// NOTE(fkp): FPS for debugging
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> diff = currentTime - lastTime;
-
-		if (diff.count() > 1000)
+		if (fpsTimer.getElapsedMs() > 1000.0)
 		{
 			fpsText = "FPS: " + std::to_string(numberOfFrames);
-			lastTime = currentTime;
+			fpsTimer.reset();
 			numberOfFrames = 0;
 		}
 		

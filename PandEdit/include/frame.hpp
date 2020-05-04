@@ -9,6 +9,7 @@
 
 #include "buffer.hpp"
 #include "point.hpp"
+#include "timer.hpp"
 
 constexpr unsigned int FRAME_BORDER_WIDTH = 5;
 
@@ -50,8 +51,7 @@ public:
 	Point mark;	
 	unsigned int topLine = 0;
 
-	// TODO(fkp): Make this a timer
-	unsigned int pointFlashFrameCounter = 0;
+	Timer pointFlashTimer;
 
 private:
 	inline static std::unordered_map<std::string, Frame*> framesMap;

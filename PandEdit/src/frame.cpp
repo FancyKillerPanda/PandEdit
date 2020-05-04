@@ -299,7 +299,7 @@ void Frame::deleteRestOfLine()
 
 void Frame::doCommonPointManipulationTasks()
 {
-	pointFlashFrameCounter = 0;
+	pointFlashTimer.reset();
 
 	if (currentBuffer->type != BufferType::MiniBuffer)
 	{

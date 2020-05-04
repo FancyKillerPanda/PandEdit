@@ -37,6 +37,7 @@ set(HEADERS
 	point.hpp
 	file_util.hpp
 	undo.hpp
+	timer.hpp
 )
 set(SOURCES
 	main.cpp
@@ -52,6 +53,7 @@ set(SOURCES
 	point.cpp
 	file_util.cpp
 	undo.cpp
+	timer.cpp
 )
 
 # Prepends directories to the files
