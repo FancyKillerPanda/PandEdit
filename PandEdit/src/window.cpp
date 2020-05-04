@@ -1,7 +1,7 @@
 //  ===== Date Created: 14 April, 2020 =====
 
 #define PANDEDIT_DEBUG_WINDOW
-// #define PANDEDIT_VSYNC
+#define PANDEDIT_VSYNC
 
 #include <stdio.h>
 #include <windows.h>
@@ -29,6 +29,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		destroyWindowComponents() &&
 		createActualWindow())
 	{
+		registerDebugContextCallback();
+		
 		isOpen = true;
 		windowsMap.insert({ windowHandle, this });
 
@@ -172,6 +174,60 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 	} return DefWindowProc(windowHandle, message, wParam, lParam);
 	}
+}
+
+void APIENTRY Window::debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+#if defined(PANDEDIT_DEBUG_WINDOW)
+	// NOTE(fkp): This suppresses useless warnings
+	if (id == 131218 /* fragment shader recompiled */)
+	{
+		return;
+	}
+	
+	std::string outputMessage = "[Log] ";
+
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:               outputMessage += "Error: ";					break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: outputMessage += "Deprecated Behaviour: ";	break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  outputMessage += "Undefined Behaviour: ";	break;
+	case GL_DEBUG_TYPE_PORTABILITY:         outputMessage += "Portability: ";			break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         outputMessage += "Performance: ";			break;
+	case GL_DEBUG_TYPE_MARKER:              outputMessage += "Marker: ";				break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          outputMessage += "Push Group: ";			break;
+	case GL_DEBUG_TYPE_POP_GROUP:           outputMessage += "Pop Group: ";				break;
+	case GL_DEBUG_TYPE_OTHER:               outputMessage += "Other: ";					break;
+	}
+
+	outputMessage += message;
+	outputMessage += "(ID: ";
+	outputMessage += std::to_string(id);
+	outputMessage += ")(Source: ";
+
+	switch (source)
+    {
+	case GL_DEBUG_SOURCE_API:             outputMessage += "API";				break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   outputMessage += "Window System";		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: outputMessage += "Shader Compiler";	break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:     outputMessage += "Third Party";		break;
+	case GL_DEBUG_SOURCE_APPLICATION:     outputMessage += "Application";		break;
+	case GL_DEBUG_SOURCE_OTHER:           outputMessage += "Other";				break;
+    }
+
+	outputMessage += ")(Severity: ";
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:			outputMessage += "High";		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:			outputMessage += "Medium";		break;
+	case GL_DEBUG_SEVERITY_LOW:				outputMessage += "Low";			break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION:	outputMessage += "Notice";		break;
+	}
+
+	outputMessage += ")";
+	printf("%s\n", outputMessage.c_str());
+#endif
 }
 
 void Window::draw()
@@ -508,4 +564,25 @@ bool Window::createActualWindow()
 	ShowWindow(windowHandle, SW_SHOWNORMAL);
 
 	return true;
+}
+
+void Window::registerDebugContextCallback()
+{
+#if defined (PANDEDIT_DEBUG_WINDOW)
+	GLint flags;
+	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		
+		glDebugMessageCallback(debugLogCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+	else
+	{
+		printf("Warning: Debug context requested but not available.\n");
+	}
+#endif
 }

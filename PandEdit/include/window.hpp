@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 
+#include <glad/glad.h>
+
 #include "frame.hpp"
 
 class Renderer;
@@ -54,6 +56,7 @@ public:
 
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	static void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 
 	// Window creation
 	bool registerWindowClass();
@@ -61,6 +64,7 @@ private:
 	bool loadWGLExtensions();
 	bool destroyWindowComponents();
 	bool createActualWindow();
+	void registerDebugContextCallback();
 };
 
 #endif
