@@ -153,9 +153,15 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 			break;
 		}
 
-		// Next line or end
-		if (currentChar == '\n' ||
-			(maxWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + maxWidth))
+		// Newline
+		if (currentChar == '\n')
+		{
+			x = startX;
+			y += font.size;
+		}
+		
+		// End of width
+		if (maxWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + maxWidth)
 		{
 			if (wrap)
 			{
@@ -280,6 +286,7 @@ void Renderer::drawFrame(Frame& frame)
 
 	Buffer& buffer = *frame.currentBuffer;
 	int y = framePixelY;
+	std::string visibleLines = "";
 
 	for (unsigned int i = frame.topLine; i < buffer.data.size(); i++)
 	{
@@ -288,10 +295,13 @@ void Renderer::drawFrame(Frame& frame)
 			break;
 		}
 
-		const std::string& line = buffer.data[i];
-		drawText(line, -1, framePixelX, y, framePixelWidth);
+		// const std::string& line = buffer.data[i];
+		// drawText(line, -1, framePixelX, y, framePixelWidth);
+		visibleLines += buffer.data[i] + std::string(1, '\n');
 		y += currentFont->size;
 	}
+
+	drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
 
 	//
 	// Point
