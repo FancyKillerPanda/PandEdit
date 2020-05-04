@@ -3,6 +3,7 @@
 
 #include "file_util.hpp"
 #include "renderer.hpp"
+#include "lexer.hpp"
 
 #define DEFINE_COMMAND(name) bool name(Window& window, const std::string& text)
 #define FRAME Frame::currentFrame
@@ -392,4 +393,12 @@ DEFINE_COMMAND(saveCurrentBuffer)
 			return false;
 		}
 	}
+}
+
+DEFINE_COMMAND(lexBufferAsCpp)
+{
+	exitMinibuffer();
+	lexCppBuffer(BUFFER);
+	
+	return true;
 }

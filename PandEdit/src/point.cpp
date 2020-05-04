@@ -10,6 +10,27 @@ Point::Point(const Buffer* buffer)
 {
 }
 
+bool Point::isInBuffer()
+{
+	if (!buffer)
+	{
+		ERROR_ONCE("Error: Cannot use Point::isInBuffer(), no buffer provided.\n");
+		return false;		
+	}
+
+	if (line >= buffer->data.size())
+	{
+		return false;
+	}
+
+	if (col > buffer->data[line].size())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool Point::operator==(const Point& other) const
 {
 	return (line == other.line) && (col == other.col) && (targetCol == other.targetCol);

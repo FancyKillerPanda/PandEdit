@@ -16,6 +16,7 @@ public:
 	
 public:
 	Point(const Buffer* buffer = nullptr);
+	bool isInBuffer();
 	
 	bool operator==(const Point& other) const;
 	bool operator!=(const Point& other) const;

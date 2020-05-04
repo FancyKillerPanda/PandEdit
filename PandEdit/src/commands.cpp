@@ -73,6 +73,8 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 	COMMAND(switchToBuffer),
 	COMMAND(findFile),
 	COMMAND(saveCurrentBuffer),
+
+	{ "lexBufferAsC++", lexBufferAsCpp },
 };
 
 #undef COMMAND
