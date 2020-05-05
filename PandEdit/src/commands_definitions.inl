@@ -58,28 +58,28 @@ DEFINE_COMMAND(minibufferQuit)
 
 DEFINE_COMMAND(frameSplitVertically)
 {
-	exitMinibuffer();
+	exitMinibuffer("");
 	window.splitCurrentFrameVertically();
 	return true;
 }
 
 DEFINE_COMMAND(frameSplitHorizontally)
 {
-	exitMinibuffer();
+	exitMinibuffer("");
 	window.splitCurrentFrameHorizontally();
 	return true;
 }
 
 DEFINE_COMMAND(frameMoveNext)
 {
-	exitMinibuffer();
+	exitMinibuffer("");
 	window.moveToNextFrame();
 	return true;	
 }
 
 DEFINE_COMMAND(frameMovePrevious)
 {
-	exitMinibuffer();
+	exitMinibuffer("");
 	window.moveToNextFrame(false);
 	return true;	
 }
@@ -348,7 +348,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 {
 	if (Commands::currentCommand)
 	{
-		exitMinibuffer();
+		exitMinibuffer("");
 		Commands::currentCommand = nullptr;
 
 		if (text == "")
@@ -376,7 +376,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 	{
 		if (BUFFER->path != "")
 		{
-			exitMinibuffer();
+			exitMinibuffer("");
 			BUFFER->saveToFile();
 			writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
 		
@@ -397,7 +397,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 
 DEFINE_COMMAND(lexBufferAsCpp)
 {
-	exitMinibuffer();
+	exitMinibuffer("");
 	lexCppBuffer(BUFFER);
 	
 	return true;

@@ -121,7 +121,7 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 		// TODO(fkp): This is is a little unwieldy
 		if (lastAction.end.line == lastAction.start.line &&
 			lastAction.end.col - lastAction.start.col < 16 &&
-			lastAction.end.col > 0 &&
+			lastAction.end.col > 0 && lastAction.end.col <= data[lastAction.end.line].size() &&
 			data[lastAction.end.line][lastAction.end.col - 1] != ' ' &&
 			data[lastAction.end.line][lastAction.end.col - 1] != '\t' &&
 			lastAction.end.col - 1 != data[lastAction.end.line].size())
