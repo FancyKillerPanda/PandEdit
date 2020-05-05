@@ -99,7 +99,7 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-std::pair<int, int> Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap)
+std::pair<int, int> Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap, float startX)
 {
 	if (!currentFont)
 	{
@@ -142,7 +142,11 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	Vertex* vertices = new Vertex[verticesBufferSize];
 	int count = 0;
 
-	float startX = x;
+	if (startX == -1.0f)
+	{
+		startX = x;
+	}
+
 	int loopCounter = 0;
 
 	// Loop through every character (until message length (if provided))
@@ -263,6 +267,79 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	return { (int) x, (int) y };
 }
 
+// TODO(fkp): Find a better spot for this
+std::string substrFromPoints(const std::string& string, const Point& start, const Point& end)
+{
+	if (start > end)
+	{
+		ERROR_ONCE("Error: Start cannot be after end in substr.\n");
+		return "";
+	}
+	
+	unsigned int startIndex = 0;
+	unsigned int currentIndex = 0;
+	unsigned int linesPassed = 0;
+	
+	while (linesPassed < start.line)
+	{
+		if (string[currentIndex] == '\n')
+		{
+			linesPassed += 1;
+		}
+
+		currentIndex += 1;
+	}
+
+	currentIndex += start.col;
+	startIndex = currentIndex;
+	linesPassed = 0;
+	unsigned int length = 0;
+
+	while (linesPassed < end.line - start.line)
+	{
+		if (string[currentIndex] == '\n')
+		{
+			linesPassed += 1;
+		}
+
+		length += 1;
+		currentIndex += 1;
+	}
+
+	// The final line
+	if (start.line == end.line)
+	{
+		length += end.col - start.col;
+	}
+	else
+	{
+		length += end.col;
+	}
+
+	return string.substr(startIndex, length);
+}
+
+// TODO(fkp): Find a better spot for this
+Point getPointAtEndOfString(const std::string& string)
+{
+	Point result;
+
+	for (char character : string)
+	{
+		if (character == '\n')
+		{
+			result.line += 1;
+			result.col = 0;
+		}
+		else
+		{
+			result.col += 1;
+		}
+	}
+
+	return result;
+}
+
 void Renderer::drawFrame(Frame& frame)
 {
 	// Pixel dimensions
@@ -316,24 +393,31 @@ void Renderer::drawFrame(Frame& frame)
 		
 		for (const Token& token : buffer.tokens)
 		{
-			unsigned int numChars = 0;
 			std::string textToDraw = "";
 			
 			if (token.start > lastTokenEnd)
 			{
-				numChars = lastTokenEnd.distanceTo(token.start);
 				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-				textToDraw = visibleLines.substr(lastTokenEnd.col, token.start.col - lastTokenEnd.col);
+				textToDraw = substrFromPoints(visibleLines, lastTokenEnd, token.start);
 				
-				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth);
+				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 			}
 
-			numChars = token.start.distanceTo(token.end);
 			lastTokenEnd = token.end;
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 0.0f, 0.0f, 1.0f);
-			textToDraw = visibleLines.substr(token.start.col, numChars);
+			textToDraw = substrFromPoints(visibleLines, token.start, token.end);
 			
-			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth);
+			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
+		}
+
+		// Draws the rest of the text if needed
+		Point stringEndPoint = getPointAtEndOfString(visibleLines);
+		
+		if (lastTokenEnd < stringEndPoint)
+		{
+			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			std::string textToDraw = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint);
+			drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 		}
 	}
 	
