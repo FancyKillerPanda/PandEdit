@@ -35,6 +35,6 @@ public:
 	}
 };
 
-std::vector<Token> lexCppBuffer(const Buffer* buffer);
+void lexCppBuffer(Buffer* buffer);
 
 #endif

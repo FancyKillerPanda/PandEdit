@@ -75,9 +75,38 @@ bool Point::operator>=(const Point& other) const
 
 Point& Point::operator++()
 {
+	return moveNext();
+}
+
+Point& Point::operator--()
+{
+	return movePrevious();
+}
+
+Point Point::operator++(int)
+{
+	Point temp = *this;
+	++*this;
+	return temp;
+}
+
+Point Point::operator--(int)
+{
+	Point temp = *this;
+	--*this;
+	return temp;
+}
+
+Point& Point::moveNext(bool force)
+{
 	if (!buffer)
 	{
 		ERROR_ONCE("Error: Cannot use point++, no buffer provided.\n");
+		return *this;
+	}
+
+	if (!isInBuffer())
+	{
 		return *this;
 	}
 	
@@ -87,7 +116,7 @@ Point& Point::operator++()
 	}
 	else
 	{
-		if (line < buffer->data.size() - 1)
+		if (line < buffer->data.size() - 1 || force)
 		{
 			line += 1;
 			col = 0;
@@ -97,7 +126,7 @@ Point& Point::operator++()
 	return *this;
 }
 
-Point& Point::operator--()
+Point& Point::movePrevious()
 {
 	if (!buffer)
 	{
@@ -128,16 +157,22 @@ Point& Point::operator--()
 	return *this;
 }
 
-Point Point::operator++(int)
+unsigned int Point::distanceTo(const Point& other) const
 {
-	Point temp = *this;
-	++*this;
-	return temp;
-}
+	int count = 0;
+	Point location = *this;
+	
+	while (location < other)
+	{
+		count += 1;
+		location++;
+	}
 
-Point Point::operator--(int)
-{
-	Point temp = *this;
-	--*this;
-	return temp;
+	while (location > other)
+	{
+		count += 1;
+		location--;
+	}
+
+	return count;
 }

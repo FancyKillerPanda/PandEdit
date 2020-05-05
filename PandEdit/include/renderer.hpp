@@ -4,6 +4,7 @@
 #define RENDERER_HPP
 
 #include <string>
+#include <utility>
 #include <glad/glad.h>
 
 #include "shader.hpp"
@@ -38,7 +39,7 @@ public:
 	
 	void drawRect(float x, float y, float width, float height);
 	void drawHollowRect(float x, float y, float width, float height, float borderWidth);
-	void drawText(const std::string& text, int messageLength, float x, float y, float maxWidth = 0.0f, bool wrap = false);
+	std::pair<int, int> drawText(const std::string& text, int messageLength, float x, float y, float maxWidth = 0.0f, bool wrap = false);
 	void drawFrame(Frame& frame);
 };
 

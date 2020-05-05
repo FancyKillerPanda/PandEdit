@@ -6,6 +6,7 @@
 #include "matrix.hpp"
 #include "frame.hpp"
 #include "common.hpp"
+#include "lexer.hpp"
 
 Renderer::Renderer(const Matrix4& projection, float windowWidth, float windowHeight)
 	: shapeShader("shape", "res/shape.vert", "res/shape.frag"),
@@ -98,12 +99,12 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-void Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap)
+std::pair<int, int> Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap)
 {
 	if (!currentFont)
 	{
 		ERROR_ONCE("Error: No font selected.\n");
-		return;
+		return { (int) x, (int) y };
 	}
 
 	glUseProgram(textureShader.programID);
@@ -118,14 +119,14 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 	if (maxWidth != 0.0f && maxWidth < (float) font.maxGlyphAdvanceX)
 	{
 		ERROR_ONCE("Warning: Max width smaller than glyph.\n");
-		return;
+		return { (int) x, (int) y };
 	}
 
 	// Warns about wrap set but no width provided
 	if (wrap && maxWidth <= 0.0f)
 	{
 		ERROR_ONCE("Warning: Max width not provided but wrap requested.\n");
-		return;
+		return { (int) x, (int) y };
 	}
 
 	glBindVertexArray(font.vao);
@@ -259,6 +260,7 @@ void Renderer::drawText(const std::string& text, int messageLength, float x, flo
 	glDrawArrays(GL_TRIANGLES, 0, count);
 
 	delete[] vertices;
+	return { (int) x, (int) y };
 }
 
 void Renderer::drawFrame(Frame& frame)
@@ -285,6 +287,7 @@ void Renderer::drawFrame(Frame& frame)
 	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 
 	Buffer& buffer = *frame.currentBuffer;
+
 	int y = framePixelY;
 	std::string visibleLines = "";
 
@@ -301,8 +304,39 @@ void Renderer::drawFrame(Frame& frame)
 		y += currentFont->size;
 	}
 
-	drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
+	if (buffer.tokens.size() == 0)
+	{
+		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
+	}
+	else
+	{
+		Point lastTokenEnd { buffer.tokens[0].start.buffer };
+		lastTokenEnd.line = frame.topLine;
+		std::pair<int, int> lastLocation = { framePixelX, framePixelY };
+		
+		for (const Token& token : buffer.tokens)
+		{
+			unsigned int numChars = 0;
+			std::string textToDraw = "";
+			
+			if (token.start > lastTokenEnd)
+			{
+				numChars = lastTokenEnd.distanceTo(token.start);
+				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+				textToDraw = visibleLines.substr(lastTokenEnd.col, token.start.col - lastTokenEnd.col);
+				
+				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth);
+			}
 
+			numChars = token.start.distanceTo(token.end);
+			lastTokenEnd = token.end;
+			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 0.0f, 0.0f, 1.0f);
+			textToDraw = visibleLines.substr(token.start.col, numChars);
+			
+			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth);
+		}
+	}
+	
 	//
 	// Point
 	//

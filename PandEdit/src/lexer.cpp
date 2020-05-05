@@ -3,17 +3,17 @@
 #include "lexer.hpp"
 #include "buffer.hpp"
 
-std::vector<Token> lexCppBuffer(const Buffer* buffer)
+void lexCppBuffer(Buffer* buffer)
 {
 	// Empty buffer
 	if (buffer->data.size() == 0 ||
 		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
 	{
-		return {};
+		return;
 	}
 
 	Point point { buffer };
-	std::vector<Token> result;
+	buffer->tokens.clear();
 
 	while (point.isInBuffer())
 	{
@@ -27,14 +27,14 @@ std::vector<Token> lexCppBuffer(const Buffer* buffer)
 			
 			do
 			{
-				point++;
+				point.moveNext();
 			} while (buffer->data[point.line][point.col] != '"');
 
 			// To go over the last quote
-			point++;
+			point.moveNext(true);
 
 			token.end = point;
-			result.push_back(token);
+			buffer->tokens.push_back(token);
 		} break;
 			
 		case '"':
@@ -43,14 +43,14 @@ std::vector<Token> lexCppBuffer(const Buffer* buffer)
 			
 			do
 			{
-				point++;
+				point.moveNext();
 			} while (buffer->data[point.line][point.col] != '"');
 
 			// To go over the last quote
-			point++;
+			point.moveNext(true);
 
 			token.end = point;
-			result.push_back(token);
+			buffer->tokens.push_back(token);
 		} break;
 
 		default:
@@ -61,7 +61,7 @@ std::vector<Token> lexCppBuffer(const Buffer* buffer)
 
 				do
 				{
-					point++;
+					point.moveNext();
 					character = buffer->data[point.line][point.col];
 				} while (character >= '0' && character <= '9');
 
@@ -69,21 +69,19 @@ std::vector<Token> lexCppBuffer(const Buffer* buffer)
 				{
 					do
 					{
-						point++;
+						point.moveNext();
 						character = buffer->data[point.line][point.col];
 					} while (character >= '0' && character <= '9');
 				}
 
 				token.end = point;
-				result.push_back(token);
+				buffer->tokens.push_back(token);
 			}
 			else
 			{
-				point++;
+				point.moveNext(true);
 			}
 		} break;
 		}
 	}
-
-	return result;
 }

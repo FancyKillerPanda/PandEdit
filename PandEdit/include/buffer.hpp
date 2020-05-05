@@ -14,6 +14,7 @@
 
 #include "point.hpp"
 #include "undo.hpp"
+#include "lexer.hpp"
 
 class Frame;
 
@@ -33,6 +34,7 @@ public:
 	std::string path;
 	
 	std::vector<std::string> data;
+	std::vector<Token> tokens;
 	
 	bool shouldAddToUndoInformation = true;
 	std::deque<Action> undoInformation;
