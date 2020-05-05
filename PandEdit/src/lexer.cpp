@@ -28,7 +28,7 @@ void lexCppBuffer(Buffer* buffer)
 			do
 			{
 				point.moveNext(true);
-			} while (point.isInBuffer() && buffer->data[point.line][point.col] != '"');
+			} while (point.isInBuffer() && buffer->data[point.line][point.col] != '\'');
 
 			// To go over the last quote
 			point.moveNext(true);
