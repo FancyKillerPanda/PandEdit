@@ -79,8 +79,9 @@ public:
 	void deleteTextPointToMark(bool appendToKillRing = true);
 	void deleteRestOfLine();
 
-	// This is stuff that is common to all point manipulations
+	// This is stuff that is common to all point/buffer manipulations
 	void doCommonPointManipulationTasks();
+	void doCommonBufferManipulationTasks();
 	
 	// Manipulations at the point
 	void insertChar(char character);

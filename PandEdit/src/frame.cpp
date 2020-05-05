@@ -308,6 +308,15 @@ void Frame::doCommonPointManipulationTasks()
 	}
 }
 
+void Frame::doCommonBufferManipulationTasks()
+{
+	// TODO(fkp): Figure out which lex mode to use
+	if (currentBuffer->isUsingSyntaxHighlighting)
+	{
+		lexCppBuffer(currentBuffer);
+	}
+}
+
 void Frame::insertChar(char character)
 {
 	doCommonPointManipulationTasks();
@@ -320,6 +329,7 @@ void Frame::insertChar(char character)
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, character)));
 
 	adjustOtherFramePointLocations(true, false);
+	doCommonBufferManipulationTasks();
 }
 
 void Frame::backspaceChar(unsigned int num)
@@ -365,6 +375,7 @@ void Frame::backspaceChar(unsigned int num)
 
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, endLocation, std::move(textDeleted)));	
 	point.targetCol = point.col;
+	doCommonBufferManipulationTasks();
 }
 
 void Frame::deleteChar(unsigned int num)
@@ -397,6 +408,7 @@ void Frame::deleteChar(unsigned int num)
 
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, point, std::move(textDeleted)));
 	point.targetCol = point.col;
+	doCommonBufferManipulationTasks();
 }
 
 void Frame::newLine()
@@ -413,6 +425,8 @@ void Frame::newLine()
 
 	currentBuffer->data.insert(currentBuffer->data.begin() + point.line, restOfLine);
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, '\n')));
+
+	doCommonBufferManipulationTasks();
 	adjustOtherFramePointLocations(true, true);
 }
 

@@ -381,7 +381,7 @@ void Renderer::drawFrame(Frame& frame)
 		y += currentFont->size;
 	}
 
-	if (buffer.tokens.size() == 0)
+	if (!buffer.isUsingSyntaxHighlighting || buffer.tokens.size() == 0)
 	{
 		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
 	}

@@ -35,6 +35,7 @@ public:
 	
 	std::vector<std::string> data;
 	std::vector<Token> tokens;
+	bool isUsingSyntaxHighlighting = false;
 	
 	bool shouldAddToUndoInformation = true;
 	std::deque<Action> undoInformation;

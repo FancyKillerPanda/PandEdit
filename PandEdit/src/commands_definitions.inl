@@ -398,6 +398,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 DEFINE_COMMAND(lexBufferAsCpp)
 {
 	exitMinibuffer("");
+	BUFFER->isUsingSyntaxHighlighting = true;
 	lexCppBuffer(BUFFER);
 	
 	return true;
