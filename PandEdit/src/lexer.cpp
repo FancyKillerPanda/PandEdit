@@ -74,12 +74,13 @@ void lexCppBuffer(Buffer* buffer)
 				else if (buffer->data[nextPoint.line][nextPoint.col] == '*')
 				{
 					Token token { Token::Type::BlockComment, point };
+					point.moveNext(true);
 
 					do
 					{
 						point.moveNext(true);
 
-						if (buffer->data[point.line][point.col] == '*')
+						if (point.isInBuffer() && buffer->data[point.line][point.col] == '*')
 						{
 							nextPoint = point + 1;
 
