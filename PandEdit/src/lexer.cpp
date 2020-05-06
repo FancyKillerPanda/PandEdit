@@ -53,8 +53,64 @@ void lexCppBuffer(Buffer* buffer)
 			buffer->tokens.push_back(token);
 		} break;
 
+		case '/':
+		{
+			Point nextPoint = point + 1;
+			
+			if (nextPoint.isInBuffer())
+			{
+				if (buffer->data[nextPoint.line][nextPoint.col] == '/')
+				{
+					Token token { Token::Type::LineComment, point };
+					
+					do
+					{
+						point.moveNext(true);
+					} while (point.isInBuffer() && point.col < buffer->data[point.line].size());
+
+					token.end = point;
+					buffer->tokens.push_back(token);
+				}
+				else if (buffer->data[nextPoint.line][nextPoint.col] == '*')
+				{
+					Token token { Token::Type::BlockComment, point };
+
+					do
+					{
+						point.moveNext(true);
+
+						if (buffer->data[point.line][point.col] == '*')
+						{
+							nextPoint = point + 1;
+
+							if (nextPoint.isInBuffer() && buffer->data[nextPoint.line][nextPoint.col] == '/')
+							{
+								// To go over the ending slash
+								point.moveNext(true);
+								point.moveNext(true);
+								
+								break;
+							}
+						}
+					} while (point.isInBuffer());
+
+					token.end = point;
+					buffer->tokens.push_back(token);
+				}
+				else
+				{
+					goto DEFAULT_CASE;
+				}
+			}
+			else
+			{
+				goto DEFAULT_CASE;
+			}
+		} break;
+
 		default:
 		{
+		DEFAULT_CASE:
 			if (character >= '0' && character <= '9')
 			{
 				Token token { Token::Type::Number, point };
@@ -100,9 +156,11 @@ Colour getColourForTokenType(Token::Type type)
 {
 	switch (type)
 	{
-	case Token::Type::Number:		return normaliseColour(255, 174,   0, 255);
-	case Token::Type::Character:	return normaliseColour(  0, 160,   9, 255);
-	case Token::Type::String:		return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::Number:			return normaliseColour(255, 174,   0, 255);
+	case Token::Type::Character:		return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::String:			return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::LineComment:		return normaliseColour(154, 154, 154, 255);
+	case Token::Type::BlockComment:		return normaliseColour(154, 154, 154, 255);
 
 	default:						return getDefaultTextColour();
 	}

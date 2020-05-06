@@ -24,6 +24,8 @@ public:
 		Number,
 		Character,
 		String,
+		LineComment,
+		BlockComment,
 	};
 	
 public:

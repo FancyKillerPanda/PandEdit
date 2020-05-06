@@ -15,6 +15,18 @@ Point::Point(unsigned int line, unsigned int col, const Buffer* buffer)
 {
 }
 
+Point Point::operator+(int number)
+{
+	Point result = *this;
+
+	for (int i = 0; i < number; i++)
+	{
+		result++;
+	}
+
+	return result;
+}
+
 bool Point::operator==(const Point& other) const
 {
 	return (line == other.line) && (col == other.col) && (targetCol == other.targetCol);

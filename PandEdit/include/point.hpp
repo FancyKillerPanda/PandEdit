@@ -17,6 +17,8 @@ public:
 public:
 	Point(const Buffer* buffer = nullptr);
 	Point(unsigned int line, unsigned int col, const Buffer* buffer = nullptr);
+
+	Point operator+(int number);
 	
 	bool operator==(const Point& other) const;
 	bool operator!=(const Point& other) const;
