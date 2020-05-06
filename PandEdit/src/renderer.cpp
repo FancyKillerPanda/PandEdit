@@ -173,10 +173,6 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 				x = startX;
 				y += font.size;
 			}
-			else
-			{
-				break;
-			}
 		}
 
 		// Tabs
@@ -268,19 +264,25 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 }
 
 // TODO(fkp): Find a better spot for this
-std::string substrFromPoints(const std::string& string, const Point& start, const Point& end)
+std::string substrFromPoints(const std::string& string, const Point& start, const Point& end, unsigned int lineOffset)
 {
 	if (start > end)
 	{
 		ERROR_ONCE("Error: Start cannot be after end in substr.\n");
 		return "";
 	}
+
+	if (lineOffset > start.line)
+	{
+		ERROR_ONCE("Error: String starts after the requested start point in substr.\n");
+		return "";
+	}
 	
 	unsigned int startIndex = 0;
 	unsigned int currentIndex = 0;
-	unsigned int linesPassed = 0;
+	unsigned int linesPassed = lineOffset;
 	
-	while (linesPassed < start.line)
+	while (currentIndex < string.size() && linesPassed < start.line)
 	{
 		if (string[currentIndex] == '\n')
 		{
@@ -295,7 +297,7 @@ std::string substrFromPoints(const std::string& string, const Point& start, cons
 	linesPassed = 0;
 	unsigned int length = 0;
 
-	while (linesPassed < end.line - start.line)
+	while (currentIndex < string.size() && linesPassed < end.line - start.line)
 	{
 		if (string[currentIndex] == '\n')
 		{
@@ -320,9 +322,10 @@ std::string substrFromPoints(const std::string& string, const Point& start, cons
 }
 
 // TODO(fkp): Find a better spot for this
-Point getPointAtEndOfString(const std::string& string)
+Point getPointAtEndOfString(const std::string& string, unsigned int lineOffset)
 {
 	Point result;
+	result.line = lineOffset;
 
 	for (char character : string)
 	{
@@ -383,7 +386,8 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (!buffer.isUsingSyntaxHighlighting || buffer.tokens.size() == 0)
 	{
-		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
+		// drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
+		drawText(visibleLines, -1, framePixelX, framePixelY, framePixelWidth);
 	}
 	else
 	{
@@ -393,30 +397,47 @@ void Renderer::drawFrame(Frame& frame)
 		
 		for (const Token& token : buffer.tokens)
 		{
-			std::string textToDraw = "";
+			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
+			{
+				break;
+			}
+
+			if (token.end < Point { frame.topLine, 0 })
+			{
+				continue;
+			}
 			
-			if (token.start > lastTokenEnd)
+			std::string textToDraw = "";
+			Point tokenStart = token.start;
+			
+			if (token.start < Point { frame.topLine, 0 })
+			{
+				tokenStart.line = frame.topLine;
+				tokenStart.col = 0;
+			}
+			
+			if (tokenStart > lastTokenEnd)
 			{
 				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-				textToDraw = substrFromPoints(visibleLines, lastTokenEnd, token.start);
+				textToDraw = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
 				
 				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 			}
 
 			lastTokenEnd = token.end;
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 0.0f, 0.0f, 1.0f);
-			textToDraw = substrFromPoints(visibleLines, token.start, token.end);
+			textToDraw = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
 			
 			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 		}
 
 		// Draws the rest of the text if needed
-		Point stringEndPoint = getPointAtEndOfString(visibleLines);
+		Point stringEndPoint = getPointAtEndOfString(visibleLines, frame.topLine);
 		
 		if (lastTokenEnd < stringEndPoint)
 		{
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			std::string textToDraw = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint);
+			std::string textToDraw = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
 			drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 		}
 	}

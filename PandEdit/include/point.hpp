@@ -16,8 +16,8 @@ public:
 	
 public:
 	Point(const Buffer* buffer = nullptr);
-	bool isInBuffer();
-
+	Point(unsigned int line, unsigned int col, const Buffer* buffer = nullptr);
+	
 	bool operator==(const Point& other) const;
 	bool operator!=(const Point& other) const;
 	
@@ -31,6 +31,7 @@ public:
 	Point operator++(int);
 	Point operator--(int);
 
+	bool isInBuffer();
 	Point& moveNext(bool force = false);
 	Point& movePrevious();
 	unsigned int distanceTo(const Point& other) const;

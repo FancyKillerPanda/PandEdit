@@ -10,25 +10,9 @@ Point::Point(const Buffer* buffer)
 {
 }
 
-bool Point::isInBuffer()
+Point::Point(unsigned int line, unsigned int col, const Buffer* buffer)
+	: line(line), col(col), buffer(buffer)
 {
-	if (!buffer)
-	{
-		ERROR_ONCE("Error: Cannot use Point::isInBuffer(), no buffer provided.\n");
-		return false;		
-	}
-
-	if (line >= buffer->data.size())
-	{
-		return false;
-	}
-
-	if (col > buffer->data[line].size())
-	{
-		return false;
-	}
-
-	return true;
 }
 
 bool Point::operator==(const Point& other) const
@@ -95,6 +79,27 @@ Point Point::operator--(int)
 	Point temp = *this;
 	--*this;
 	return temp;
+}
+
+bool Point::isInBuffer()
+{
+	if (!buffer)
+	{
+		ERROR_ONCE("Error: Cannot use Point::isInBuffer(), no buffer provided.\n");
+		return false;		
+	}
+
+	if (line >= buffer->data.size())
+	{
+		return false;
+	}
+
+	if (col > buffer->data[line].size())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 Point& Point::moveNext(bool force)
