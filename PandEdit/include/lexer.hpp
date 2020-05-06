@@ -8,6 +8,14 @@
 
 class Buffer;
 
+struct Colour
+{
+	float r = 0.0f;
+	float g = 0.0f;
+	float b = 0.0f;
+	float a = 0.0f;
+};
+
 class Token
 {
 public:
@@ -36,5 +44,7 @@ public:
 };
 
 void lexCppBuffer(Buffer* buffer);
+Colour getDefaultTextColour();
+Colour getColourForTokenType(Token::Type type); // TODO(fkp): This should have styling
 
 #endif

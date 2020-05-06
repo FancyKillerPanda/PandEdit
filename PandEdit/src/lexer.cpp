@@ -85,3 +85,25 @@ void lexCppBuffer(Buffer* buffer)
 		}
 	}
 }
+
+Colour normaliseColour(float r, float g, float b, float a)
+{
+	return { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+}
+
+Colour getDefaultTextColour()
+{
+	return normaliseColour(212, 212, 212, 255);
+}
+
+Colour getColourForTokenType(Token::Type type)
+{
+	switch (type)
+	{
+	case Token::Type::Number:		return normaliseColour(255, 174,   0, 255);
+	case Token::Type::Character:	return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::String:		return normaliseColour(  0, 160,   9, 255);
+
+	default:						return getDefaultTextColour();
+	}
+}

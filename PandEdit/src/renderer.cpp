@@ -363,8 +363,10 @@ void Renderer::drawFrame(Frame& frame)
 	// Text
 	//
 
+	// TODO(fkp): Uniform setters
+	Colour defaultColour = getDefaultTextColour();
 	glUseProgram(textureShader.programID);
-	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 
 	Buffer& buffer = *frame.currentBuffer;
 
@@ -386,8 +388,7 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (!buffer.isUsingSyntaxHighlighting || buffer.tokens.size() == 0)
 	{
-		// drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
-		drawText(visibleLines, -1, framePixelX, framePixelY, framePixelWidth);
+		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
 	}
 	else
 	{
@@ -418,14 +419,15 @@ void Renderer::drawFrame(Frame& frame)
 			
 			if (tokenStart > lastTokenEnd)
 			{
-				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 				textToDraw = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
 				
 				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 			}
 
 			lastTokenEnd = token.end;
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 0.0f, 0.0f, 1.0f);
+			Colour textColour = getColourForTokenType(token.type);
+			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textColour.r, textColour.g, textColour.b, textColour.a);
 			textToDraw = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
 			
 			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
@@ -436,7 +438,7 @@ void Renderer::drawFrame(Frame& frame)
 		
 		if (lastTokenEnd < stringEndPoint)
 		{
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 			std::string textToDraw = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
 			drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
 		}
