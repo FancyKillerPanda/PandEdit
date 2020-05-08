@@ -4,6 +4,9 @@
 #define LEXER_HPP
 
 #include <vector>
+#include <string>
+#include <array>
+
 #include "point.hpp"
 
 class Buffer;
@@ -26,9 +29,12 @@ public:
 		String,
 		LineComment,
 		BlockComment,
+		Keyword,
 	};
 	
 public:
+	static std::array<std::string, 2> keywords;
+	
 	Type type;
 	Point start;
 	Point end;

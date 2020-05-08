@@ -3,6 +3,25 @@
 #include "lexer.hpp"
 #include "buffer.hpp"
 
+std::array<std::string, 2> Token::keywords = {
+	"if", "else",
+};
+
+bool isIdentifierStartCharacter(char character)
+{
+	bool lowercaseAToZ = character >= 'a' && character <= 'z';
+	bool uppercaseAToZ = character >= 'A' && character <= 'Z';
+	bool underscore = character == '_';
+	
+	return lowercaseAToZ || uppercaseAToZ || underscore;
+}
+
+bool isIdentifierCharacter(char character)
+{
+	bool number = character >= '0' && character <= '9';
+	return isIdentifierStartCharacter(character) || number;
+}
+
 void lexCppBuffer(Buffer* buffer)
 {
 	// Empty buffer
@@ -134,6 +153,27 @@ void lexCppBuffer(Buffer* buffer)
 				token.end = point;
 				buffer->tokens.push_back(token);
 			}
+			else if (isIdentifierStartCharacter(character))
+			{
+				Point startPoint = point;
+				std::string tokenText = "";
+
+				do
+				{
+					tokenText += character;
+					point.moveNext();
+					character = buffer->data[point.line][point.col];
+				} while (isIdentifierCharacter(character));
+
+				if (std::find(Token::keywords.begin(), Token::keywords.end(), tokenText) != Token::keywords.end())
+				{
+					buffer->tokens.push_back({ Token::Type::Keyword, startPoint, point });
+				}
+				else
+				{
+					// TODO(fkp): Handle regular identifier
+				}
+			}
 			else
 			{
 				point.moveNext(true);
@@ -162,6 +202,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::String:			return normaliseColour(  0, 160,   9, 255);
 	case Token::Type::LineComment:		return normaliseColour(154, 154, 154, 255);
 	case Token::Type::BlockComment:		return normaliseColour(154, 154, 154, 255);
+	case Token::Type::Keyword:			return normaliseColour(184,   8, 180, 255);
 
 	default:						return getDefaultTextColour();
 	}
