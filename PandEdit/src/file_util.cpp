@@ -1,5 +1,6 @@
 //  ===== Date Created: 28 April, 2020 ===== 
 
+#include <sstream>
 #include <fstream>
 #include <stdio.h>
 
@@ -21,12 +22,22 @@ std::string readFile(const char* filename, bool createIfNotExists)
 		return "";
 	}
 
+	/* NOTE(fkp): This doesn't work because of Windows' \r\n line endings
 	file.seekg(0, std::ios::end);
 	std::size_t size = file.tellg();
 	file.seekg(0);
 
 	std::string buffer(size, ' ');
 	file.read(&buffer[0], size);
+	*/
+
+	std::string buffer;
+	std::string line;
+
+	while (std::getline(file, line))
+	{
+		buffer += line + '\n';
+	}
 
 	return buffer;
 }

@@ -150,6 +150,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		}
 	} return 0;
 
+	case WM_SYSKEYUP:
 	case WM_KEYUP:
 	{
 		KeyMap::registerKeyRelease(KeyMap::convertWin32CodeToKey(wParam));
