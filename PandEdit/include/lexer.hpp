@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <string>
-#include <array>
+#include <unordered_set>
 
 #include "point.hpp"
 
@@ -35,7 +35,7 @@ public:
 	};
 	
 public:
-	static std::array<std::string, 88> keywords;
+	static std::unordered_set<std::string> keywords;
 	
 	Type type;
 	Point start;

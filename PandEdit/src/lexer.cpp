@@ -4,7 +4,7 @@
 #include "buffer.hpp"
 
 // 1. NOTE(fkp): These are only keywords in some contexts
-std::array<std::string, 88> Token::keywords = {
+std::unordered_set<std::string> Token::keywords = {
 	"alignas", "alignof", "sizeof", "typeid", "decltype",
 	
 	"and", "and_eq", "bitand", "bitor", "compl",
@@ -248,7 +248,7 @@ void lexCppBuffer(Buffer* buffer)
 					character = buffer->data[point.line][point.col];
 				} while (isIdentifierCharacter(character));
 
-				if (std::find(Token::keywords.begin(), Token::keywords.end(), tokenText) != Token::keywords.end())
+				if (Token::keywords.find(tokenText) != Token::keywords.end())
 				{
 					buffer->tokens.push_back({ Token::Type::Keyword, startPoint, point });
 				}
