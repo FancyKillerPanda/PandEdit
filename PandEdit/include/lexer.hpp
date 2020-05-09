@@ -31,6 +31,7 @@ public:
 		BlockComment,
 		Keyword,
 		PreprocessorDirective,
+		IncludeAngleBracketPath,
 	};
 	
 public:

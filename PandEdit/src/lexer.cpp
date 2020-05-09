@@ -72,16 +72,29 @@ void lexCppBuffer(Buffer* buffer)
 	while (point.isInBuffer())
 	{
 		char character = buffer->data[point.line][point.col];
-		
+
 		switch (character)
 		{
+		case '<':
 		case '\'':
 		case '"':
 		{
 			Token::Type type;
 			char endChar;
 
-			if (character == '\'')
+			if (character == '<')
+			{
+				if (buffer->tokens.size() == 0 ||
+					buffer->tokens.back().type != Token::Type::PreprocessorDirective ||
+					buffer->data[buffer->tokens.back().start.line].substr(buffer->tokens.back().start.col, buffer->tokens.back().end.col - buffer->tokens.back().start.col) != "#include")
+				{
+					goto DEFAULT_CASE;
+				}
+				
+				type = Token::Type::IncludeAngleBracketPath;
+				endChar = '>';
+			}
+			else if (character == '\'')
 			{
 				type = Token::Type::Character;
 				endChar = '\'';
@@ -284,6 +297,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::Number:					return normaliseColour(255, 174,   0, 255);
 	case Token::Type::Character:				return normaliseColour(  0, 160,   9, 255);
 	case Token::Type::String:					return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::IncludeAngleBracketPath:	return normaliseColour(  0, 160,   9, 255);
 	case Token::Type::LineComment:				return normaliseColour(154, 154, 154, 255);
 	case Token::Type::BlockComment:				return normaliseColour(154, 154, 154, 255);
 	case Token::Type::Keyword:					return normaliseColour(184,   8, 180, 255);
