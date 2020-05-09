@@ -57,6 +57,16 @@ bool isIdentifierCharacter(char character)
 	return isIdentifierStartCharacter(character) || number;
 }
 
+bool isValidDigit(char character)
+{
+	bool number = character >= '0' && character <= '9';
+	bool lowercaseHex = character >= 'a' && character <= 'f';
+	bool uppercaseHex = character >= 'A' && character <= 'F';
+	bool separator = character == '\'';
+
+	return number || lowercaseHex || uppercaseHex || separator;
+}
+
 void lexCppBuffer(Buffer* buffer)
 {
 	Point point { buffer };
@@ -202,17 +212,27 @@ void lexCppBuffer(Buffer* buffer)
 				{
 					point.moveNext();
 					character = buffer->data[point.line][point.col];
-				} while (character >= '0' && character <= '9');
+				} while (isValidDigit(character));
 
-				if (character == '.')
+				if (character == '.' ||
+					character == 'x' || character == 'X' ||
+					character == 'b' || character == 'B')
 				{
 					do
 					{
 						point.moveNext();
 						character = buffer->data[point.line][point.col];
-					} while (character >= '0' && character <= '9');
+					} while (isValidDigit(character));
 				}
 
+				// Suffixes
+				while (character == 'u' || character == 'U' ||
+					   character == 'l' || character == 'L')
+				{
+					point.moveNext();
+					character = buffer->data[point.line][point.col];
+				}
+				
 				token.end = point;
 				buffer->tokens.push_back(token);
 			}
