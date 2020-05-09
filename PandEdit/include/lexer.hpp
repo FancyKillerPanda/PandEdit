@@ -33,7 +33,7 @@ public:
 	};
 	
 public:
-	static std::array<std::string, 2> keywords;
+	static std::array<std::string, 88> keywords;
 	
 	Type type;
 	Point start;

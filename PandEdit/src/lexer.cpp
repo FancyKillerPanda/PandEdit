@@ -3,8 +3,43 @@
 #include "lexer.hpp"
 #include "buffer.hpp"
 
-std::array<std::string, 2> Token::keywords = {
-	"if", "else",
+// 1. NOTE(fkp): These are only keywords in some contexts
+std::array<std::string, 88> Token::keywords = {
+	"alignas", "alignof", "sizeof", "typeid", "decltype",
+	
+	"and", "and_eq", "bitand", "bitor", "compl",
+	"not", "not_eq", "or", "or_eq", "xor", "xor_eq",
+	
+	"atomic_cancel", "atomic_commit", "atomic_noexcept",
+
+	"break", "case", "continue", "default", "do", "else",
+	"for", "goto", "if", "return", "switch", "while",
+
+	"const", "consteval", "constexpr", "constinit", "const_cast",
+
+	"false", "nullptr", "true", "void",
+	/* "bool", "char", "char8_t", "char16_t", "char32_t",
+	"double", "float", "int", "long", "short",
+	"signed", "unsigned", "wchar_t", */
+
+	"auto", "class", "delete", "enum", "explicit", "final" /* note 1 */,
+	"friend", "inline", "mutable", "namespace", "new", "noexcept",
+	"operator", "override" /* note 1 */, "private", "protected",
+	"public", "struct", "template", "this", "typedef", "typename",
+	"union", "using", "virtual", "volatile",
+
+	"catch", "throw", "try",
+	
+	"co_await", "co_return", "co_yield", "synchronized", "thread_local",
+
+	"concept", "export", "import" /* note 1 */,
+	"module" /* note 1 */, "requires",
+	
+	"extern", "register", "static",
+
+	"dynamic_cast", "reinterpret_cast", "static_assert", "static_cast",
+	
+	"asm", "reflexpr",
 };
 
 bool isIdentifierStartCharacter(char character)
