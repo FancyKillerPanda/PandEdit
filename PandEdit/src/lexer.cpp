@@ -59,15 +59,15 @@ bool isIdentifierCharacter(char character)
 
 void lexCppBuffer(Buffer* buffer)
 {
+	Point point { buffer };
+	buffer->tokens.clear();
+
 	// Empty buffer
 	if (buffer->data.size() == 0 ||
 		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
 	{
 		return;
 	}
-
-	Point point { buffer };
-	buffer->tokens.clear();
 
 	while (point.isInBuffer())
 	{
