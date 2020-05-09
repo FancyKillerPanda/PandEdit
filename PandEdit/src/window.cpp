@@ -181,7 +181,17 @@ void APIENTRY Window::debugLogCallback(GLenum source, GLenum type, GLuint id, GL
 {
 #if defined(PANDEDIT_DEBUG_WINDOW)
 	// NOTE(fkp): This suppresses useless warnings
-	if (id == 131218 /* fragment shader recompiled */)
+
+	// if (id == 131218 /* fragment shader recompiled */)
+	// {
+	//	return;
+	// }
+
+	// TODO(fkp): Figure out if this affects other messages
+	if (source == GL_DEBUG_SOURCE_API &&
+		type == GL_DEBUG_TYPE_PERFORMANCE &&
+		severity == GL_DEBUG_SEVERITY_MEDIUM &&
+		id == 2)
 	{
 		return;
 	}
