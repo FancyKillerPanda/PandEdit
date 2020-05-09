@@ -30,6 +30,7 @@ public:
 		LineComment,
 		BlockComment,
 		Keyword,
+		PreprocessorDirective,
 	};
 	
 public:

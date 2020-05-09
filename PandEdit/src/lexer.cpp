@@ -209,6 +209,41 @@ void lexCppBuffer(Buffer* buffer)
 					// TODO(fkp): Handle regular identifier
 				}
 			}
+			else if (character == '#')
+			{
+				Token directiveToken { Token::Type::PreprocessorDirective, point };
+
+				do
+				{
+					point.moveNext();
+					character = buffer->data[point.line][point.col];
+				} while (isIdentifierCharacter(character));
+
+				directiveToken.end = point;
+				buffer->tokens.push_back(directiveToken);
+
+				if (point.col != buffer->data[point.line].size())
+				{
+					std::string tokenText = "";
+					Point startPoint = point;
+					
+					// Skips space
+					point.moveNext();
+					character = buffer->data[point.line][point.col];
+
+					do
+					{
+						tokenText += character;
+						point.moveNext();
+						character = buffer->data[point.line][point.col];
+					} while (isIdentifierCharacter(character));
+
+					if (tokenText == "defined")
+					{
+						buffer->tokens.push_back({ Token::Type::PreprocessorDirective, startPoint, point });
+					}
+				}
+			}
 			else
 			{
 				point.moveNext(true);
@@ -232,13 +267,14 @@ Colour getColourForTokenType(Token::Type type)
 {
 	switch (type)
 	{
-	case Token::Type::Number:			return normaliseColour(255, 174,   0, 255);
-	case Token::Type::Character:		return normaliseColour(  0, 160,   9, 255);
-	case Token::Type::String:			return normaliseColour(  0, 160,   9, 255);
-	case Token::Type::LineComment:		return normaliseColour(154, 154, 154, 255);
-	case Token::Type::BlockComment:		return normaliseColour(154, 154, 154, 255);
-	case Token::Type::Keyword:			return normaliseColour(184,   8, 180, 255);
+	case Token::Type::Number:					return normaliseColour(255, 174,   0, 255);
+	case Token::Type::Character:				return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::String:					return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::LineComment:				return normaliseColour(154, 154, 154, 255);
+	case Token::Type::BlockComment:				return normaliseColour(154, 154, 154, 255);
+	case Token::Type::Keyword:					return normaliseColour(184,   8, 180, 255);
+	case Token::Type::PreprocessorDirective:	return normaliseColour(184,   8, 180, 255);
 
-	default:						return getDefaultTextColour();
+	default:									return getDefaultTextColour();
 	}
 }
