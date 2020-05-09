@@ -76,31 +76,30 @@ void lexCppBuffer(Buffer* buffer)
 		switch (character)
 		{
 		case '\'':
-		{
-			Token token { Token::Type::Character, point };
-			
-			do
-			{
-				point.moveNext(true);
-			} while (point.isInBuffer() && buffer->data[point.line][point.col] != '\'');
-
-			// To go over the last quote
-			point.moveNext(true);
-
-			token.end = point;
-			buffer->tokens.push_back(token);
-		} break;
-			
 		case '"':
 		{
-			Token token { Token::Type::String, point };
+			Token::Type type;
+			char endChar;
+
+			if (character == '\'')
+			{
+				type = Token::Type::Character;
+				endChar = '\'';
+			}
+			else
+			{
+				type = Token::Type::String;
+				endChar = '"';
+			}
+			
+			Token token { type, point };
 			
 			do
 			{
 				point.moveNext(true);
-			} while (point.isInBuffer() && buffer->data[point.line][point.col] != '"');
+			} while (point.isInBuffer() && buffer->data[point.line][point.col] != endChar);
 
-			// To go over the last quote
+			// To go over the ending character
 			point.moveNext(true);
 
 			token.end = point;
