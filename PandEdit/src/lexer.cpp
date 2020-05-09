@@ -163,6 +163,22 @@ void lexCppBuffer(Buffer* buffer)
 			}
 		} break;
 
+		case '#':
+		{
+			Token directiveToken { Token::Type::PreprocessorDirective, point };
+			std::string directiveTokenText = "";
+
+			do
+			{
+				point.moveNext();
+				character = buffer->data[point.line][point.col];
+				directiveTokenText += character;
+			} while (isIdentifierCharacter(character));
+
+			directiveToken.end = point;
+			buffer->tokens.push_back(directiveToken);
+		}
+
 		default:
 		{
 		DEFAULT_CASE:
@@ -204,44 +220,43 @@ void lexCppBuffer(Buffer* buffer)
 				{
 					buffer->tokens.push_back({ Token::Type::Keyword, startPoint, point });
 				}
-				else
+				else if (tokenText == "defined")
 				{
-					// TODO(fkp): Handle regular identifier
-				}
-			}
-			else if (character == '#')
-			{
-				Token directiveToken { Token::Type::PreprocessorDirective, point };
+					bool foundIfElifDirectiveOnLine = false;
 
-				do
-				{
-					point.moveNext();
-					character = buffer->data[point.line][point.col];
-				} while (isIdentifierCharacter(character));
-
-				directiveToken.end = point;
-				buffer->tokens.push_back(directiveToken);
-
-				if (point.col != buffer->data[point.line].size())
-				{
-					std::string tokenText = "";
-					Point startPoint = point;
-					
-					// Skips space
-					point.moveNext();
-					character = buffer->data[point.line][point.col];
-
-					do
+					for (const Token& token : buffer->tokens)
 					{
-						tokenText += character;
-						point.moveNext();
-						character = buffer->data[point.line][point.col];
-					} while (isIdentifierCharacter(character));
+						if (token.start.line > point.line)
+						{
+							break;
+						}
 
-					if (tokenText == "defined")
+						if (token.start.line == point.line)
+						{
+							if (token.type == Token::Type::PreprocessorDirective)
+							{
+								std::string directive = buffer->data[token.start.line].substr(token.start.col, token.end.col - token.start.col);
+
+								if (directive == "#if" || directive == "#elif")
+								{
+									foundIfElifDirectiveOnLine = true;
+									break;
+								}
+							}
+						}
+					}
+
+					if (foundIfElifDirectiveOnLine)
 					{
 						buffer->tokens.push_back({ Token::Type::PreprocessorDirective, startPoint, point });
 					}
+					else
+					{
+//						goto REGULAR_IDENTIFIER;
+					}
+					
+					// TODO(fkp): Handle regular identifier
+//				REGULAR_IDENTIFIER: NOTE(fkp): When uncommenting this, uncomment usage above
 				}
 			}
 			else
