@@ -386,17 +386,17 @@ void Renderer::drawFrame(Frame& frame)
 		y += currentFont->size;
 	}
 
-	if (!buffer.isUsingSyntaxHighlighting || buffer.tokens.size() == 0)
+	if (!buffer.isUsingSyntaxHighlighting || buffer.lexer.tokens.size() == 0)
 	{
 		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
 	}
 	else
 	{
-		Point lastTokenEnd { buffer.tokens[0].start.buffer };
+		Point lastTokenEnd { buffer.lexer.tokens[0].start.buffer };
 		lastTokenEnd.line = frame.topLine;
 		std::pair<int, int> lastLocation = { framePixelX, framePixelY };
 		
-		for (const Token& token : buffer.tokens)
+		for (const Token& token : buffer.lexer.tokens)
 		{
 			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
 			{

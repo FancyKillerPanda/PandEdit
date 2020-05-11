@@ -35,8 +35,6 @@ public:
 	};
 	
 public:
-	static std::unordered_set<std::string> keywords;
-	
 	Type type;
 	Point start;
 	Point end;
@@ -53,7 +51,27 @@ public:
 	}
 };
 
-void lexCppBuffer(Buffer* buffer);
+class Lexer
+{
+public:
+	static std::unordered_set<std::string> keywords;
+	
+	Buffer* buffer;
+	std::vector<Token> tokens;
+
+	
+public:
+	Lexer(Buffer* buffer);
+	// TODO(fkp): Language of lexing
+	void lex();
+
+private:
+	static bool isIdentifierStartCharacter(char character);
+	static bool isIdentifierCharacter(char character);
+	static bool isValidDigit(char character);
+};
+
+Colour normaliseColour(float r, float g, float b, float a);
 Colour getDefaultTextColour();
 Colour getColourForTokenType(Token::Type type); // TODO(fkp): This should have styling
 

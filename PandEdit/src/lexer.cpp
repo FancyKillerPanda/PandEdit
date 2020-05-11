@@ -4,7 +4,7 @@
 #include "buffer.hpp"
 
 // 1. NOTE(fkp): These are only keywords in some contexts
-std::unordered_set<std::string> Token::keywords = {
+std::unordered_set<std::string> Lexer::keywords = {
 	"alignas", "alignof", "sizeof", "typeid", "decltype",
 	
 	"and", "and_eq", "bitand", "bitor", "compl",
@@ -42,35 +42,15 @@ std::unordered_set<std::string> Token::keywords = {
 	"asm", "reflexpr",
 };
 
-bool isIdentifierStartCharacter(char character)
+Lexer::Lexer(Buffer* buffer)
+	: buffer(buffer)
 {
-	bool lowercaseAToZ = character >= 'a' && character <= 'z';
-	bool uppercaseAToZ = character >= 'A' && character <= 'Z';
-	bool underscore = character == '_';
-	
-	return lowercaseAToZ || uppercaseAToZ || underscore;
 }
 
-bool isIdentifierCharacter(char character)
-{
-	bool number = character >= '0' && character <= '9';
-	return isIdentifierStartCharacter(character) || number;
-}
-
-bool isValidDigit(char character)
-{
-	bool number = character >= '0' && character <= '9';
-	bool lowercaseHex = character >= 'a' && character <= 'f';
-	bool uppercaseHex = character >= 'A' && character <= 'F';
-	bool separator = character == '\'';
-
-	return number || lowercaseHex || uppercaseHex || separator;
-}
-
-void lexCppBuffer(Buffer* buffer)
+void Lexer::lex()
 {
 	Point point { buffer };
-	buffer->tokens.clear();
+	tokens.clear();
 
 	// Empty buffer
 	if (buffer->data.size() == 0 ||
@@ -94,9 +74,9 @@ void lexCppBuffer(Buffer* buffer)
 
 			if (character == '<')
 			{
-				if (buffer->tokens.size() == 0 ||
-					buffer->tokens.back().type != Token::Type::PreprocessorDirective ||
-					buffer->data[buffer->tokens.back().start.line].substr(buffer->tokens.back().start.col, buffer->tokens.back().end.col - buffer->tokens.back().start.col) != "#include")
+				if (tokens.size() == 0 ||
+					tokens.back().type != Token::Type::PreprocessorDirective ||
+					buffer->data[tokens.back().start.line].substr(tokens.back().start.col, tokens.back().end.col - tokens.back().start.col) != "#include")
 				{
 					goto DEFAULT_CASE;
 				}
@@ -126,7 +106,7 @@ void lexCppBuffer(Buffer* buffer)
 			point.moveNext(true);
 
 			token.end = point;
-			buffer->tokens.push_back(token);
+			tokens.push_back(token);
 		} break;
 
 		case '/':
@@ -145,7 +125,7 @@ void lexCppBuffer(Buffer* buffer)
 					} while (point.isInBuffer() && point.col < buffer->data[point.line].size());
 
 					token.end = point;
-					buffer->tokens.push_back(token);
+					tokens.push_back(token);
 				}
 				else if (buffer->data[nextPoint.line][nextPoint.col] == '*')
 				{
@@ -172,7 +152,7 @@ void lexCppBuffer(Buffer* buffer)
 					} while (point.isInBuffer());
 
 					token.end = point;
-					buffer->tokens.push_back(token);
+					tokens.push_back(token);
 				}
 				else
 				{
@@ -198,7 +178,7 @@ void lexCppBuffer(Buffer* buffer)
 			} while (isIdentifierCharacter(character));
 
 			directiveToken.end = point;
-			buffer->tokens.push_back(directiveToken);
+			tokens.push_back(directiveToken);
 		}
 
 		default:
@@ -234,7 +214,7 @@ void lexCppBuffer(Buffer* buffer)
 				}
 				
 				token.end = point;
-				buffer->tokens.push_back(token);
+				tokens.push_back(token);
 			}
 			else if (isIdentifierStartCharacter(character))
 			{
@@ -248,15 +228,15 @@ void lexCppBuffer(Buffer* buffer)
 					character = buffer->data[point.line][point.col];
 				} while (isIdentifierCharacter(character));
 
-				if (Token::keywords.find(tokenText) != Token::keywords.end())
+				if (keywords.find(tokenText) != keywords.end())
 				{
-					buffer->tokens.push_back({ Token::Type::Keyword, startPoint, point });
+					tokens.push_back({ Token::Type::Keyword, startPoint, point });
 				}
 				else if (tokenText == "defined")
 				{
 					bool foundIfElifDirectiveOnLine = false;
 
-					for (const Token& token : buffer->tokens)
+					for (const Token& token : tokens)
 					{
 						if (token.start.line > point.line)
 						{
@@ -280,7 +260,7 @@ void lexCppBuffer(Buffer* buffer)
 
 					if (foundIfElifDirectiveOnLine)
 					{
-						buffer->tokens.push_back({ Token::Type::PreprocessorDirective, startPoint, point });
+						tokens.push_back({ Token::Type::PreprocessorDirective, startPoint, point });
 					}
 					else
 					{
@@ -303,6 +283,31 @@ void lexCppBuffer(Buffer* buffer)
 Colour normaliseColour(float r, float g, float b, float a)
 {
 	return { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+}
+
+bool Lexer::isIdentifierStartCharacter(char character)
+{
+	bool lowercaseAToZ = character >= 'a' && character <= 'z';
+	bool uppercaseAToZ = character >= 'A' && character <= 'Z';
+	bool underscore = character == '_';
+	
+	return lowercaseAToZ || uppercaseAToZ || underscore;
+}
+
+bool Lexer::isIdentifierCharacter(char character)
+{
+	bool number = character >= '0' && character <= '9';
+	return isIdentifierStartCharacter(character) || number;
+}
+
+bool Lexer::isValidDigit(char character)
+{
+	bool number = character >= '0' && character <= '9';
+	bool lowercaseHex = character >= 'a' && character <= 'f';
+	bool uppercaseHex = character >= 'A' && character <= 'F';
+	bool separator = character == '\'';
+
+	return number || lowercaseHex || uppercaseHex || separator;
 }
 
 Colour getDefaultTextColour()

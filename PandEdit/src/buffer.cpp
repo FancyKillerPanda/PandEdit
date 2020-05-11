@@ -7,7 +7,7 @@
 #include "file_util.hpp"
 
 Buffer::Buffer(BufferType type, std::string name, std::string path)
-	: type(type), name(name), path(path)
+	: type(type), name(name), path(path), lexer(this)
 {
 	if (path == "")
 	{
@@ -50,7 +50,8 @@ Buffer::~Buffer()
 
 Buffer::Buffer(Buffer&& other)
 	: type(other.type), name(std::move(other.name)), data(std::move(other.data)),
-	  lastPoint(other.lastPoint), lastTopLine(other.lastTopLine)
+	  lastPoint(other.lastPoint), lastTopLine(other.lastTopLine),
+	  lexer(other.lexer)
 {
 	buffersMap[name] = this;
 	other.name = "";
@@ -66,6 +67,8 @@ Buffer& Buffer::operator=(Buffer&& other)
 
 		lastPoint = other.lastPoint;
 		lastTopLine = other.lastTopLine;
+
+		lexer = other.lexer;
 
 		buffersMap[name] = this;
 		other.name = "";

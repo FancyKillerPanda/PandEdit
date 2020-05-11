@@ -34,7 +34,7 @@ public:
 	std::string path;
 	
 	std::vector<std::string> data;
-	std::vector<Token> tokens;
+	Lexer lexer;
 	bool isUsingSyntaxHighlighting = false;
 	
 	bool shouldAddToUndoInformation = true;
