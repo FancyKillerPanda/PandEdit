@@ -307,9 +307,15 @@ void Lexer::lex(unsigned int startLine)
 	}
 	
 	Point point { startLine, 0, buffer };
+	// lineStates[point.line].tokens.clear();
 
 	while (point.isInBuffer())
 	{
+		if (point.col == 0)
+		{
+			lineStates[point.line].tokens.clear();
+		}
+		
 		char character;
 		UPDATE_CHARACTER();
 
@@ -325,6 +331,10 @@ void Lexer::lex(unsigned int startLine)
 
 				if (!point.isInBuffer())
 				{
+					// The minus 1 is because point.moveNext(true) will skip to the start of the next line
+					lineStates[point.line - 1].tokens.emplace_back(Token::Type::String, startPoint, point);
+					lineStates[point.line - 1].finishType = LineLexState::FinishType::UnendedString;
+
 					break;
 				}
 				
@@ -347,14 +357,37 @@ void Lexer::lex(unsigned int startLine)
 
 		default:
 		{
-			point.moveNext(true);
+			if (character == '\n')
+			{
+				if (lineStates[point.line].finishType == LineLexState::FinishType::Finished)
+				{
+					goto FINISHED_LEX;
+				}
+				// else
+				// {
+				//	point.moveNext(true);
+				//	lineStates[point.line].tokens.clear();
+				// }
+			}
+			else
+			{
+				point.moveNext(true);
+			}
 		} break;
 		}
 	}
+
+FINISHED_LEX:
+	;
 }
 
 std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine)
 {
+	if (lineStates.size() == 0)
+	{
+		return {};
+	}
+
 	if (lineStates.size() < endLine)
 	{
 		ERROR_ONCE("Error: getTokens() ending line is greater than number of lines.\n");
@@ -364,7 +397,7 @@ std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine
 	std::vector<Token> result;
 
 	// TODO(fkp): Merging
-	for (int i = startLine; i < endLine; i++)
+	for (int i = startLine; i <= endLine; i++)
 	{
 		for (Token token : lineStates[i].tokens)
 		{

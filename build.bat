@@ -24,10 +24,10 @@ IF %ERRORLEVEL% NEQ 0 GOTO end
 cmake --build . --config %CONFIG%
 IF %ERRORLEVEL% NEQ 0 GOTO end
 
-echo.
 cd %ROOT_DIRECTORY%
 
 IF NOT %NORUN%==true (
+	echo.
 	IF %CONFIG%==Debug (
 		call run.bat
 	) ELSE IF %CONFIG%==RelWithDebInfo (

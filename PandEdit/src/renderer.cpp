@@ -381,8 +381,6 @@ void Renderer::drawFrame(Frame& frame)
 			break;
 		}
 
-		// const std::string& line = buffer.data[i];
-		// drawText(line, -1, framePixelX, y, framePixelWidth);
 		visibleLines += buffer.data[i] + std::string(1, '\n');
 		y += currentFont->size;
 		numberOfLines += 1;
