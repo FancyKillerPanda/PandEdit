@@ -399,7 +399,7 @@ DEFINE_COMMAND(lexBufferAsCpp)
 {
 	exitMinibuffer("");
 	BUFFER->isUsingSyntaxHighlighting = true;
-	BUFFER->lexer.lex();
+	BUFFER->lexer.lex(0);
 	
 	return true;
 }

@@ -2,6 +2,7 @@
 
 #include "lexer.hpp"
 #include "buffer.hpp"
+#include "common.hpp"
 
 // 1. NOTE(fkp): These are only keywords in some contexts
 std::unordered_set<std::string> Lexer::keywords = {
@@ -47,15 +48,16 @@ Lexer::Lexer(Buffer* buffer)
 {
 }
 
+/*
 void Lexer::lex()
 {
 	Point point { buffer };
-	tokens.clear();
 
 	// Empty buffer
 	if (buffer->data.size() == 0 ||
 		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
 	{
+		lineStates.clear();
 		return;
 	}
 
@@ -279,10 +281,98 @@ void Lexer::lex()
 		}
 	}
 }
+*/
 
-Colour normaliseColour(float r, float g, float b, float a)
+#define UPDATE_CHARACTER() character = buffer->data[point.line][point.col]
+
+void Lexer::lex(unsigned int startLine)
 {
-	return { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+	if (buffer->data.size() == 0 ||
+		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
+	{
+		lineStates.clear();
+		return;
+	}
+
+	if (lineStates.size() > buffer->data.size())
+	{
+		ERROR_ONCE("Error: More line states than buffer lines.\n");
+		return;
+	}
+	
+	while (lineStates.size() < buffer->data.size())
+	{
+		// TODO(fkp): Maybe figure this out better
+		lineStates.emplace_back();
+	}
+	
+	Point point { startLine, 0, buffer };
+
+	while (point.isInBuffer())
+	{
+		char character;
+		UPDATE_CHARACTER();
+
+		switch (character)
+		{
+		case '"':
+		{
+			Point startPoint = point;
+			
+			do
+			{
+				point.moveNext(true);
+
+				if (!point.isInBuffer())
+				{
+					break;
+				}
+				
+				UPDATE_CHARACTER();
+
+				if (character == '"')
+				{
+					point.moveNext();
+					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
+
+					break;
+				}
+				else if (character == '\n')
+				{
+					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
+					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+				}
+			} while (true);
+		} break;
+
+		default:
+		{
+			point.moveNext(true);
+		} break;
+		}
+	}
+}
+
+std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine)
+{
+	if (lineStates.size() < endLine)
+	{
+		ERROR_ONCE("Error: getTokens() ending line is greater than number of lines.\n");
+		return {};
+	}
+
+	std::vector<Token> result;
+
+	// TODO(fkp): Merging
+	for (int i = startLine; i < endLine; i++)
+	{
+		for (Token token : lineStates[i].tokens)
+		{
+			result.push_back(token);
+		}
+	}
+
+	return result;
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
@@ -308,6 +398,11 @@ bool Lexer::isValidDigit(char character)
 	bool separator = character == '\'';
 
 	return number || lowercaseHex || uppercaseHex || separator;
+}
+
+Colour normaliseColour(float r, float g, float b, float a)
+{
+	return { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
 }
 
 Colour getDefaultTextColour()

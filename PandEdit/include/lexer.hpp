@@ -51,19 +51,33 @@ public:
 	}
 };
 
+struct LineLexState
+{
+	enum class FinishType
+	{
+		Finished,
+		UnendedString,
+		UnendedComment,
+	};
+	
+	std::vector<Token> tokens;
+	FinishType finishType = FinishType::Finished;
+};
+
 class Lexer
 {
 public:
 	static std::unordered_set<std::string> keywords;
 	
 	Buffer* buffer;
-	std::vector<Token> tokens;
-
+	std::vector<LineLexState> lineStates;
 	
 public:
 	Lexer(Buffer* buffer);
+	
 	// TODO(fkp): Language of lexing
-	void lex();
+	void lex(unsigned int startLine);
+	std::vector<Token> getTokens(unsigned int startLine, unsigned int endLine);
 
 private:
 	static bool isIdentifierStartCharacter(char character);

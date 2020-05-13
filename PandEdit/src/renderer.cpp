@@ -372,6 +372,7 @@ void Renderer::drawFrame(Frame& frame)
 
 	int y = framePixelY;
 	std::string visibleLines = "";
+	unsigned int numberOfLines = 0;
 
 	for (unsigned int i = frame.topLine; i < buffer.data.size(); i++)
 	{
@@ -384,19 +385,27 @@ void Renderer::drawFrame(Frame& frame)
 		// drawText(line, -1, framePixelX, y, framePixelWidth);
 		visibleLines += buffer.data[i] + std::string(1, '\n');
 		y += currentFont->size;
+		numberOfLines += 1;
 	}
 
-	if (!buffer.isUsingSyntaxHighlighting || buffer.lexer.tokens.size() == 0)
+	std::vector<Token> bufferTokens;
+	
+	if (buffer.isUsingSyntaxHighlighting)
+	{
+		bufferTokens = buffer.lexer.getTokens(frame.topLine, frame.topLine + numberOfLines - 1);
+	}
+
+	if (bufferTokens.size() == 0)
 	{
 		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
 	}
 	else
 	{
-		Point lastTokenEnd { buffer.lexer.tokens[0].start.buffer };
+		Point lastTokenEnd { bufferTokens[0].start.buffer };
 		lastTokenEnd.line = frame.topLine;
 		std::pair<int, int> lastLocation = { framePixelX, framePixelY };
 		
-		for (const Token& token : buffer.lexer.tokens)
+		for (const Token& token : bufferTokens)
 		{
 			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
 			{
