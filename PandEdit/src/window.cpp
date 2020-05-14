@@ -1,7 +1,7 @@
 //  ===== Date Created: 14 April, 2020 =====
 
 #define PANDEDIT_DEBUG_WINDOW
-// #define PANDEDIT_VSYNC
+#define PANDEDIT_VSYNC
 
 #include <stdio.h>
 #include <windows.h>

@@ -284,6 +284,7 @@ void Lexer::lex()
 */
 
 #define UPDATE_CHARACTER() character = buffer->data[point.line][point.col]
+#define LINE_TOKENS lineStates[point.line].tokens
 
 void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 {
@@ -313,7 +314,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 	{
 		if (point.col == 0)
 		{
-			lineStates[point.line].tokens.clear();
+			LINE_TOKENS.clear();
 
 			if (point.line > 0 &&
 				lineStates[point.line - 1].finishType == LineLexState::FinishType::UnendedString)
@@ -345,7 +346,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				if (point.col == 0)
 				{
 					startPoint = point;
-					lineStates[point.line].tokens.clear();
+					LINE_TOKENS.clear();
 					currentLineLastFinishType = lineStates[point.line].finishType;
 				}
 				
@@ -354,14 +355,14 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				if (character == '"')
 				{
 					point.moveNext();
-					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
+					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
 					lineStates[point.line].finishType = LineLexState::FinishType::Finished;
 
 					break;
 				}
 				else if (point.col == buffer->data[point.line].size())
 				{
-					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
+					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
 					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
 				}
 			} while (true);
@@ -390,14 +391,51 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					if (character == '\'')
 					{
 						point.moveNext(true);
-						lineStates[point.line].tokens.emplace_back(Token::Type::Character, startPoint, point);
+						LINE_TOKENS.emplace_back(Token::Type::Character, startPoint, point);
 					}
 				}
 			}
 		} break;
 
+		case '<':
+		{
+			/* TODO(fkp): Uncomment once keywords have been implemented
+			if (LINE_TOKENS.size() == 0 ||
+				LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
+				buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
+			{
+				goto DEFAULT_CASE;
+			}
+			*/
+
+			Point startPoint = point;
+			point.moveNext(true);
+			
+			while (point.isInBuffer())
+			{
+				UPDATE_CHARACTER();
+				
+				if (character == '>')
+				{
+					point.moveNext(true);
+					break;
+				}
+				else if (point.col == buffer->data[point.line].size())
+				{
+					break;
+				}
+				else
+				{
+					point.moveNext(true);
+				}
+			}
+
+			LINE_TOKENS.emplace_back(Token::Type::IncludeAngleBracketPath, startPoint, point);
+		} break;
+
 		default:
 		{
+		DEFAULT_CASE:
 			if (point.col == buffer->data[point.line].size())
 			{
 				lineStates[point.line].finishType = LineLexState::FinishType::Finished;
@@ -413,7 +451,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					
 					if (point.isInBuffer())
 					{
-						lineStates[point.line].tokens.clear();
+						LINE_TOKENS.clear();
 					}
 				}
 			}
