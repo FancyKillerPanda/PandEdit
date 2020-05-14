@@ -332,10 +332,18 @@ void Lexer::lex(unsigned int startLine)
 				if (!point.isInBuffer())
 				{
 					// The minus 1 is because point.moveNext(true) will skip to the start of the next line
-					lineStates[point.line - 1].tokens.emplace_back(Token::Type::String, startPoint, point);
-					lineStates[point.line - 1].finishType = LineLexState::FinishType::UnendedString;
+					// NOTE(fkp): Token should have been emplaced the character before (\0 of string)
+					// lineStates[point.line - 1].tokens.emplace_back(Token::Type::String, startPoint, point);
+					// lineStates[point.line - 1].finishType = LineLexState::FinishType::UnendedString;
 
 					break;
+				}
+
+				// This happens when we go to the next line after an unended string
+				if (point.col == 0)
+				{
+					startPoint = point;
+					lineStates[point.line].tokens.clear();
 				}
 				
 				UPDATE_CHARACTER();
@@ -347,7 +355,7 @@ void Lexer::lex(unsigned int startLine)
 
 					break;
 				}
-				else if (character == '\n')
+				else if (point.col == buffer->data[point.line].size())
 				{
 					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
 					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
@@ -357,17 +365,21 @@ void Lexer::lex(unsigned int startLine)
 
 		default:
 		{
-			if (character == '\n')
+			if (point.col == buffer->data[point.line].size())
 			{
 				if (lineStates[point.line].finishType == LineLexState::FinishType::Finished)
 				{
 					goto FINISHED_LEX;
 				}
-				// else
-				// {
-				//	point.moveNext(true);
-				//	lineStates[point.line].tokens.clear();
-				// }
+				else
+				{
+					point.moveNext(true);
+					
+					if (point.isInBuffer())
+					{
+						lineStates[point.line].tokens.clear();
+					}
+				}
 			}
 			else
 			{

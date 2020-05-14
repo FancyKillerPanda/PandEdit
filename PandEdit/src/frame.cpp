@@ -368,6 +368,11 @@ void Frame::backspaceChar(unsigned int num)
 				currentBuffer->data[point.line] += currentBuffer->data[point.line + 1];
 				currentBuffer->data.erase(currentBuffer->data.begin() + point.line + 1);
 
+				if (currentBuffer->isUsingSyntaxHighlighting)
+				{
+					currentBuffer->lexer.lineStates.erase(currentBuffer->lexer.lineStates.begin() + point.line + 1);
+				}
+				
 				adjustOtherFramePointLocations(false, true);
 			}
 		}
@@ -401,6 +406,12 @@ void Frame::deleteChar(unsigned int num)
 				
 				currentBuffer->data[point.line] += currentBuffer->data[point.line + 1];
 				currentBuffer->data.erase(currentBuffer->data.begin() + point.line + 1);
+
+				if (currentBuffer->isUsingSyntaxHighlighting)
+				{
+					currentBuffer->lexer.lineStates.erase(currentBuffer->lexer.lineStates.begin() + point.line + 1);
+				}
+
 				adjustOtherFramePointLocations(false, true);
 			}
 		}

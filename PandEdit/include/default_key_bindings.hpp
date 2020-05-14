@@ -13,6 +13,8 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::F4, false, false, true }, "quit");
 	KeyMap::bindKey({ Key::X, false, false, true }, "minibufferEnter");
 	KeyMap::bindKey({ Key::G, true }, "minibufferQuit");
+
+	KeyMap::bindKey({ Key::_4, true }, "lexBufferAsC++"); // NOTE(fkp): Temporary
 	
 	KeyMap::bindKey({ Key::_2, true }, "frameSplitVertically"); // TODO(fkp): Remap later
 	KeyMap::bindKey({ Key::_3, true }, "frameSplitHorizontally"); // TODO(fkp): Remap later
@@ -20,6 +22,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::W, false, true, true }, "frameMovePrevious");
 	
 	KeyMap::bindKey({ Key::Backspace }, "backspaceChar");
+	KeyMap::bindKey({ Key::Backspace, true }, "backspaceChar");
 	KeyMap::bindKey({ Key::Delete }, "deleteChar");
 	KeyMap::bindKey({ Key::Backspace, true }, "backspaceWord");
 	KeyMap::bindKey({ Key::Delete, true }, "deleteWord");
