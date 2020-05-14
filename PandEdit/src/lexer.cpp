@@ -307,7 +307,6 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 	}
 	
 	Point point { startLine, 0, buffer };
-	// lineStates[point.line].tokens.clear();
 	LineLexState::FinishType currentLineLastFinishType = lineStates[point.line].finishType;
 
 	while (point.isInBuffer())
@@ -339,11 +338,6 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 
 				if (!point.isInBuffer())
 				{
-					// The minus 1 is because point.moveNext(true) will skip to the start of the next line
-					// NOTE(fkp): Token should have been emplaced the character before (\0 of string)
-					// lineStates[point.line - 1].tokens.emplace_back(Token::Type::String, startPoint, point);
-					// lineStates[point.line - 1].finishType = LineLexState::FinishType::UnendedString;
-
 					break;
 				}
 
@@ -371,6 +365,35 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
 				}
 			} while (true);
+		} break;
+
+		case '\'':
+		{
+			Point startPoint = point;
+			point.moveNext(true);
+
+			if (point.isInBuffer())
+			{
+				UPDATE_CHARACTER();
+
+				if (character == '\\')
+				{
+					point.moveNext(true);
+				}
+
+				point.moveNext(true);
+				
+				if (point.isInBuffer())
+				{
+					UPDATE_CHARACTER();
+
+					if (character == '\'')
+					{
+						point.moveNext(true);
+						lineStates[point.line].tokens.emplace_back(Token::Type::Character, startPoint, point);
+					}
+				}
+			}
 		} break;
 
 		default:
