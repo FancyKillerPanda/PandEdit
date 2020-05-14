@@ -76,7 +76,7 @@ public:
 	Lexer(Buffer* buffer);
 	
 	// TODO(fkp): Language of lexing
-	void lex(unsigned int startLine);
+	void lex(unsigned int startLine, bool lexEntireBuffer);
 	std::vector<Token> getTokens(unsigned int startLine, unsigned int endLine);
 
 private:

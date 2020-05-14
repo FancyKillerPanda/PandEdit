@@ -285,7 +285,7 @@ void Lexer::lex()
 
 #define UPDATE_CHARACTER() character = buffer->data[point.line][point.col]
 
-void Lexer::lex(unsigned int startLine)
+void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 {
 	if (buffer->data.size() == 0 ||
 		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
@@ -308,12 +308,19 @@ void Lexer::lex(unsigned int startLine)
 	
 	Point point { startLine, 0, buffer };
 	// lineStates[point.line].tokens.clear();
+	LineLexState::FinishType currentLineLastFinishType = lineStates[point.line].finishType;
 
 	while (point.isInBuffer())
 	{
 		if (point.col == 0)
 		{
 			lineStates[point.line].tokens.clear();
+
+			if (point.line > 0 &&
+				lineStates[point.line - 1].finishType == LineLexState::FinishType::UnendedString)
+			{
+				goto LEX_STRING;
+			}
 		}
 		
 		char character;
@@ -323,6 +330,7 @@ void Lexer::lex(unsigned int startLine)
 		{
 		case '"':
 		{
+		LEX_STRING:
 			Point startPoint = point;
 			
 			do
@@ -344,6 +352,7 @@ void Lexer::lex(unsigned int startLine)
 				{
 					startPoint = point;
 					lineStates[point.line].tokens.clear();
+					currentLineLastFinishType = lineStates[point.line].finishType;
 				}
 				
 				UPDATE_CHARACTER();
@@ -352,6 +361,7 @@ void Lexer::lex(unsigned int startLine)
 				{
 					point.moveNext();
 					lineStates[point.line].tokens.emplace_back(Token::Type::String, startPoint, point);
+					lineStates[point.line].finishType = LineLexState::FinishType::Finished;
 
 					break;
 				}
@@ -367,7 +377,10 @@ void Lexer::lex(unsigned int startLine)
 		{
 			if (point.col == buffer->data[point.line].size())
 			{
-				if (lineStates[point.line].finishType == LineLexState::FinishType::Finished)
+				lineStates[point.line].finishType = LineLexState::FinishType::Finished;
+
+				if (lineStates[point.line].finishType == currentLineLastFinishType &&
+					!lexEntireBuffer)
 				{
 					goto FINISHED_LEX;
 				}

@@ -313,7 +313,7 @@ void Frame::doCommonBufferManipulationTasks()
 	// TODO(fkp): Figure out which lex mode to use
 	if (currentBuffer->isUsingSyntaxHighlighting)
 	{
-		currentBuffer->lexer.lex(topLine);
+		currentBuffer->lexer.lex(point.line, false);
 	}
 }
 
