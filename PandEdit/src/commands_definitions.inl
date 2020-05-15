@@ -144,7 +144,7 @@ DEFINE_COMMAND(movePointLeftWord)
 
 DEFINE_COMMAND(movePointRightWord)
 {
-	FRAME->movePointLeft(FRAME->findWordBoundaryRight());
+	FRAME->movePointRight(FRAME->findWordBoundaryRight());
 	return false;
 }
 
