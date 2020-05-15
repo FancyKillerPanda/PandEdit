@@ -315,6 +315,27 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 			LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
 			lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
 		}
+		else if (character == '\\')
+		{
+			// This is safe because we know it's not at the end of the line
+			char nextCharacter = buffer->data[point.line][point.col + 1];
+
+			// TODO(fkp): Unicode/hex
+			const std::string escapeCharacters = "'\"?\\abfnrtv";
+
+			if (escapeCharacters.find(nextCharacter) != std::string::npos)
+			{
+				LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+				lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+
+				startPoint = point;
+				point.moveNext();
+				point.moveNext();
+				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
+
+				startPoint = point;
+			}
+		}
 	} while (true);
 }
 
@@ -575,6 +596,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::Number:					return normaliseColour(255, 174,   0, 255);
 	case Token::Type::Character:				return normaliseColour(  0, 160,   9, 255);
 	case Token::Type::String:					return normaliseColour(  0, 160,   9, 255);
+	case Token::Type::EscapeSequence:			return normaliseColour( 62, 118, 202, 255);
 	case Token::Type::IncludeAngleBracketPath:	return normaliseColour(  0, 160,   9, 255);
 	case Token::Type::LineComment:				return normaliseColour(154, 154, 154, 255);
 	case Token::Type::BlockComment:				return normaliseColour(154, 154, 154, 255);

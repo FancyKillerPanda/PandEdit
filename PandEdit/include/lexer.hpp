@@ -27,6 +27,7 @@ public:
 		Number,
 		String,
 		Character,
+		EscapeSequence,
 		IncludeAngleBracketPath,
 		LineComment,
 		BlockComment,
