@@ -432,9 +432,16 @@ void Lexer::addLine(Point splitPoint)
 		{
 			std::move(lineStates[splitPoint.line].tokens.begin() + i, lineStates[splitPoint.line].tokens.end(), std::back_inserter(lineStates[splitPoint.line + 1].tokens));
 
-			lineStates[splitPoint.line + 1].finishType = lineStates[splitPoint.line].finishType;
-			
+			lineStates[splitPoint.line + 1].finishType = lineStates[splitPoint.line].finishType;			
 			lineStates[splitPoint.line].tokens.erase(lineStates[splitPoint.line].tokens.begin() + i, lineStates[splitPoint.line].tokens.end());
+
+			for (Token& token : lineStates[splitPoint.line + 1].tokens)
+			{
+				token.start.col -= splitPoint.col;
+				token.end.col -= splitPoint.col;
+			}
+			
+			break;
 		}
 	}
 
