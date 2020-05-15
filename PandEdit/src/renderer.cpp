@@ -150,8 +150,10 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	int loopCounter = 0;
 
 	// Loop through every character (until message length (if provided))
-	for (const char& currentChar : text)
+	for (int i = 0; i < text.size(); i++)
 	{
+		char currentChar = text[i];
+		
 		// Breaks after enough characters
 		if (messageLength != -1 && loopCounter++ >= messageLength)
 		{
@@ -197,6 +199,12 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 		// Skip glyphs with no pixels
 		if (!width || !height)
 		{
+			continue;
+		}
+
+		if (maxWidth != 0.0f && x > startX + maxWidth && !wrap)
+		{
+			// The wrap part shouldn't matter as it was checked earlier
 			continue;
 		}
 
@@ -497,28 +505,31 @@ void Renderer::drawFrame(Frame& frame)
 		}
 	}
 
-	glUseProgram(shapeShader.programID);
-	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);
+	if (pointX + pointWidth <= framePixelX + framePixelWidth)
+	{
+		glUseProgram(shapeShader.programID);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (&frame == Frame::currentFrame)
-	{
-		constexpr double FLASH_TIME = 600.0;
+		if (&frame == Frame::currentFrame)
+		{
+			constexpr double FLASH_TIME = 600.0;
 		
-		if (frame.pointFlashTimer.getElapsedMs() < FLASH_TIME)
-		{
-			drawRect(pointX, pointY, pointWidth, pointHeight);
+			if (frame.pointFlashTimer.getElapsedMs() < FLASH_TIME)
+			{
+				drawRect(pointX, pointY, pointWidth, pointHeight);
+			}
+			else if (frame.pointFlashTimer.getElapsedMs() > FLASH_TIME * 2)
+			{
+				frame.pointFlashTimer.reset();
+			}
 		}
-		else if (frame.pointFlashTimer.getElapsedMs() > FLASH_TIME * 2)
+		else
 		{
-			frame.pointFlashTimer.reset();
-		}
-	}
-	else
-	{
-		if (buffer.type != BufferType::MiniBuffer)
-		{
-			unsigned int borderWidth = 1 + (currentFont->size / 24);
-			drawHollowRect(pointX, pointY, pointWidth, pointHeight, (float) borderWidth);
+			if (buffer.type != BufferType::MiniBuffer)
+			{
+				unsigned int borderWidth = 1 + (currentFont->size / 24);
+				drawHollowRect(pointX, pointY, pointWidth, pointHeight, (float) borderWidth);
+			}
 		}
 	}
 
