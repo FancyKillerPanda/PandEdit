@@ -437,7 +437,11 @@ void Frame::newLine()
 	currentBuffer->data.insert(currentBuffer->data.begin() + point.line, restOfLine);
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, '\n')));
 
-	currentBuffer->lexer.lineStates.emplace(currentBuffer->lexer.lineStates.begin() + point.line);
+	if (currentBuffer->isUsingSyntaxHighlighting)
+	{
+		// currentBuffer->lexer.lineStates.emplace(currentBuffer->lexer.lineStates.begin() + point.line);
+		currentBuffer->lexer.addLine(startLocation);
+	}
 
 	// TODO(fkp): This is a hack
 	point.line -= 1;

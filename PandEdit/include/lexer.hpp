@@ -77,6 +77,7 @@ public:
 	
 	// TODO(fkp): Language of lexing
 	void lex(unsigned int startLine, bool lexEntireBuffer);
+	void addLine(Point splitPoint);
 	std::vector<Token> getTokens(unsigned int startLine, unsigned int endLine);
 
 private:

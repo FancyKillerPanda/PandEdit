@@ -467,6 +467,33 @@ FINISHED_LEX:
 	;
 }
 
+void Lexer::addLine(Point splitPoint)
+{
+	lineStates.emplace(lineStates.begin() + splitPoint.line + 1);
+
+	for (Token& token : lineStates[splitPoint.line].tokens)
+	{
+		if (token.start.col >= splitPoint.col)
+		{
+			token.start.line += 1;
+			token.start.col -= splitPoint.col;
+			token.end.line += 1;
+			token.end.col -= splitPoint.col;
+		}
+
+		// TODO(fkp): Handle tokens which span across split point
+	}
+
+	for (int i = splitPoint.line + 1; i < buffer->data.size(); i++)
+	{
+		for (Token& token : lineStates[i].tokens)
+		{
+			token.start.line += 1;
+			token.end.line += 1;
+		}
+	}
+}
+
 std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine)
 {
 	if (lineStates.size() == 0)
