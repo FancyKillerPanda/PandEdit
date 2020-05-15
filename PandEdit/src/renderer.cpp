@@ -348,9 +348,9 @@ void Renderer::drawFrame(Frame& frame)
 	// Pixel dimensions
 	int realFramePixelX = (int) (frame.pcDimensions.x * frame.windowWidth);
 	unsigned int realFramePixelWidth = (unsigned int) (frame.pcDimensions.width * frame.windowWidth);
-	int framePixelX = realFramePixelX + FRAME_BORDER_WIDTH;
+	int framePixelX = realFramePixelX + (FRAME_BORDER_WIDTH * 2);
 	int framePixelY = (int) (frame.pcDimensions.y * frame.windowHeight);
-	unsigned int framePixelWidth = realFramePixelWidth - FRAME_BORDER_WIDTH;
+	unsigned int framePixelWidth = realFramePixelWidth - (FRAME_BORDER_WIDTH * 2);
 	unsigned int framePixelHeight = (unsigned int) (frame.pcDimensions.height * frame.windowHeight);
 
 	if (frame.pcDimensions.y == 1.0f)
