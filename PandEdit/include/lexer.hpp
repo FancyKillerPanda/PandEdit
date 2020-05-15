@@ -89,6 +89,7 @@ private:
 	void lexBlockComment(Point& point, LineLexState::FinishType& currentLineLastFinishType);
 	void lexNumber(Point& point);
 	void lexPreprocessorDirective(Point& point);
+	bool lexKeyword(Point& point);
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);

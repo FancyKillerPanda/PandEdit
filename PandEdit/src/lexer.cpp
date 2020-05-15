@@ -408,6 +408,13 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			{
 				lexNumber(point);
 			}
+			else if (isIdentifierStartCharacter(character))
+			{
+				if (!lexKeyword(point))
+				{
+					// Regular identifier
+				}
+			}
 			else
 			{
 				point.moveNext(true);
@@ -706,6 +713,59 @@ void Lexer::lexPreprocessorDirective(Point& point)
 	} while (isIdentifierCharacter(character));
 
 	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point);
+}
+
+bool Lexer::lexKeyword(Point& point)
+{
+	Point startPoint = point;
+	std::string tokenText;
+	char character;
+	UPDATE_CHARACTER();
+
+	do
+	{
+		tokenText += character;
+		point.moveNext();
+		UPDATE_CHARACTER();
+	} while (isIdentifierCharacter(character));
+
+	if (keywords.find(tokenText) != keywords.end())
+	{
+		LINE_TOKENS.emplace_back(Token::Type::Keyword, startPoint, point);
+	}
+	else if (tokenText == "defined")
+	{
+		bool foundIfElifDirectiveOnLine = false;
+
+		for (const Token& token : LINE_TOKENS)
+		{
+			if (token.type == Token::Type::PreprocessorDirective)
+			{
+				std::string directive = buffer->data[token.start.line].substr(token.start.col, token.end.col - token.start.col);
+
+				if (directive == "#if" || directive == "#elif")
+				{
+					foundIfElifDirectiveOnLine = true;
+					break;
+				}
+			}
+		}
+
+		if (foundIfElifDirectiveOnLine)
+		{
+			LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
