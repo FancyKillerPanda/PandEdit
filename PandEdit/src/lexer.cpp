@@ -316,10 +316,16 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 		{
 			LINE_TOKENS.clear();
 
-			if (point.line > 0 &&
-				lineStates[point.line - 1].finishType == LineLexState::FinishType::UnendedString)
+			if (point.line > 0)
 			{
-				goto LEX_STRING;
+				if (lineStates[point.line - 1].finishType == LineLexState::FinishType::UnendedString)
+				{
+					lexString(point, currentLineLastFinishType);
+				}
+				else if (lineStates[point.line - 1].finishType == LineLexState::FinishType::UnendedComment)
+				{
+					lexBlockComment(point, currentLineLastFinishType);
+				}
 			}
 		}
 		
@@ -330,124 +336,32 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 		{
 		case '"':
 		{
-		LEX_STRING:
-			Point startPoint = point;
-			
-			do
-			{
-				point.moveNext(true);
-
-				if (!point.isInBuffer())
-				{
-					break;
-				}
-
-				// This happens when we go to the next line after an unended string
-				if (point.col == 0)
-				{
-					startPoint = point;
-					LINE_TOKENS.clear();
-					currentLineLastFinishType = lineStates[point.line].finishType;
-				}
-				
-				UPDATE_CHARACTER();
-
-				if (character == '"')
-				{
-					point.moveNext();
-					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
-					lineStates[point.line].finishType = LineLexState::FinishType::Finished;
-
-					break;
-				}
-				else if (point.col == buffer->data[point.line].size())
-				{
-					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
-					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
-				}
-			} while (true);
+			lexString(point, currentLineLastFinishType);
 		} break;
 
 		case '\'':
 		{
-			Point startPoint = point;
-			point.moveNext(true);
-
-			if (point.isInBuffer())
-			{
-				UPDATE_CHARACTER();
-
-				if (character == '\\')
-				{
-					point.moveNext(true);
-				}
-
-				point.moveNext(true);
-				
-				if (point.isInBuffer())
-				{
-					UPDATE_CHARACTER();
-
-					if (character == '\'')
-					{
-						point.moveNext(true);
-						LINE_TOKENS.emplace_back(Token::Type::Character, startPoint, point);
-					}
-				}
-			}
+			lexCharacter(point);
 		} break;
 
 		case '<':
 		{
-			/* TODO(fkp): Uncomment once keywords have been implemented
-			if (LINE_TOKENS.size() == 0 ||
-				LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
-				buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
-			{
-				goto DEFAULT_CASE;
-			}
-			*/
-
-			Point startPoint = point;
-			point.moveNext(true);
-			
-			while (point.isInBuffer())
-			{
-				UPDATE_CHARACTER();
-				
-				if (character == '>')
-				{
-					point.moveNext(true);
-					break;
-				}
-				else if (point.col == buffer->data[point.line].size())
-				{
-					break;
-				}
-				else
-				{
-					point.moveNext(true);
-				}
-			}
-
-			LINE_TOKENS.emplace_back(Token::Type::IncludeAngleBracketPath, startPoint, point);
+			lexIncludePath(point);
 		} break;
 
 		case '/':
 		{
-			Point startPoint = point;
 			Point nextPoint = point + 1;
 
 			if (nextPoint.isInBuffer())
 			{
 				if (buffer->data[nextPoint.line][nextPoint.col] == '/')
 				{
-					do
-					{
-						point.moveNext(true);
-					} while (point.isInBuffer() && point.col < buffer->data[point.line].size());
-
-					LINE_TOKENS.emplace_back(Token::Type::LineComment, startPoint, point);
+					lexLineComment(point);
+				}
+				else if (buffer->data[nextPoint.line][nextPoint.col] == '*')
+				{
+					lexBlockComment(point, currentLineLastFinishType);
 				}
 				else
 				{
@@ -480,35 +394,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			}
 			else if (character >= '0' && character <= '9')
 			{
-				Token token { Token::Type::Number, point };
-
-				do
-				{
-					point.moveNext();
-					UPDATE_CHARACTER();
-				} while (isValidDigit(character));
-
-				if (character == '.' ||
-					character == 'x' || character == 'X' ||
-					character == 'b' || character == 'B')
-				{
-					do
-					{
-						point.moveNext();
-						UPDATE_CHARACTER();
-					} while (isValidDigit(character));
-				}
-
-				// Suffixes
-				while (character == 'u' || character == 'U' ||
-					   character == 'l' || character == 'L')
-				{
-					point.moveNext();
-					UPDATE_CHARACTER();
-				}
-				
-				token.end = point;
-				LINE_TOKENS.push_back(token);
+				lexNumber(point);
 			}
 			else
 			{
@@ -599,6 +485,203 @@ std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine
 	}
 
 	return result;
+}
+
+void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFinishType)
+{
+	char character;
+	Point startPoint = point;
+			
+	do
+	{
+		point.moveNext(true);
+
+		if (!point.isInBuffer())
+		{
+			break;
+		}
+
+		// This happens when we go to the next line after an unended string
+		if (point.col == 0)
+		{
+			startPoint = point;
+			LINE_TOKENS.clear();
+			currentLineLastFinishType = lineStates[point.line].finishType;
+		}
+				
+		UPDATE_CHARACTER();
+
+		if (character == '"')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+			lineStates[point.line].finishType = LineLexState::FinishType::Finished;
+
+			break;
+		}
+		else if (point.col == buffer->data[point.line].size())
+		{
+			LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+			lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+		}
+	} while (true);
+}
+
+void Lexer::lexCharacter(Point& point)
+{
+	char character;
+	Point startPoint = point;
+	point.moveNext(true);
+
+	if (point.isInBuffer())
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '\\')
+		{
+			point.moveNext(true);
+		}
+
+		point.moveNext(true);
+				
+		if (point.isInBuffer())
+		{
+			UPDATE_CHARACTER();
+
+			if (character == '\'')
+			{
+				point.moveNext(true);
+				LINE_TOKENS.emplace_back(Token::Type::Character, startPoint, point);
+			}
+		}
+	}
+}
+
+void Lexer::lexIncludePath(Point& point)
+{
+	/* TODO(fkp): Uncomment once keywords have been implemented
+	   if (LINE_TOKENS.size() == 0 ||
+	   LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
+	   buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
+	   {
+	   goto DEFAULT_CASE;
+	   }
+	*/
+
+	char character;
+	Point startPoint = point;
+	point.moveNext(true);
+			
+	while (point.isInBuffer())
+	{
+		UPDATE_CHARACTER();
+				
+		if (character == '>')
+		{
+			point.moveNext(true);
+			break;
+		}
+		else if (point.col == buffer->data[point.line].size())
+		{
+			break;
+		}
+		else
+		{
+			point.moveNext(true);
+		}
+	}
+
+	LINE_TOKENS.emplace_back(Token::Type::IncludeAngleBracketPath, startPoint, point);
+}
+
+void Lexer::lexLineComment(Point& point)
+{
+	Point startPoint = point;
+
+	do
+	{
+		point.moveNext(true);
+	} while (point.isInBuffer() && point.col < buffer->data[point.line].size());
+
+	LINE_TOKENS.emplace_back(Token::Type::LineComment, startPoint, point);
+}
+
+void Lexer::lexBlockComment(Point& point, LineLexState::FinishType& currentLineLastFinishType)
+{
+	char character;
+	Point startPoint = point;
+
+	do
+	{
+		point.moveNext(true);
+
+		if (!point.isInBuffer())
+		{
+			break;
+		}
+
+		// This happens when we go to the next line after an unended comment
+		if (point.col == 0)
+		{
+			startPoint = point;
+			LINE_TOKENS.clear();
+			currentLineLastFinishType = lineStates[point.line].finishType;
+		}
+
+		UPDATE_CHARACTER();
+
+		if (character == '*' &&
+			point.col < buffer->data[point.line].size() - 1 &&
+			buffer->data[point.line][point.col + 1] == '/')
+		{
+			point.moveNext();
+			point.moveNext();
+
+			LINE_TOKENS.emplace_back(Token::Type::BlockComment, startPoint, point);
+			lineStates[point.line].finishType = LineLexState::FinishType::Finished;
+
+			break;
+		}
+		else if (point.col == buffer->data[point.line].size())
+		{
+			LINE_TOKENS.emplace_back(Token::Type::BlockComment, startPoint, point);
+			lineStates[point.line].finishType = LineLexState::FinishType::UnendedComment;
+		}
+	} while (true);	
+}
+
+void Lexer::lexNumber(Point& point)
+{
+	char character;
+	Token token { Token::Type::Number, point };
+
+	do
+	{
+		point.moveNext();
+		UPDATE_CHARACTER();
+	} while (isValidDigit(character));
+
+	if (character == '.' ||
+		character == 'x' || character == 'X' ||
+		character == 'b' || character == 'B')
+	{
+		do
+		{
+			point.moveNext();
+			UPDATE_CHARACTER();
+		} while (isValidDigit(character));
+	}
+
+	// Suffixes
+	while (character == 'u' || character == 'U' ||
+		   character == 'l' || character == 'L')
+	{
+		point.moveNext();
+		UPDATE_CHARACTER();
+	}
+				
+	token.end = point;
+	LINE_TOKENS.push_back(token);
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)

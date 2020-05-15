@@ -82,6 +82,13 @@ public:
 	std::vector<Token> getTokens(unsigned int startLine, unsigned int endLine);
 
 private:
+	void lexString(Point& point, LineLexState::FinishType& currentLineLastFinishType);
+	void lexCharacter(Point& point);
+	void lexIncludePath(Point& point);
+	void lexLineComment(Point& point);
+	void lexBlockComment(Point& point, LineLexState::FinishType& currentLineLastFinishType);
+	void lexNumber(Point& point);
+	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
 	static bool isValidDigit(char character);
