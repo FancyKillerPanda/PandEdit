@@ -433,6 +433,29 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			LINE_TOKENS.emplace_back(Token::Type::IncludeAngleBracketPath, startPoint, point);
 		} break;
 
+		case '/':
+		{
+			Point startPoint = point;
+			Point nextPoint = point + 1;
+
+			if (nextPoint.isInBuffer())
+			{
+				if (buffer->data[nextPoint.line][nextPoint.col] == '/')
+				{
+					do
+					{
+						point.moveNext(true);
+					} while (point.isInBuffer() && point.col < buffer->data[point.line].size());
+
+					LINE_TOKENS.emplace_back(Token::Type::LineComment, startPoint, point);
+				}
+				else
+				{
+					goto DEFAULT_CASE;
+				}
+			}
+		} break;
+
 		default:
 		{
 		DEFAULT_CASE:
