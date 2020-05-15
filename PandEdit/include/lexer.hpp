@@ -94,7 +94,7 @@ private:
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
-	static bool isValidDigit(char character);
+	static bool isValidHexDigit(char character);
 };
 
 Colour normaliseColour(float r, float g, float b, float a);

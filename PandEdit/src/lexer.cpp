@@ -93,6 +93,11 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				}
 			}
 		}
+
+		if (!point.isInBuffer())
+		{
+			break;
+		}
 		
 		char character;
 		UPDATE_CHARACTER();
@@ -323,6 +328,7 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 			// TODO(fkp): Unicode/hex
 			const std::string escapeCharacters = "'\"?\\abfnrtv";
 
+			// TODO(fkp): This whole block is quite repetitive
 			if (escapeCharacters.find(nextCharacter) != std::string::npos)
 			{
 				LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
@@ -334,6 +340,99 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
 
 				startPoint = point;
+			}
+			else if (nextCharacter >= '0' && nextCharacter <= '7')
+			{
+				LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+				lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+
+				startPoint = point;
+				point.moveNext();
+				nextCharacter = buffer->data[point.line][point.col + 1];
+
+				if (nextCharacter >= '0' && nextCharacter <= '7')
+				{
+					point.moveNext();
+					nextCharacter = buffer->data[point.line][point.col + 1];
+
+					if (nextCharacter >= '0' && nextCharacter <= '7')
+					{
+						point.moveNext();
+					}
+				}
+
+				point.moveNext();
+				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
+				startPoint = point;
+			}
+			else if (nextCharacter == 'x')
+			{
+				nextCharacter = buffer->data[point.line][point.col + 2];
+
+				if (isValidHexDigit(nextCharacter))
+				{
+					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+					startPoint = point;
+					point.moveNext();
+					point.moveNext();
+					UPDATE_CHARACTER();
+
+					while (isValidHexDigit(character))
+					{
+						point.moveNext();
+						UPDATE_CHARACTER();
+					}
+					
+					LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
+					startPoint = point;
+				}
+			}
+			else if (nextCharacter == 'u' || nextCharacter == 'U')
+			{
+				Point stringStartPoint = startPoint;
+				Point escapeStartPoint = point;
+				int numberOfDigitsNeeded = 4;
+				int numberOfDigits = 0;
+
+				if (nextCharacter == 'U')
+				{
+					numberOfDigitsNeeded = 8;
+				}
+
+				nextCharacter = buffer->data[point.line][point.col + 2];
+				
+				if (isValidHexDigit(nextCharacter))
+				{
+					point.moveNext();
+					point.moveNext();
+					UPDATE_CHARACTER();
+
+					while (isValidHexDigit(character))
+					{
+						point.moveNext();
+						UPDATE_CHARACTER();
+						
+						if (numberOfDigits++ >= numberOfDigitsNeeded)
+						{
+							break;
+						}
+					}
+				}
+
+				if (numberOfDigits == numberOfDigitsNeeded)
+				{
+					LINE_TOKENS.emplace_back(Token::Type::String, stringStartPoint, escapeStartPoint);
+					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+
+					LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, escapeStartPoint, point);
+					startPoint = point;
+				}
+				else if (point.col == buffer->data[point.line].size())
+				{
+					LINE_TOKENS.emplace_back(Token::Type::String, startPoint, point);
+					lineStates[point.line].finishType = LineLexState::FinishType::UnendedString;
+				}
 			}
 		}
 	} while (true);
@@ -462,7 +561,7 @@ void Lexer::lexNumber(Point& point)
 	{
 		point.moveNext();
 		UPDATE_CHARACTER();
-	} while (isValidDigit(character));
+	} while (isValidHexDigit(character) || character == '\'');
 
 	if (character == '.' ||
 		character == 'x' || character == 'X' ||
@@ -472,7 +571,7 @@ void Lexer::lexNumber(Point& point)
 		{
 			point.moveNext();
 			UPDATE_CHARACTER();
-		} while (isValidDigit(character));
+		} while (isValidHexDigit(character) || character == '\'');
 	}
 
 	// Suffixes
@@ -569,14 +668,13 @@ bool Lexer::isIdentifierCharacter(char character)
 	return isIdentifierStartCharacter(character) || number;
 }
 
-bool Lexer::isValidDigit(char character)
+bool Lexer::isValidHexDigit(char character)
 {
 	bool number = character >= '0' && character <= '9';
 	bool lowercaseHex = character >= 'a' && character <= 'f';
 	bool uppercaseHex = character >= 'A' && character <= 'F';
-	bool separator = character == '\'';
 
-	return number || lowercaseHex || uppercaseHex || separator;
+	return number || lowercaseHex || uppercaseHex;
 }
 
 Colour normaliseColour(float r, float g, float b, float a)
