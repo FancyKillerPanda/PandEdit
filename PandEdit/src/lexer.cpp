@@ -455,6 +455,38 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					}
 				}
 			}
+			else if (character >= '0' && character <= '9')
+			{
+				Token token { Token::Type::Number, point };
+
+				do
+				{
+					point.moveNext();
+					UPDATE_CHARACTER();
+				} while (isValidDigit(character));
+
+				if (character == '.' ||
+					character == 'x' || character == 'X' ||
+					character == 'b' || character == 'B')
+				{
+					do
+					{
+						point.moveNext();
+						UPDATE_CHARACTER();
+					} while (isValidDigit(character));
+				}
+
+				// Suffixes
+				while (character == 'u' || character == 'U' ||
+					   character == 'l' || character == 'L')
+				{
+					point.moveNext();
+					UPDATE_CHARACTER();
+				}
+				
+				token.end = point;
+				LINE_TOKENS.push_back(token);
+			}
 			else
 			{
 				point.moveNext(true);
