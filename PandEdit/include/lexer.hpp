@@ -25,13 +25,13 @@ public:
 	enum class Type
 	{
 		Number,
-		Character,
 		String,
+		Character,
+		IncludeAngleBracketPath,
 		LineComment,
 		BlockComment,
 		Keyword,
 		PreprocessorDirective,
-		IncludeAngleBracketPath,
 	};
 	
 public:
@@ -88,6 +88,7 @@ private:
 	void lexLineComment(Point& point);
 	void lexBlockComment(Point& point, LineLexState::FinishType& currentLineLastFinishType);
 	void lexNumber(Point& point);
+	void lexPreprocessorDirective(Point& point);
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);

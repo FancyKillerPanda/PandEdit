@@ -346,6 +346,13 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 
 		case '<':
 		{
+			if (LINE_TOKENS.size() == 0 ||
+				LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
+				buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
+			{
+				goto DEFAULT_CASE;
+			}
+			
 			lexIncludePath(point);
 		} break;
 
@@ -368,6 +375,11 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					goto DEFAULT_CASE;
 				}
 			}
+		} break;
+
+		case '#':
+		{
+			lexPreprocessorDirective(point);
 		} break;
 
 		default:
@@ -559,15 +571,6 @@ void Lexer::lexCharacter(Point& point)
 
 void Lexer::lexIncludePath(Point& point)
 {
-	/* TODO(fkp): Uncomment once keywords have been implemented
-	   if (LINE_TOKENS.size() == 0 ||
-	   LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
-	   buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
-	   {
-	   goto DEFAULT_CASE;
-	   }
-	*/
-
 	char character;
 	Point startPoint = point;
 	point.moveNext(true);
@@ -682,6 +685,20 @@ void Lexer::lexNumber(Point& point)
 				
 	token.end = point;
 	LINE_TOKENS.push_back(token);
+}
+
+void Lexer::lexPreprocessorDirective(Point& point)
+{
+	char character;
+	Point startPoint = point;
+
+	do
+	{
+		point.moveNext();
+		UPDATE_CHARACTER();
+	} while (isIdentifierCharacter(character));
+
+	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point);
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
