@@ -471,17 +471,18 @@ void Lexer::addLine(Point splitPoint)
 {
 	lineStates.emplace(lineStates.begin() + splitPoint.line + 1);
 
-	for (Token& token : lineStates[splitPoint.line].tokens)
+	for (int i = 0; i < lineStates[splitPoint.line].tokens.size(); i++)
 	{
+		Token& token = lineStates[splitPoint.line].tokens[i];
+
 		if (token.start.col >= splitPoint.col)
 		{
-			token.start.line += 1;
-			token.start.col -= splitPoint.col;
-			token.end.line += 1;
-			token.end.col -= splitPoint.col;
-		}
+			std::move(lineStates[splitPoint.line].tokens.begin() + i, lineStates[splitPoint.line].tokens.end(), std::back_inserter(lineStates[splitPoint.line + 1].tokens));
 
-		// TODO(fkp): Handle tokens which span across split point
+			lineStates[splitPoint.line + 1].finishType = lineStates[splitPoint.line].finishType;
+			
+			lineStates[splitPoint.line].tokens.erase(lineStates[splitPoint.line].tokens.begin() + i, lineStates[splitPoint.line].tokens.end());
+		}
 	}
 
 	for (int i = splitPoint.line + 1; i < buffer->data.size(); i++)
@@ -490,6 +491,30 @@ void Lexer::addLine(Point splitPoint)
 		{
 			token.start.line += 1;
 			token.end.line += 1;
+		}
+	}
+}
+
+void Lexer::removeLine(Point newPoint)
+{
+	for (Token& token : lineStates[newPoint.line + 1].tokens)
+	{
+		token.start.line -= 1;
+		token.start.col += newPoint.col;
+		token.end.line -= 1;
+		token.end.col += newPoint.col;
+	}
+
+	std::move(lineStates[newPoint.line + 1].tokens.begin(), lineStates[newPoint.line + 1].tokens.end(), std::back_inserter(lineStates[newPoint.line].tokens));
+	lineStates[newPoint.line].finishType = lineStates[newPoint.line + 1].finishType;
+	lineStates.erase(lineStates.begin() + newPoint.line + 1);
+
+	for (int i = newPoint.line + 1; i < buffer->data.size(); i++)
+	{
+		for (Token& token : lineStates[i].tokens)
+		{
+			token.start.line -= 1;
+			token.end.line -= 1;
 		}
 	}
 }
