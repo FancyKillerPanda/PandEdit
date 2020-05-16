@@ -71,6 +71,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 	COMMAND(frameMovePrevious),
 	
 	COMMAND(switchToBuffer),
+	COMMAND(destroyBuffer),
 	COMMAND(findFile),
 	COMMAND(saveCurrentBuffer),
 

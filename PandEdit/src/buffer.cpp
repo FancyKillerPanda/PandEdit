@@ -36,6 +36,11 @@ Buffer::Buffer(BufferType type, std::string name, std::string path)
 
 Buffer::~Buffer()
 {
+	if (name == "*scratch*")
+	{
+		return;
+	}
+	
 	buffersMap.erase(name);
 
 	for (Frame& frame : *Frame::allFrames)
@@ -43,7 +48,8 @@ Buffer::~Buffer()
 		if (this == frame.currentBuffer)
 		{
 			// TODO(fkp): Go to previous
-			frame.currentBuffer = get("*scratch*");
+			// frame.currentBuffer = get("*scratch*");
+			frame.switchToBuffer(get("*scratch*"));
 		}
 	}
 }

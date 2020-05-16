@@ -313,6 +313,29 @@ DEFINE_COMMAND(switchToBuffer)
 	}
 }
 
+DEFINE_COMMAND(destroyBuffer)
+{
+	if (Commands::currentCommand)
+	{
+		Commands::currentCommand = nullptr;
+		exitMinibuffer("");
+
+		std::string bufferName = text.substr(0, text.find(' '));
+		FRAME->destroyBuffer(Buffer::get(bufferName));
+		
+		return true;
+	}
+	else
+	{
+		Frame::minibufferFrame->makeActive();
+		// TODO(fkp): Show default buffer (minibuffer text improvements)
+		writeToMinibuffer("Buffer: ");
+		Commands::currentCommand = destroyBuffer;
+
+		return false;
+	}
+}
+
 // TODO(fkp): This command is very similar to switchToBuffer.
 DEFINE_COMMAND(findFile)
 {

@@ -55,6 +55,21 @@ void Frame::switchToBuffer(Buffer* buffer)
 	topLine = currentBuffer->lastTopLine;
 }
 
+void Frame::destroyBuffer(Buffer* buffer)
+{
+	if (!buffer)
+	{
+		buffer = currentBuffer;
+	}
+
+	if (!buffer)
+	{
+		return;
+	}
+
+	delete buffer;
+}
+
 Frame::~Frame()
 {
 	framesMap.erase(name);
