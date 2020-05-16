@@ -1,5 +1,7 @@
 //  ===== Date Created: 04 May, 2020 ===== 
 
+#include <algorithm>
+
 #include "lexer.hpp"
 #include "buffer.hpp"
 #include "common.hpp"
@@ -630,6 +632,7 @@ bool Lexer::lexKeyword(Point& point)
 			if (token.type == Token::Type::PreprocessorDirective)
 			{
 				std::string directive = buffer->data[token.start.line].substr(token.start.col, token.end.col - token.start.col);
+				directive.erase(std::remove_if(directive.begin(), directive.end(), isspace), directive.end());
 
 				if (directive == "#if" || directive == "#elif")
 				{
