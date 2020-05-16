@@ -336,10 +336,9 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 
 				startPoint = point;
 				point.moveNext();
-				point.moveNext();
-				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
+				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point + 1);
 
-				startPoint = point;
+				startPoint = point + 1;
 			}
 			else if (nextCharacter >= '0' && nextCharacter <= '7')
 			{
@@ -361,9 +360,8 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 					}
 				}
 
-				point.moveNext();
-				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
-				startPoint = point;
+				LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point + 1);
+				startPoint = point + 1;
 			}
 			else if (nextCharacter == 'x')
 			{
@@ -386,6 +384,10 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 					
 					LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, startPoint, point);
 					startPoint = point;
+					
+					// This has to be done because the next iteration
+					// of the loop will call moveNext()
+					point.movePrevious();
 				}
 			}
 			else if (nextCharacter == 'u' || nextCharacter == 'U')
@@ -427,6 +429,7 @@ void Lexer::lexString(Point& point, LineLexState::FinishType& currentLineLastFin
 
 					LINE_TOKENS.emplace_back(Token::Type::EscapeSequence, escapeStartPoint, point);
 					startPoint = point;
+					point.movePrevious();
 				}
 				else if (point.col == buffer->data[point.line].size())
 				{
