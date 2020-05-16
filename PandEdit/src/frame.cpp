@@ -601,6 +601,26 @@ void Frame::movePointEnd()
 	point.targetCol = point.col;
 }
 
+void Frame::movePointToBufferStart(Font* currentFont)
+{
+	doCommonPointManipulationTasks();
+	point.line = 0;
+	point.col = 0;
+	point.targetCol = 0;
+
+	centerPoint(currentFont);
+}
+
+void Frame::movePointToBufferEnd(Font* currentFont)
+{
+	doCommonPointManipulationTasks();
+	point.line = currentBuffer->data.size() - 1;
+	point.col = currentBuffer->data[point.line].size();
+	point.targetCol = point.col;
+
+	centerPoint(currentFont);
+}
+
 void Frame::moveView(int numberOfLines, bool movePoint)
 {
 	unsigned int oldLineTop = topLine;

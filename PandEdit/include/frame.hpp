@@ -99,6 +99,8 @@ public:
 	void movePointDown(Font* currentFont);
 	void movePointHome();
 	void movePointEnd();
+	void movePointToBufferStart(Font* currentFont);
+	void movePointToBufferEnd(Font* currentFont);
 
 	void moveView(int numberOfLines, bool movePoint);
 	void centerPoint(Font* currentFont);

@@ -172,6 +172,18 @@ DEFINE_COMMAND(movePointEnd)
 	return false;
 }
 
+DEFINE_COMMAND(movePointToBufferStart)
+{
+	FRAME->movePointToBufferStart(window.renderer->currentFont);
+	return false;
+}
+
+DEFINE_COMMAND(movePointToBufferEnd)
+{
+	FRAME->movePointToBufferEnd(window.renderer->currentFont);
+	return false;
+}
+
 DEFINE_COMMAND(setMark)
 {
 	FRAME->mark.line = FRAME->point.line;

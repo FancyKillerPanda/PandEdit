@@ -46,6 +46,9 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(movePointLineDown),
 	COMMAND(movePointHome),
 	COMMAND(movePointEnd),
+	COMMAND(movePointToBufferStart),
+	COMMAND(movePointToBufferEnd),
+	
 	COMMAND(setMark),
 	COMMAND(swapPointAndMark),
 	
