@@ -186,41 +186,11 @@ void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight)
 	windowHeight = newHeight;
 }
 
-/*
-Frame* Frame::splitVertically()
-{
-	pcDimensions.width /= 2.0f;
-
-	Vector4f newFrameDimensions = pcDimensions;
-	newFrameDimensions.x += pcDimensions.width;
-
-	std::string newFrameName = name + "_SplitRight";
-	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
-	result->point = point;
-
-	return result;
-}
-
-Frame* Frame::splitHorizontally()
-{
-	pcDimensions.height /= 2.0f;
-
-	Vector4f newFrameDimensions = pcDimensions;
-	newFrameDimensions.y += pcDimensions.height;
-
-	std::string newFrameName = name + "_SplitDown";
-	Frame* result = new Frame(newFrameName, newFrameDimensions, windowWidth, windowHeight, currentBuffer, true);
-	result->point = point;
-
-	return result;
-}
-*/
-
 void Frame::split(bool vertically)
 {
 	// TODO(fkp): Make sure it's not the minibuffer
-	childOne = new Frame(name + "_C1", pcDimensions, windowWidth, windowHeight, currentBuffer, true);
-	childTwo = new Frame(name + "_C2", pcDimensions, windowWidth, windowHeight, currentBuffer, false);
+	childOne = new Frame(name + "_C1", pcDimensions, windowWidth, windowHeight, currentBuffer, false);
+	childTwo = new Frame(name + "_C2", pcDimensions, windowWidth, windowHeight, currentBuffer, true);
 
 	// Sets the proper dimensions for the new frames
 	if (vertically)
@@ -237,6 +207,7 @@ void Frame::split(bool vertically)
 	}
 	
 	// Both children get copies of the frame data
+	childOne->parent = childTwo->parent = this;
 	childOne->point = childTwo->point = point;
 	childOne->mark = childTwo->mark = mark;
 	childOne->topLine = childTwo->topLine = topLine;
@@ -250,6 +221,53 @@ void Frame::split(bool vertically)
 	// Adds the new frames to the window's map
 	allFrames->push_back(childOne);
 	allFrames->push_back(childTwo);
+}
+
+void Frame::destroy()
+{
+	if (!parent)
+	{
+		return;
+	}
+
+	Frame* sibling;
+
+	if (this == parent->childOne)
+	{
+		sibling = parent->childTwo;
+	}
+	else
+	{
+		sibling = parent->childOne;
+	}
+
+	// TODO(fkp): This will work for bottom-level frames only. Maybe
+	// check if the frame has chidren first?
+	parent->currentBuffer = sibling->currentBuffer;
+	parent->point = sibling->point;
+	parent->mark = sibling->mark;
+	parent->topLine = sibling->topLine;
+
+	parent->makeActive();
+	parent->deleteChildFrames();
+}
+
+void Frame::deleteChildFrames()
+{
+	if (!childOne || !childTwo)
+	{
+		printf("Error: Frame is not a parent.\n");
+		return;
+	}
+
+	allFrames->erase(std::remove(allFrames->begin(), allFrames->end(), childOne), allFrames->end());
+	allFrames->erase(std::remove(allFrames->begin(), allFrames->end(), childTwo), allFrames->end());
+
+	delete childOne;
+	delete childTwo;
+
+	childOne = nullptr;
+	childTwo = nullptr;
 }
 
 unsigned int Frame::getNumberOfLines(Font* currentFont)

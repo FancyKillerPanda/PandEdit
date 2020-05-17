@@ -70,6 +70,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 
 	COMMAND(frameSplitVertically),
 	COMMAND(frameSplitHorizontally),
+	COMMAND(frameDestroy),
 	COMMAND(frameMoveNext),
 	COMMAND(frameMovePrevious),
 	

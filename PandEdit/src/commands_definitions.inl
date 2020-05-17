@@ -59,14 +59,21 @@ DEFINE_COMMAND(minibufferQuit)
 DEFINE_COMMAND(frameSplitVertically)
 {
 	exitMinibuffer("");
-	window.splitCurrentFrameVertically();
+	FRAME->split(true);
 	return true;
 }
 
 DEFINE_COMMAND(frameSplitHorizontally)
 {
 	exitMinibuffer("");
-	window.splitCurrentFrameHorizontally();
+	FRAME->split(false);
+	return true;
+}
+
+DEFINE_COMMAND(frameDestroy)
+{
+	exitMinibuffer("");
+	FRAME->destroy();
 	return true;
 }
 

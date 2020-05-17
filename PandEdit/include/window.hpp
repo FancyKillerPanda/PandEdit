@@ -51,8 +51,6 @@ public:
 
 	// If moveNext is false, will move backwards
 	void moveToNextFrame(bool moveNext = true);
-	void splitCurrentFrameVertically();
-	void splitCurrentFrameHorizontally();
 
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);

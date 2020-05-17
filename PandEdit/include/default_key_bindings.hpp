@@ -18,6 +18,7 @@ void mapDefaultKeyBindings()
 	
 	KeyMap::bindKey({ Key::_2, true }, "frameSplitVertically"); // TODO(fkp): Remap later
 	KeyMap::bindKey({ Key::_3, true }, "frameSplitHorizontally"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::_0, true }, "frameDestroy"); // TODO(fkp): Remap later
 	KeyMap::bindKey({ Key::W, false, false, true }, "frameMoveNext");
 	KeyMap::bindKey({ Key::W, false, true, true }, "frameMovePrevious");
 	

@@ -78,9 +78,9 @@ public:
 	void switchToBuffer(Buffer* buffer);
 	void destroyBuffer(Buffer* buffer = nullptr);
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
-	// Frame* splitVertically();
-	// Frame* splitHorizontally();
 	void split(bool vertically);
+	void destroy();
+	void deleteChildFrames();
 	unsigned int getNumberOfLines(Font* currentFont);
 
 	std::pair<Point, Point> getPointStartAndEnd();

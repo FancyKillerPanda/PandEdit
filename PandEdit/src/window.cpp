@@ -320,25 +320,6 @@ void Window::moveToNextFrame(bool moveNext)
 	printf("Error: Window is not keeping track of current frame.\n");
 }
 
-void Window::splitCurrentFrameVertically()
-{
-	/*
-	Frame* rightSideFrame = Frame::currentFrame->splitVertically();
-	frames.push_back(std::move(*rightSideFrame));
-	*/
-
-	Frame::currentFrame->split(true);
-}
-
-void Window::splitCurrentFrameHorizontally()
-{
-	/*
-	Frame* bottomFrame = Frame::currentFrame->splitHorizontally();
-	frames.push_back(std::move(*bottomFrame));
-	*/
-
-	Frame::currentFrame->split(false);
-}
 
 //
 // Internal window creation stuff
