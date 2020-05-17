@@ -29,11 +29,18 @@ public:
 	inline static Frame* currentFrame = nullptr;
 	inline static Frame* previousFrame = nullptr;
 	inline static Frame* minibufferFrame = nullptr;
-	inline static std::vector<Frame>* allFrames = nullptr;
+	inline static std::vector<Frame*>* allFrames = nullptr;
 
 	inline static std::vector<std::string> killRing;
 	inline static int killRingPointer = -1; // -1 when nothing in the kill ring
 	inline static DWORD lastClipboardSequenceNumber = 0;
+	
+	// NOTE(fkp): Parent is only valid if this is not the toplevel
+	// frame. Children are only valid if this is not the bottommost
+	// level of frame.
+	Frame* parent = nullptr;
+	Frame* childOne = nullptr;
+	Frame* childTwo = nullptr;
 	
 	std::string name;
 
@@ -71,8 +78,9 @@ public:
 	void switchToBuffer(Buffer* buffer);
 	void destroyBuffer(Buffer* buffer = nullptr);
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
-	Frame* splitVertically();
-	Frame* splitHorizontally();
+	// Frame* splitVertically();
+	// Frame* splitHorizontally();
+	void split(bool vertically);
 	unsigned int getNumberOfLines(Font* currentFont);
 
 	std::pair<Point, Point> getPointStartAndEnd();

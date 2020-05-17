@@ -31,7 +31,7 @@ public:
 	const DWORD windowStyles = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
 	Renderer* renderer;
-	std::vector<Frame> frames;
+	std::vector<Frame*> frames;
 
 	std::string currentWorkingDirectory;
 

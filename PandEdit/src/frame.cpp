@@ -82,12 +82,17 @@ Frame::~Frame()
 
 Frame::Frame(Frame&& other)
 	: name(std::move(other.name)),
+	  parent(other.parent), childOne(other.childOne), childTwo(other.childTwo),
 	  pcDimensions(std::move(other.pcDimensions)),
 	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
 	  currentBuffer(other.currentBuffer), point(other.point), topLine(other.topLine)
 {
 	framesMap[name] = this;
 	other.name = "";
+	
+	other.parent = nullptr;
+	other.childOne = nullptr;
+	other.childTwo = nullptr;
 
 	if (&other == Frame::currentFrame)
 	{
@@ -113,6 +118,13 @@ Frame& Frame::operator=(Frame&& other)
 		framesMap.erase(name);
 
 		name = other.name;
+
+		parent = other.parent;
+		childOne = other.childOne;
+		childTwo = other.childTwo;
+		other.parent = nullptr;
+		other.childOne = nullptr;
+		other.childTwo = nullptr;
 
 		pcDimensions = other.pcDimensions;
 		windowWidth = other.windowWidth;
@@ -174,6 +186,7 @@ void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight)
 	windowHeight = newHeight;
 }
 
+/*
 Frame* Frame::splitVertically()
 {
 	pcDimensions.width /= 2.0f;
@@ -200,6 +213,43 @@ Frame* Frame::splitHorizontally()
 	result->point = point;
 
 	return result;
+}
+*/
+
+void Frame::split(bool vertically)
+{
+	// TODO(fkp): Make sure it's not the minibuffer
+	childOne = new Frame(name + "_C1", pcDimensions, windowWidth, windowHeight, currentBuffer, true);
+	childTwo = new Frame(name + "_C2", pcDimensions, windowWidth, windowHeight, currentBuffer, false);
+
+	// Sets the proper dimensions for the new frames
+	if (vertically)
+	{
+		childOne->pcDimensions.width /= 2.0f;
+		childTwo->pcDimensions.width /= 2.0f;
+		childTwo->pcDimensions.x += childTwo->pcDimensions.width;
+	}
+	else
+	{
+		childOne->pcDimensions.height /= 2.0f;
+		childTwo->pcDimensions.height /= 2.0f;
+		childTwo->pcDimensions.y += childTwo->pcDimensions.height;
+	}
+	
+	// Both children get copies of the frame data
+	childOne->point = childTwo->point = point;
+	childOne->mark = childTwo->mark = mark;
+	childOne->topLine = childTwo->topLine = topLine;
+
+	// Invalidates everything for this frame
+	currentBuffer = nullptr;
+	point = Point {};
+	mark = Point {};
+	topLine = 0;
+
+	// Adds the new frames to the window's map
+	allFrames->push_back(childOne);
+	allFrames->push_back(childTwo);
 }
 
 unsigned int Frame::getNumberOfLines(Font* currentFont)
@@ -723,76 +773,76 @@ void Frame::moveColToTarget()
 // riddled with bugs.
 void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 {
-	for (Frame& frame : *allFrames)
+	for (Frame* frame : *allFrames)
 	{
-		if (&frame == this) continue;
+		if (frame == this) continue;
 
-		if (currentBuffer == frame.currentBuffer)
+		if (currentBuffer == frame->currentBuffer)
 		{
 			if (insertion)
 			{
-				if (point.line == frame.point.line)
+				if (point.line == frame->point.line)
 				{
 					if (lineWrap)
 					{
-						frame.point.line += 1;
+						frame->point.line += 1;
 					}
 					else
 					{
-						if (point.col <= frame.point.col + 1)
+						if (point.col <= frame->point.col + 1)
 						{
-							frame.point.col += 1;
+							frame->point.col += 1;
 						}
 					}
 				}
-				else if (point.line == frame.point.line + 1)
+				else if (point.line == frame->point.line + 1)
 				{
 					if (lineWrap)
 					{
-						if (frame.point.col >= frame.currentBuffer->data[frame.point.line].size())
+						if (frame->point.col >= frame->currentBuffer->data[frame->point.line].size())
 						{
-							frame.point.col -= frame.currentBuffer->data[frame.point.line].size();
-							frame.point.line += 1;
+							frame->point.col -= frame->currentBuffer->data[frame->point.line].size();
+							frame->point.line += 1;
 						}
 					}
 				}
-				else if (point.line < frame.point.line)
+				else if (point.line < frame->point.line)
 				{
 					if (lineWrap)
 					{
-						frame.point.line += 1;
+						frame->point.line += 1;
 					}
 				}
 			}
 			else
 			{
-				if (point.line == frame.point.line)
+				if (point.line == frame->point.line)
 				{
 					if (lineWrap)
 					{
-						frame.point.col += point.col;
+						frame->point.col += point.col;
 					}
 					else
 					{
-						if (point.col < frame.point.col)
+						if (point.col < frame->point.col)
 						{
-							frame.point.col -= 1;
+							frame->point.col -= 1;
 						}
 					}
 				}
-				else if (point.line == frame.point.line - 1)
+				else if (point.line == frame->point.line - 1)
 				{
 					if (lineWrap)
 					{
-						frame.point.line -= 1;
-						frame.point.col += point.col;
+						frame->point.line -= 1;
+						frame->point.col += point.col;
 					}
 				}
-				else if (point.line < frame.point.line - 1)
+				else if (point.line < frame->point.line - 1)
 				{
 					if (lineWrap)
 					{
-						frame.point.line -= 1;
+						frame->point.line -= 1;
 					}
 				}
 			}

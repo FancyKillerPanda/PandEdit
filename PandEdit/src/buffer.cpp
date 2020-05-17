@@ -43,13 +43,13 @@ Buffer::~Buffer()
 	
 	buffersMap.erase(name);
 
-	for (Frame& frame : *Frame::allFrames)
+	for (Frame* frame : *Frame::allFrames)
 	{
-		if (this == frame.currentBuffer)
+		if (this == frame->currentBuffer)
 		{
 			// TODO(fkp): Go to previous
-			// frame.currentBuffer = get("*scratch*");
-			frame.switchToBuffer(get("*scratch*"));
+			// frame->currentBuffer = get("*scratch*");
+			frame->switchToBuffer(get("*scratch*"));
 		}
 	}
 }

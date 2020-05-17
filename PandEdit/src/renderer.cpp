@@ -353,6 +353,12 @@ Point getPointAtEndOfString(const std::string& string, unsigned int lineOffset)
 
 void Renderer::drawFrame(Frame& frame)
 {
+	if (frame.childOne != nullptr || frame.childTwo != nullptr)
+	{
+		// Frame is solely for grouping
+		return;
+	}
+	
 	// Pixel dimensions
 	int realFramePixelX = (int) (frame.pcDimensions.x * frame.windowWidth);
 	unsigned int realFramePixelWidth = (unsigned int) (frame.pcDimensions.width * frame.windowWidth);

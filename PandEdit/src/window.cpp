@@ -38,8 +38,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
 		renderer = new Renderer { projection, (float) width, (float) height };
 
 		Frame::allFrames = &frames;
-		frames.emplace_back("mainFrame", Vector4f { 0.0f, 0.0f, 1.0f, 1.0f }, width, height, BufferType::Text, "*scratch*", true);
-		frames.emplace_back("minibufferFrame", Vector4f { 0.0f, 1.0f, 1.0f, 0.0f }, width, height, BufferType::MiniBuffer, "__minibuffer__", false);
+		frames.push_back(new Frame("mainFrame", Vector4f { 0.0f, 0.0f, 1.0f, 1.0f }, width, height, BufferType::Text, "*scratch*", true));
+		frames.push_back(new Frame("minibufferFrame", Vector4f { 0.0f, 1.0f, 1.0f, 0.0f }, width, height, BufferType::MiniBuffer, "__minibuffer__", false));
 
 		printf("Info: Created window (OpenGL: %s).\n", glGetString(GL_VERSION));
 	}
@@ -243,9 +243,9 @@ void APIENTRY Window::debugLogCallback(GLenum source, GLenum type, GLuint id, GL
 
 void Window::draw()
 {
-	for (Frame& frame : frames)
+	for (Frame* frame : frames)
 	{
-		renderer->drawFrame(frame);
+		renderer->drawFrame(*frame);
 	}
 }
 
@@ -254,9 +254,9 @@ void Window::resize(unsigned int newWidth, unsigned int newHeight)
 	width = newWidth;
 	height = newHeight;
 	
-	for (Frame& frame : frames)
+	for (Frame* frame : frames)
 	{
-		frame.updateWindowSize(width, height - renderer->currentFont->size);
+		frame->updateWindowSize(width, height - renderer->currentFont->size);
 	}
 
 	Matrix4 projection = Matrix4::ortho(0, width, 0, height, -1, 1);
@@ -286,11 +286,11 @@ void Window::moveToNextFrame(bool moveNext)
 		Frame::get("mainFrame")->makeActive();
 		return;
 	}
-	
+
 	// TODO(fkp): This can be more efficient by storing an index
 	for (int i = 0; i < frames.size(); i++)
 	{
-		if (&frames[i] == Frame::currentFrame)
+		if (frames[i] == Frame::currentFrame)
 		{
 			// This will wrap to the current frame if necessary
 			do
@@ -309,9 +309,10 @@ void Window::moveToNextFrame(bool moveNext)
 
 					i -= 1;
 				}
-			} while (frames[i].currentBuffer->type == BufferType::MiniBuffer);
+			} while ((frames[i]->childOne != nullptr || frames[i]->childTwo != nullptr) ||
+					 frames[i]->currentBuffer->type == BufferType::MiniBuffer);
 
-			frames[i].makeActive();
+			frames[i]->makeActive();
 			return;
 		}
 	}
@@ -321,14 +322,22 @@ void Window::moveToNextFrame(bool moveNext)
 
 void Window::splitCurrentFrameVertically()
 {
+	/*
 	Frame* rightSideFrame = Frame::currentFrame->splitVertically();
 	frames.push_back(std::move(*rightSideFrame));
+	*/
+
+	Frame::currentFrame->split(true);
 }
 
 void Window::splitCurrentFrameHorizontally()
 {
+	/*
 	Frame* bottomFrame = Frame::currentFrame->splitHorizontally();
 	frames.push_back(std::move(*bottomFrame));
+	*/
+
+	Frame::currentFrame->split(false);
 }
 
 //
