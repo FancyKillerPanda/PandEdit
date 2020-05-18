@@ -196,7 +196,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				
 				if (!lexKeyword(startPoint, point, tokenText))
 				{
-					// Regular identifier
+					lexIdentifier(startPoint, point);
 				}
 			}
 			else
@@ -660,6 +660,16 @@ bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::s
 	return true;
 }
 
+void Lexer::lexIdentifier(const Point& startPoint, const Point& point)
+{
+	if (LINE_TOKENS.size() > 0 &&
+		LINE_TOKENS.back().type == Token::Type::PreprocessorDirective &&
+		LINE_TOKENS.back().data == "define")
+	{
+		LINE_TOKENS.emplace_back(Token::Type::MacroName, startPoint, point);
+	}
+}
+
 bool Lexer::isIdentifierStartCharacter(char character)
 {
 	bool lowercaseAToZ = character >= 'a' && character <= 'z';
@@ -707,6 +717,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::BlockComment:				return normaliseColour(154, 154, 154, 255);
 	case Token::Type::Keyword:					return normaliseColour(184,   8, 180, 255);
 	case Token::Type::PreprocessorDirective:	return normaliseColour(184,   8, 180, 255);
+	case Token::Type::MacroName:				return normaliseColour(219, 219, 149, 255);
 
 	default:									return getDefaultTextColour();
 	}

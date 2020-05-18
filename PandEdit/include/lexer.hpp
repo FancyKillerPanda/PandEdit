@@ -33,6 +33,7 @@ public:
 		BlockComment,
 		Keyword,
 		PreprocessorDirective,
+		MacroName,
 	};
 	
 public:
@@ -94,6 +95,7 @@ private:
 	void lexNumber(Point& point);
 	void lexPreprocessorDirective(Point& point);
 	bool lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText);
+	void lexIdentifier(const Point& startPoint, const Point& point);
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
