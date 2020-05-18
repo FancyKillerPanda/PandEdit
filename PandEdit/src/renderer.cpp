@@ -359,7 +359,12 @@ void Renderer::drawFrame(Frame& frame)
 		return;
 	}
 	
+	Buffer& buffer = *frame.currentBuffer;
+
+	//
 	// Pixel dimensions
+	//
+	
 	int realFramePixelX = (int) (frame.pcDimensions.x * frame.windowWidth);
 	unsigned int realFramePixelWidth = (unsigned int) (frame.pcDimensions.width * frame.windowWidth);
 	int framePixelX = realFramePixelX + (FRAME_BORDER_WIDTH * 2);
@@ -374,6 +379,64 @@ void Renderer::drawFrame(Frame& frame)
 	}
 	
 	//
+	// Point dimensions
+	//
+
+	float pointX = framePixelX;
+	float pointY = framePixelY + ((frame.point.line - frame.topLine) * currentFont->size);
+	float pointWidth;
+	float pointHeight = (float) currentFont->size;
+
+	for (unsigned int i = 0; i < frame.point.col; i++)
+	{
+		const Character& character = currentFont->chars[buffer.data[frame.point.line][i]];
+
+		if (buffer.data[frame.point.line][i] == '\n')
+		{
+			pointX = 0;
+			pointY += currentFont->size;
+		}
+		else if (buffer.data[frame.point.line][i] == '\t')
+		{
+			pointX += currentFont->chars[' '].advanceX * tabWidth;
+		}
+		else
+		{
+			pointX += character.advanceX;
+		}
+	}
+
+	if (frame.point.col == buffer.data[frame.point.line].size())
+	{
+		pointWidth = (float) currentFont->maxGlyphAdvanceX;
+	}
+	else
+	{
+		char currentChar = buffer.data[frame.point.line][frame.point.col];
+
+		if (currentChar == '\n' || currentChar == '\t')
+		{
+			pointWidth = currentFont->chars[' '].advanceX;
+		}
+		else
+		{
+			pointWidth = currentFont->chars[currentChar].advanceX;
+		}
+	}
+
+	//
+	// Highlighting the current line
+	//
+	
+	if (&frame == Frame::currentFrame && buffer.type != BufferType::MiniBuffer)
+	{
+		glUseProgram(shapeShader.programID);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.19f, 0.19f, 0.19f, 1.0f);
+
+		drawRect(realFramePixelX + FRAME_BORDER_WIDTH, pointY, realFramePixelWidth - FRAME_BORDER_WIDTH, pointHeight);
+	}
+
+	//
 	// Text
 	//
 
@@ -381,8 +444,6 @@ void Renderer::drawFrame(Frame& frame)
 	Colour defaultColour = getDefaultTextColour();
 	glUseProgram(textureShader.programID);
 	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-
-	Buffer& buffer = *frame.currentBuffer;
 
 	int y = framePixelY;
 	std::string visibleLines = "";
@@ -468,48 +529,6 @@ void Renderer::drawFrame(Frame& frame)
 	//
 	// Point
 	//
-
-	float pointX = framePixelX;
-	float pointY = framePixelY + ((frame.point.line - frame.topLine) * currentFont->size);
-	float pointWidth;
-	float pointHeight = (float) currentFont->size;
-
-	for (unsigned int i = 0; i < frame.point.col; i++)
-	{
-		const Character& character = currentFont->chars[buffer.data[frame.point.line][i]];
-
-		if (buffer.data[frame.point.line][i] == '\n')
-		{
-			pointX = 0;
-			pointY += currentFont->size;
-		}
-		else if (buffer.data[frame.point.line][i] == '\t')
-		{
-			pointX += currentFont->chars[' '].advanceX * tabWidth;
-		}
-		else
-		{
-			pointX += character.advanceX;
-		}
-	}
-
-	if (frame.point.col == buffer.data[frame.point.line].size())
-	{
-		pointWidth = (float) currentFont->maxGlyphAdvanceX;
-	}
-	else
-	{
-		char currentChar = buffer.data[frame.point.line][frame.point.col];
-
-		if (currentChar == '\n' || currentChar == '\t')
-		{
-			pointWidth = currentFont->chars[' '].advanceX;
-		}
-		else
-		{
-			pointWidth = currentFont->chars[currentChar].advanceX;
-		}
-	}
 
 	if (pointX + pointWidth <= framePixelX + framePixelWidth)
 	{
