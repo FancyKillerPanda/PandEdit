@@ -37,17 +37,20 @@ public:
 	
 public:
 	Type type;
+	// NOTE(fkp): This is not filled in for all token types.
+	std::string data;
+	
 	Point start;
 	Point end;
 
 public:
-	Token(Type type, Point start)
-		: type(type), start(start)
+	Token(Type type, Point start, std::string data = "")
+		: type(type), start(start), data(data)
 	{
 	}
 
-	Token(Type type, Point start, Point end)
-		: type(type), start(start), end(end)
+	Token(Type type, Point start, Point end, std::string data = "")
+		: type(type), start(start), end(end), data(data)
 	{
 	}
 };

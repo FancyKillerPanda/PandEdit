@@ -120,7 +120,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 		{
 			if (LINE_TOKENS.size() == 0 ||
 				LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
-				buffer->data[LINE_TOKENS.back().start.line].substr(LINE_TOKENS.back().start.col, LINE_TOKENS.back().end.col - LINE_TOKENS.back().start.col) != "#include")
+				LINE_TOKENS.back().data != "include")
 			{
 				goto DEFAULT_CASE;
 			}
@@ -594,15 +594,22 @@ void Lexer::lexNumber(Point& point)
 void Lexer::lexPreprocessorDirective(Point& point)
 {
 	char character;
+	UPDATE_CHARACTER();
 	Point startPoint = point;
+	std::string tokenText = "";
 
 	do
 	{
+		if (character != '#')
+		{
+			tokenText += character;
+		}
+		
 		point.moveNext();
 		UPDATE_CHARACTER();
 	} while (isIdentifierCharacter(character));
 
-	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point);
+	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point, tokenText);
 }
 
 bool Lexer::lexKeyword(Point& point)
@@ -621,7 +628,7 @@ bool Lexer::lexKeyword(Point& point)
 
 	if (keywords.find(tokenText) != keywords.end())
 	{
-		LINE_TOKENS.emplace_back(Token::Type::Keyword, startPoint, point);
+		LINE_TOKENS.emplace_back(Token::Type::Keyword, startPoint, point, tokenText);
 	}
 	else if (tokenText == "defined")
 	{
@@ -629,22 +636,16 @@ bool Lexer::lexKeyword(Point& point)
 
 		for (const Token& token : LINE_TOKENS)
 		{
-			if (token.type == Token::Type::PreprocessorDirective)
+			if (token.type == Token::Type::PreprocessorDirective &&
+				(token.data == "if" || token.data == "elif"))
 			{
-				std::string directive = buffer->data[token.start.line].substr(token.start.col, token.end.col - token.start.col);
-				directive.erase(std::remove_if(directive.begin(), directive.end(), isspace), directive.end());
-
-				if (directive == "#if" || directive == "#elif")
-				{
-					foundIfElifDirectiveOnLine = true;
-					break;
-				}
+				foundIfElifDirectiveOnLine = true;
 			}
 		}
 
 		if (foundIfElifDirectiveOnLine)
 		{
-			LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point);
+			LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point, tokenText);
 		}
 		else
 		{
