@@ -93,7 +93,7 @@ private:
 	void lexBlockComment(Point& point, LineLexState::FinishType& currentLineLastFinishType);
 	void lexNumber(Point& point);
 	void lexPreprocessorDirective(Point& point);
-	bool lexKeyword(Point& point);
+	bool lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText);
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);

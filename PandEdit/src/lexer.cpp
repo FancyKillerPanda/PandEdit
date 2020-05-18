@@ -182,7 +182,19 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			}
 			else if (isIdentifierStartCharacter(character))
 			{
-				if (!lexKeyword(point))
+				Point startPoint = point;
+				std::string tokenText;
+				char character;
+				UPDATE_CHARACTER();
+
+				do
+				{
+					tokenText += character;
+					point.moveNext();
+					UPDATE_CHARACTER();
+				} while (isIdentifierCharacter(character));
+				
+				if (!lexKeyword(startPoint, point, tokenText))
 				{
 					// Regular identifier
 				}
@@ -612,20 +624,8 @@ void Lexer::lexPreprocessorDirective(Point& point)
 	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point, tokenText);
 }
 
-bool Lexer::lexKeyword(Point& point)
+bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText)
 {
-	Point startPoint = point;
-	std::string tokenText;
-	char character;
-	UPDATE_CHARACTER();
-
-	do
-	{
-		tokenText += character;
-		point.moveNext();
-		UPDATE_CHARACTER();
-	} while (isIdentifierCharacter(character));
-
 	if (keywords.find(tokenText) != keywords.end())
 	{
 		LINE_TOKENS.emplace_back(Token::Type::Keyword, startPoint, point, tokenText);
