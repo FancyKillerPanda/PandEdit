@@ -243,16 +243,10 @@ void Frame::destroy()
 
 	// TODO(fkp): This will work for bottom-level frames only. Maybe
 	// check if the frame has chidren first?
-	parent->currentBuffer = sibling->currentBuffer;
-	parent->point = sibling->point;
-	parent->mark = sibling->mark;
-	parent->topLine = sibling->topLine;
-
-	parent->makeActive();
-	parent->deleteChildFrames();
+	parent->deleteChildFrames(sibling);
 }
 
-void Frame::deleteChildFrames()
+void Frame::deleteChildFrames(Frame* otherChild)
 {
 	if (!childOne || !childTwo)
 	{
@@ -263,11 +257,100 @@ void Frame::deleteChildFrames()
 	allFrames->erase(std::remove(allFrames->begin(), allFrames->end(), childOne), allFrames->end());
 	allFrames->erase(std::remove(allFrames->begin(), allFrames->end(), childTwo), allFrames->end());
 
-	delete childOne;
-	delete childTwo;
+	if (otherChild->childOne || otherChild->childTwo)
+	{
+		// NOTE(fkp): This weird deletion order is because otherChild
+		// is one of this Frame's children.
+		if (otherChild == childOne)
+		{
+			delete childTwo;
+		}
+		else if (otherChild == childTwo)
+		{
+			delete childOne;
+		}
+		else
+		{
+			printf("Error: otherChild is not one of this frame's children.\n");
+			return;
+		}
 
-	childOne = nullptr;
-	childTwo = nullptr;
+		childOne = otherChild->childOne;
+		childOne->parent = this;
+		childTwo = otherChild->childTwo;
+		childTwo->parent = this;
+
+		delete otherChild;
+		otherChild = nullptr;
+
+		resizeChildrenToFitSize();
+		childOne->makeActive();
+	}
+	else
+	{
+		currentBuffer = otherChild->currentBuffer;
+		point = otherChild->point;
+		mark = otherChild->mark;
+		topLine = otherChild->topLine;
+
+		makeActive();
+
+		delete childOne;
+		delete childTwo;
+		childOne = nullptr;
+		childTwo = nullptr;
+	}
+}
+
+void Frame::resizeChildrenToFitSize()
+{
+
+	if (childOne->pcDimensions.x != childTwo->pcDimensions.x)
+	{
+		// Was split vertically
+		float childOneWidthPercent = childOne->pcDimensions.width / (childOne->pcDimensions.width + childTwo->pcDimensions.width);
+		float childTwoWidthPercent = childTwo->pcDimensions.width / (childOne->pcDimensions.width + childTwo->pcDimensions.width);
+
+		// Both frames still need to take up entire y-axis area
+		childOne->pcDimensions.y = pcDimensions.y;
+		childOne->pcDimensions.height = pcDimensions.height;
+		childTwo->pcDimensions.y = pcDimensions.y;
+		childTwo->pcDimensions.height = pcDimensions.height;
+
+		childOne->pcDimensions.x = pcDimensions.x;
+		childOne->pcDimensions.width = pcDimensions.width * childOneWidthPercent;
+		childTwo->pcDimensions.x = pcDimensions.x + childOne->pcDimensions.width;
+		childTwo->pcDimensions.width = pcDimensions.width * childTwoWidthPercent;
+	}
+	else if (childOne->pcDimensions.y != childTwo->pcDimensions.y)
+	{
+		// Was split horizontally
+		float childOneHeightPercent = childOne->pcDimensions.height / (childOne->pcDimensions.height + childTwo->pcDimensions.height);
+		float childTwoHeightPercent = childTwo->pcDimensions.height / (childOne->pcDimensions.height + childTwo->pcDimensions.height);
+		
+		// Both frames still need to take up entire x-axis area
+		childOne->pcDimensions.x = pcDimensions.x;
+		childOne->pcDimensions.width = pcDimensions.width;
+		childTwo->pcDimensions.x = pcDimensions.x;
+		childTwo->pcDimensions.width = pcDimensions.width;
+		
+		childOne->pcDimensions.y = pcDimensions.y;
+		childOne->pcDimensions.height = pcDimensions.height * childOneHeightPercent;
+		childTwo->pcDimensions.y = pcDimensions.y + childOne->pcDimensions.height;
+		childTwo->pcDimensions.height = pcDimensions.height * childTwoHeightPercent;
+	}
+
+	if (childOne->childOne || childOne->childTwo)
+	{
+		// First child frame has children of its own
+		childOne->resizeChildrenToFitSize();
+	}
+
+	if (childTwo->childOne || childTwo->childTwo)
+	{
+		// Second child frame has children of its own
+		childTwo->resizeChildrenToFitSize();
+	}
 }
 
 unsigned int Frame::getNumberOfLines(Font* currentFont)

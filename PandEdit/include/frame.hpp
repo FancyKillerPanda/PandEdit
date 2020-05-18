@@ -80,7 +80,6 @@ public:
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
 	void split(bool vertically);
 	void destroy();
-	void deleteChildFrames();
 	unsigned int getNumberOfLines(Font* currentFont);
 
 	std::pair<Point, Point> getPointStartAndEnd();
@@ -128,6 +127,9 @@ public:
 
 private:
 	void init(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer = nullptr, bool isActive = false);
+
+	void deleteChildFrames(Frame* otherChild); // Called from one sibling
+	void resizeChildrenToFitSize();
 };
 
 #endif
