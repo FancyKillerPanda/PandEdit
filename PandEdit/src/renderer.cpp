@@ -540,16 +540,6 @@ void Renderer::drawFrame(Frame& frame)
 	}
 
 	//
-	// Border
-	//
-
-	glUseProgram(shapeShader.programID);
-	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.3f, 1.0f);
-
-	drawRect(realFramePixelX, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
-	drawRect(realFramePixelX + realFramePixelWidth - FRAME_BORDER_WIDTH, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
-
-	//
 	// Mode line
 	//
 
@@ -587,4 +577,14 @@ void Renderer::drawFrame(Frame& frame)
 
 		drawText(modeLineText, modeLineText.size(), framePixelX, framePixelY + framePixelHeight - currentFont->size, framePixelWidth, false);
 	}
+	
+	//
+	// Border
+	//
+
+	glUseProgram(shapeShader.programID);
+	glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.2f, 0.2f, 0.3f, 1.0f);
+
+	drawRect(realFramePixelX, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
+	drawRect(realFramePixelX + realFramePixelWidth - FRAME_BORDER_WIDTH, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
 }
