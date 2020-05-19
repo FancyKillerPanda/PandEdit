@@ -21,10 +21,7 @@ std::unordered_set<std::string> Lexer::keywords = {
 	"const", "consteval", "constexpr", "constinit", "const_cast",
 
 	"false", "nullptr", "true", "void",
-	/* "bool", "char", "char8_t", "char16_t", "char32_t",
-	"double", "float", "int", "long", "short",
-	"signed", "unsigned", "wchar_t", */
-
+	
 	"auto", "class", "delete", "enum", "explicit", "final" /* note 1 */,
 	"friend", "inline", "mutable", "namespace", "new", "noexcept",
 	"operator", "override" /* note 1 */, "private", "protected",
@@ -43,6 +40,14 @@ std::unordered_set<std::string> Lexer::keywords = {
 	"dynamic_cast", "reinterpret_cast", "static_assert", "static_cast",
 	
 	"asm", "reflexpr",
+};
+
+std::unordered_set<std::string> Lexer::primitiveTypes = {
+	"bool",
+	"char", "char8_t", "char16_t", "char32_t", "wchar_t",
+	"double", "float",
+	"int", "long", "short",
+	"signed", "unsigned",
 };
 
 Lexer::Lexer(Buffer* buffer)
@@ -196,7 +201,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				
 				if (!lexKeyword(startPoint, point, tokenText))
 				{
-					lexIdentifier(startPoint, point);
+					lexIdentifier(startPoint, point, tokenText);
 				}
 			}
 			else
@@ -666,13 +671,17 @@ bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::s
 	return true;
 }
 
-void Lexer::lexIdentifier(const Point& startPoint, const Point& point)
+void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText)
 {
 	if (LINE_TOKENS.size() > 0 &&
 		LINE_TOKENS.back().type == Token::Type::PreprocessorDirective &&
 		LINE_TOKENS.back().data == "define")
 	{
 		LINE_TOKENS.emplace_back(Token::Type::MacroName, startPoint, point);
+	}
+	else if (primitiveTypes.find(tokenText) != primitiveTypes.end())
+	{
+		LINE_TOKENS.emplace_back(Token::Type::TypeName, startPoint, point);
 	}
 }
 
@@ -724,6 +733,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::Keyword:					return normaliseColour(184,   8, 180, 255);
 	case Token::Type::PreprocessorDirective:	return normaliseColour(184,   8, 180, 255);
 	case Token::Type::MacroName:				return normaliseColour(219, 219, 149, 255);
+	case Token::Type::TypeName:					return normaliseColour( 62, 118, 202, 255);
 
 	default:									return getDefaultTextColour();
 	}

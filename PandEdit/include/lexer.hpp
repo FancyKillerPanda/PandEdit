@@ -34,6 +34,7 @@ public:
 		Keyword,
 		PreprocessorDirective,
 		MacroName,
+		TypeName,
 	};
 	
 public:
@@ -73,6 +74,7 @@ class Lexer
 {
 public:
 	static std::unordered_set<std::string> keywords;
+	static std::unordered_set<std::string> primitiveTypes;
 	
 	Buffer* buffer;
 	std::vector<LineLexState> lineStates;
@@ -95,7 +97,7 @@ private:
 	void lexNumber(Point& point);
 	void lexPreprocessorDirective(Point& point);
 	bool lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText);
-	void lexIdentifier(const Point& startPoint, const Point& point);
+	void lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText);
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
