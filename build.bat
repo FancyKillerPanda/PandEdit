@@ -20,9 +20,9 @@ IF NOT EXIST build\ md build
 cd build
 
 cmake .. -G "Visual Studio 16 2019"
-IF %ERRORLEVEL% NEQ 0 GOTO end
+IF ERRORLEVEL 1 GOTO end
 cmake --build . --config %CONFIG%
-IF %ERRORLEVEL% NEQ 0 GOTO end
+IF ERRORLEVEL 1 GOTO end
 
 cd %ROOT_DIRECTORY%
 
@@ -38,5 +38,6 @@ IF NOT %NORUN%==true (
 )
 
 :end
+set BUILD_ERROR_LEVEL=%ERRORLEVEL%
 cd %ROOT_DIRECTORY%
-exit /B %ERRORLEVEL%
+exit /B %BUILD_ERROR_LEVEL%
