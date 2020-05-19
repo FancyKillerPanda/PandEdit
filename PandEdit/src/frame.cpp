@@ -470,7 +470,7 @@ void Frame::deleteRestOfLine()
 		numberOfCharsToDelete = 1;
 	}
 	
-	deleteChar(numberOfCharsToDelete);
+	deleteChar(numberOfCharsToDelete, true);
 }
 
 void Frame::doCommonPointManipulationTasks()
@@ -513,7 +513,7 @@ void Frame::insertChar(char character)
 	doCommonBufferManipulationTasks();
 }
 
-void Frame::backspaceChar(unsigned int num)
+void Frame::backspaceChar(unsigned int num, bool copyText)
 {
 	std::string textDeleted = "";
 	Point endLocation = point; // This is not startLocation because we are going backwards
@@ -558,6 +558,11 @@ void Frame::backspaceChar(unsigned int num)
 		}
 	}
 
+	if (copyText)
+	{
+		copyRegion(textDeleted);
+	}
+
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, endLocation, std::move(textDeleted)));	
 	point.targetCol = point.col;
 	
@@ -565,7 +570,7 @@ void Frame::backspaceChar(unsigned int num)
 	doCommonBufferManipulationTasks();
 }
 
-void Frame::deleteChar(unsigned int num)
+void Frame::deleteChar(unsigned int num, bool copyText)
 {
 	std::string textDeleted = "";
 
@@ -596,6 +601,11 @@ void Frame::deleteChar(unsigned int num)
 				adjustOtherFramePointLocations(false, true);
 			}
 		}
+	}
+
+	if (copyText)
+	{
+		copyRegion(textDeleted);
 	}
 
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, point, std::move(textDeleted)));
@@ -958,9 +968,20 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 	}
 }
 
-void Frame::copyRegion()
+void Frame::copyRegion(std::string text)
 {
-	std::string textToCopy = getTextPointToMark();
+	std::string textToCopy;
+	
+	// TODO(fkp): This might break if text is supposed to be empty
+	if (text == "")
+	{
+		textToCopy = getTextPointToMark();
+	}
+	else
+	{
+		// TODO(fkp): Avoid the copy
+		textToCopy = text;
+	}
 	
 	if (!OpenClipboard(GetDesktopWindow()))
 	{

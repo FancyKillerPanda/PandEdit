@@ -94,8 +94,8 @@ public:
 	
 	// Manipulations at the point
 	void insertChar(char character);
-	void backspaceChar(unsigned int num = 1);
-	void deleteChar(unsigned int num = 1);
+	void backspaceChar(unsigned int num = 1, bool copyText = false);
+	void deleteChar(unsigned int num = 1, bool copyText = false);
 	void newLine();
 	void insertString(const std::string& string);
 
@@ -120,7 +120,7 @@ public:
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
 
 	// Copy/cut/paste
-	void copyRegion();
+	void copyRegion(std::string text = "");
 	void paste();
 	void pasteClipboard();
 	void pastePop();

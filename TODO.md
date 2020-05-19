@@ -1,4 +1,4 @@
 # PandEdit TODO
 
 Proper right align of text
-Ctrl+k should copy
+Ctrl+k, when deleting the line, should append to the previous undo
