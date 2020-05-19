@@ -180,10 +180,11 @@ void Frame::makeActive()
 	}
 }
 
-void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight)
+void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight, Font* font)
 {
 	windowWidth = newWidth;
 	windowHeight = newHeight;
+	getNumberOfLines(font);
 }
 
 void Frame::split(bool vertically)
@@ -353,10 +354,10 @@ void Frame::resizeChildrenToFitSize()
 	}
 }
 
-unsigned int Frame::getNumberOfLines(Font* currentFont)
+void Frame::getNumberOfLines(Font* currentFont)
 {
 	unsigned int pixelHeight = (unsigned int) (pcDimensions.height * windowHeight) - currentFont->size;
-	return pixelHeight / currentFont->size;
+	numberOfLinesInView = pixelHeight / currentFont->size;
 }
 
 std::pair<Point, Point> Frame::getPointStartAndEnd()
@@ -695,7 +696,7 @@ void Frame::movePointRight(unsigned int num)
 	point.targetCol = point.col;
 }
 
-void Frame::movePointUp(Font* currentFont)
+void Frame::movePointUp()
 {
 	doCommonPointManipulationTasks();
 
@@ -707,11 +708,11 @@ void Frame::movePointUp(Font* currentFont)
 
 	if (point.line < topLine)
 	{
-		centerPoint(currentFont);
+		centerPoint();
 	}
 }
 
-void Frame::movePointDown(Font* currentFont)
+void Frame::movePointDown()
 {
 	doCommonPointManipulationTasks();
 
@@ -721,9 +722,9 @@ void Frame::movePointDown(Font* currentFont)
 		moveColToTarget();
 	}
 
-	if (point.line >= topLine + getNumberOfLines(currentFont))
+	if (point.line >= topLine + numberOfLinesInView)
 	{
-		centerPoint(currentFont);
+		centerPoint();
 	}
 }
 
@@ -752,24 +753,24 @@ void Frame::movePointEnd()
 	point.targetCol = point.col;
 }
 
-void Frame::movePointToBufferStart(Font* currentFont)
+void Frame::movePointToBufferStart()
 {
 	doCommonPointManipulationTasks();
 	point.line = 0;
 	point.col = 0;
 	point.targetCol = 0;
 
-	centerPoint(currentFont);
+	centerPoint();
 }
 
-void Frame::movePointToBufferEnd(Font* currentFont)
+void Frame::movePointToBufferEnd()
 {
 	doCommonPointManipulationTasks();
 	point.line = currentBuffer->data.size() - 1;
 	point.col = currentBuffer->data[point.line].size();
 	point.targetCol = point.col;
 
-	centerPoint(currentFont);
+	centerPoint();
 }
 
 void Frame::moveView(int numberOfLines, bool movePoint)
@@ -806,10 +807,9 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 	}
 }
 
-void Frame::centerPoint(Font* currentFont)
+void Frame::centerPoint()
 {
-	unsigned int numberOfFrameLines = getNumberOfLines(currentFont);
-	int numberOfLinesToMove = point.line - ((int) topLine + (numberOfFrameLines / 2));
+	int numberOfLinesToMove = point.line - ((int) topLine + (numberOfLinesInView / 2));
 	moveView(numberOfLinesToMove, false);
 }
 

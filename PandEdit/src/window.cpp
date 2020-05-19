@@ -264,7 +264,7 @@ void Window::resize(unsigned int newWidth, unsigned int newHeight)
 	
 	for (Frame* frame : frames)
 	{
-		frame->updateWindowSize(width, height - renderer->currentFont->size);
+		frame->updateWindowSize(width, height - renderer->currentFont->size, renderer->currentFont);
 	}
 
 	Matrix4 projection = Matrix4::ortho(0, width, 0, height, -1, 1);

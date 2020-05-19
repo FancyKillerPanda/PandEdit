@@ -57,6 +57,7 @@ public:
 	Point point;
 	Point mark;	
 	unsigned int topLine = 0;
+	unsigned int numberOfLinesInView = 0;
 
 	Timer pointFlashTimer;
 
@@ -77,10 +78,10 @@ public:
 	void makeActive();
 	void switchToBuffer(Buffer* buffer);
 	void destroyBuffer(Buffer* buffer = nullptr);
-	void updateWindowSize(unsigned int newWidth, unsigned int newHeight);
+	void updateWindowSize(unsigned int newWidth, unsigned int newHeight, Font* font);
 	void split(bool vertically);
 	void destroy();
-	unsigned int getNumberOfLines(Font* currentFont);
+	void getNumberOfLines(Font* currentFont);
 
 	std::pair<Point, Point> getPointStartAndEnd();
 	std::string getTextPointToMark();
@@ -101,16 +102,15 @@ public:
 	// Movement of the point
 	void movePointLeft(unsigned int num = 1);
 	void movePointRight(unsigned int num = 1);
-	// TODO(fkp): Maybe store the number of lines once?
-	void movePointUp(Font* currentFont);
-	void movePointDown(Font* currentFont);
+	void movePointUp();
+	void movePointDown();
 	void movePointHome();
 	void movePointEnd();
-	void movePointToBufferStart(Font* currentFont);
-	void movePointToBufferEnd(Font* currentFont);
+	void movePointToBufferStart();
+	void movePointToBufferEnd();
 
 	void moveView(int numberOfLines, bool movePoint);
-	void centerPoint(Font* currentFont);
+	void centerPoint();
 	
 	// Utility
 	// TODO(fkp): Currently only registers space, do other word boundaries

@@ -157,13 +157,13 @@ DEFINE_COMMAND(movePointRightWord)
 
 DEFINE_COMMAND(movePointLineUp)
 {
-	FRAME->movePointUp(window.renderer->currentFont);
+	FRAME->movePointUp();
 	return false;
 }
 
 DEFINE_COMMAND(movePointLineDown)
 {
-	FRAME->movePointDown(window.renderer->currentFont);
+	FRAME->movePointDown();
 	return false;
 }
 
@@ -181,13 +181,13 @@ DEFINE_COMMAND(movePointEnd)
 
 DEFINE_COMMAND(movePointToBufferStart)
 {
-	FRAME->movePointToBufferStart(window.renderer->currentFont);
+	FRAME->movePointToBufferStart();
 	return false;
 }
 
 DEFINE_COMMAND(movePointToBufferEnd)
 {
-	FRAME->movePointToBufferEnd(window.renderer->currentFont);
+	FRAME->movePointToBufferEnd();
 	return false;
 }
 
@@ -219,7 +219,7 @@ DEFINE_COMMAND(pageUp)
 	// Minibuffer shouldn't have scrolling
 	if (BUFFER->type != BufferType::MiniBuffer)
 	{
-		FRAME->moveView(-(FRAME->getNumberOfLines(window.renderer->currentFont) - 3), true);
+		FRAME->moveView(-(FRAME->numberOfLinesInView - 3), true);
 	}
 
 	return false;
@@ -230,7 +230,7 @@ DEFINE_COMMAND(pageDown)
 	// Minibuffer shouldn't have scrolling
 	if (BUFFER->type != BufferType::MiniBuffer)
 	{
-		FRAME->moveView(FRAME->getNumberOfLines(window.renderer->currentFont) - 3, true);
+		FRAME->moveView(FRAME->numberOfLinesInView - 3, true);
 	}
 
 	return false;
@@ -241,7 +241,7 @@ DEFINE_COMMAND(centerPoint)
 	// Minibuffer shouldn't have scrolling
 	if (BUFFER->type != BufferType::MiniBuffer)
 	{
-		FRAME->centerPoint(window.renderer->currentFont);
+		FRAME->centerPoint();
 	}
 
 	return false;
