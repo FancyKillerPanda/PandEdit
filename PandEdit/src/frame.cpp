@@ -830,17 +830,26 @@ void Frame::centerPoint()
 	moveView(numberOfLinesToMove, false);
 }
 
+#define WORD_SEPARATORS "`~!@#$%^&*()-=+[]{}\\|;:'\",.<>/?"
+
 unsigned int Frame::findWordBoundaryLeft()
 {
+	static std::string wordSeparators = WORD_SEPARATORS;
 	unsigned int numberOfChars = 0;
 
 	while (point.col - numberOfChars > 0)
 	{
-		// Stops at space, only if not the first character
-		if (numberOfChars != 0 &&
-			currentBuffer->data[point.line][point.col - numberOfChars - 1] == ' ')
+		// Stops at word boundary, only if not the first character
+		if (numberOfChars != 0)
 		{
-			break;
+			if (currentBuffer->data[point.line][point.col - numberOfChars - 1] == ' ')
+			{
+				break;
+			}
+			else if (wordSeparators.find(currentBuffer->data[point.line][point.col - numberOfChars - 1]) != std::string::npos)
+			{
+				break;
+			}
 		}
 
 		numberOfChars += 1;
@@ -851,15 +860,22 @@ unsigned int Frame::findWordBoundaryLeft()
 
 unsigned int Frame::findWordBoundaryRight()
 {
+	static std::string wordSeparators = WORD_SEPARATORS;
 	unsigned int numberOfChars = 0;
 
 	while (point.col + numberOfChars < currentBuffer->data[point.line].size())
 	{
-		// Stops at space, only if not the first character
-		if (numberOfChars != 0 &&
-			currentBuffer->data[point.line][point.col + numberOfChars] == ' ')
+		// Stops at word boundary, only if not the first character
+		if (numberOfChars != 0)
 		{
-			break;
+			if (currentBuffer->data[point.line][point.col + numberOfChars] == ' ')
+			{
+				break;
+			}
+			else if (wordSeparators.find(currentBuffer->data[point.line][point.col + numberOfChars]) != std::string::npos)
+			{
+				break;
+			}
 		}
 
 		numberOfChars += 1;
