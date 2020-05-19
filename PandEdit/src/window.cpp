@@ -100,6 +100,14 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		window->resize(LOWORD(lParam), HIWORD(lParam));
 	} return 0;
 
+	case WM_ACTIVATE:
+	{
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			KeyMap::clearModifiers();
+		}
+	} return 0;
+
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{

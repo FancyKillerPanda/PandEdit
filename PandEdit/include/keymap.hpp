@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <windows.h>
 
+#define NUMBER_OF_MODIFIER_KEYS 4
+
 enum class Key
 {
 	// TODO(fkp): Left/right versions
@@ -113,13 +115,14 @@ class KeyMap
 {
 public:
 	// TODO(fkp): This will need to increase when left/right modifiers are done
-	inline static bool modifiersPressed[4] {};
+	inline static bool modifiersPressed[NUMBER_OF_MODIFIER_KEYS] {};
 	inline static std::unordered_map<KeyCombo, std::vector<std::string>, KeyComboHash> keyMap;
 	
 public:
 	static void bindKey(KeyCombo keyCombo, std::string function);
 	static void registerKeyPress(Window& window, Key key);
 	static void registerKeyRelease(Key key);
+	static void clearModifiers();
 	
 	static Key convertWin32CodeToKey(WPARAM code);
 };

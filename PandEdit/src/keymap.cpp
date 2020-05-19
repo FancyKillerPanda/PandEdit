@@ -53,6 +53,14 @@ void KeyMap::registerKeyRelease(Key key)
 	}
 }
 
+void KeyMap::clearModifiers()
+{
+	for (int i = 0; i < NUMBER_OF_MODIFIER_KEYS; i++)
+	{
+		modifiersPressed[i] = false;
+	}
+}
+
 Key KeyMap::convertWin32CodeToKey(WPARAM code)
 {
 	switch (code)
