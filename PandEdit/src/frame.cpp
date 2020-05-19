@@ -432,8 +432,11 @@ std::string Frame::getTextPointToMark()
 
 void Frame::deleteTextPointToMark(bool appendToKillRing)
 {
+	std::string text = getTextPointToMark();
+	
 	if (appendToKillRing)
 	{
+		// TODO(fkp): Pass in text to avoid getting it twice
 		copyRegion();
 	}
 	
@@ -441,6 +444,9 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 	Point start = startAndEnd.first;
 	Point end = startAndEnd.second;
 	point = end;
+
+	bool oldShouldAddInformation = currentBuffer->shouldAddToUndoInformation;
+	currentBuffer->shouldAddToUndoInformation = false;
 	
 	while (point > start)
 	{
@@ -449,6 +455,9 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 
 	point = start;
 	mark = start;
+	
+	currentBuffer->shouldAddToUndoInformation = oldShouldAddInformation;
+	currentBuffer->addActionToUndoBuffer(Action::deletion(start, end, text));
 }
 
 void Frame::deleteRestOfLine()
