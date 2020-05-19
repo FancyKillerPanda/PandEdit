@@ -473,6 +473,11 @@ void Frame::doCommonPointManipulationTasks()
 		Frame::minibufferFrame->currentBuffer->data[0] = "";
 		Frame::minibufferFrame->point.col = 0;
 	}
+
+	if (point.line < topLine || point.line > topLine + numberOfLinesInView)
+	{
+		centerPoint();
+	}
 }
 
 void Frame::doCommonBufferManipulationTasks()
@@ -486,7 +491,6 @@ void Frame::doCommonBufferManipulationTasks()
 
 void Frame::insertChar(char character)
 {
-	doCommonPointManipulationTasks();
 	Point startLocation = point;
 
 	currentBuffer->data[point.line].insert(currentBuffer->data[point.line].begin() + point.col, character);
@@ -496,12 +500,12 @@ void Frame::insertChar(char character)
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, std::string(1, character)));
 
 	adjustOtherFramePointLocations(true, false);
+	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
 }
 
 void Frame::backspaceChar(unsigned int num)
 {
-	doCommonPointManipulationTasks();
 	std::string textDeleted = "";
 	Point endLocation = point; // This is not startLocation because we are going backwards
 
@@ -547,12 +551,13 @@ void Frame::backspaceChar(unsigned int num)
 
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, endLocation, std::move(textDeleted)));	
 	point.targetCol = point.col;
+	
+	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
 }
 
 void Frame::deleteChar(unsigned int num)
 {
-	doCommonPointManipulationTasks();
 	std::string textDeleted = "";
 
 	if (num == 0) num = 1;
@@ -586,12 +591,13 @@ void Frame::deleteChar(unsigned int num)
 
 	currentBuffer->addActionToUndoBuffer(Action::deletion(point, point, std::move(textDeleted)));
 	point.targetCol = point.col;
+	
+	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
 }
 
 void Frame::newLine()
 {
-	doCommonPointManipulationTasks();
 	Point startLocation = point;
 
 	std::string restOfLine { currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end() };
@@ -614,6 +620,7 @@ void Frame::newLine()
 	doCommonBufferManipulationTasks();
 	point.line += 1;
 	
+	doCommonPointManipulationTasks();
 	adjustOtherFramePointLocations(true, true);
 }
 
@@ -621,6 +628,7 @@ void Frame::insertString(const std::string& string)
 {
 	Point startLocation = point;
 	bool oldShouldAddInformation = currentBuffer->shouldAddToUndoInformation;
+	unsigned int oldTopLine = topLine;
 	currentBuffer->shouldAddToUndoInformation = false;
 
 	for (char character : string)
@@ -635,14 +643,17 @@ void Frame::insertString(const std::string& string)
 		}
 	}
 
+	if (topLine != oldTopLine)
+	{
+		centerPoint();
+	}
+
 	currentBuffer->shouldAddToUndoInformation = oldShouldAddInformation;
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, string));
 }
 
 void Frame::movePointLeft(unsigned int num)
 {
-	doCommonPointManipulationTasks();
-
 	if (num == 0) num = 1;
 
 	for (int i = 0; i < num; i++)
@@ -669,12 +680,11 @@ void Frame::movePointLeft(unsigned int num)
 	}
 
 	point.targetCol = point.col;
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointRight(unsigned int num)
 {
-	doCommonPointManipulationTasks();
-
 	if (num == 0) num = 1;
 
 	for (int i = 0; i < num; i++)
@@ -694,44 +704,33 @@ void Frame::movePointRight(unsigned int num)
 	}
 
 	point.targetCol = point.col;
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointUp()
 {
-	doCommonPointManipulationTasks();
-
 	if (point.line > 0)
 	{
 		point.line -= 1;
 		moveColToTarget();
 	}
-
-	if (point.line < topLine)
-	{
-		centerPoint();
-	}
+	
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointDown()
 {
-	doCommonPointManipulationTasks();
-
 	if (point.line < currentBuffer->data.size() - 1)
 	{
 		point.line += 1;
 		moveColToTarget();
 	}
 
-	if (point.line >= topLine + numberOfLinesInView)
-	{
-		centerPoint();
-	}
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointHome()
 {
-	doCommonPointManipulationTasks();
-
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
 		// Should move to after the 'Execute: ' part
@@ -742,35 +741,34 @@ void Frame::movePointHome()
 		point.col = 0;
 	}
 
+	doCommonPointManipulationTasks();
 	point.targetCol = point.col;
 }
 
 void Frame::movePointEnd()
 {
-	doCommonPointManipulationTasks();
-
 	point.col = currentBuffer->data[point.line].size();
 	point.targetCol = point.col;
+	
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointToBufferStart()
 {
-	doCommonPointManipulationTasks();
 	point.line = 0;
 	point.col = 0;
 	point.targetCol = 0;
 
-	centerPoint();
+	doCommonPointManipulationTasks();
 }
 
 void Frame::movePointToBufferEnd()
 {
-	doCommonPointManipulationTasks();
 	point.line = currentBuffer->data.size() - 1;
 	point.col = currentBuffer->data[point.line].size();
 	point.targetCol = point.col;
-
-	centerPoint();
+	
+	doCommonPointManipulationTasks();
 }
 
 void Frame::moveView(int numberOfLines, bool movePoint)
