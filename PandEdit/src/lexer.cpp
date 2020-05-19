@@ -612,14 +612,19 @@ void Lexer::lexPreprocessorDirective(Point& point)
 
 	do
 	{
-		if (character != '#')
+		if (character != '#' && character != ' ')
 		{
 			tokenText += character;
 		}
 		
 		point.moveNext();
 		UPDATE_CHARACTER();
-	} while (isIdentifierCharacter(character));
+
+		if (isspace(character) && tokenText != "")
+		{
+			break;
+		}
+	} while (isIdentifierCharacter(character) || isspace(character));
 
 	tokenText.erase(std::remove_if(tokenText.begin(), tokenText.end(), isspace));
 	LINE_TOKENS.emplace_back(Token::Type::PreprocessorDirective, startPoint, point, tokenText);
