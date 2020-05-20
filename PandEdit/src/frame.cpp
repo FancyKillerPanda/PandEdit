@@ -836,22 +836,51 @@ unsigned int Frame::findWordBoundaryLeft()
 {
 	static std::string wordSeparators = WORD_SEPARATORS;
 	unsigned int numberOfChars = 0;
+	Point currentLocation = point;
+	currentLocation.buffer = currentBuffer;
+	// If started on whitespace, stop at first non-whitespace
+	// character. Otherwise, stop at first whitespace character.
+	bool startedOnWhitespace;
+	bool hasHitNonWhitespaceCharacter = false;
 
-	while (point.col - numberOfChars > 0)
+	if (isspace(currentBuffer->data[point.line][point.col]) ||
+		(point.col > 0 && isspace(currentBuffer->data[point.line][point.col - 1])))
 	{
-		// Stops at word boundary, only if not the first character
-		if (numberOfChars != 0)
+		startedOnWhitespace = true;
+	}
+	else
+	{
+		startedOnWhitespace = false;
+	}
+	
+	while (true)
+	{
+		currentLocation--;
+
+		if (currentLocation.line == 0 && currentLocation.col == 0)
 		{
-			if (currentBuffer->data[point.line][point.col - numberOfChars - 1] == ' ')
-			{
-				break;
-			}
-			else if (wordSeparators.find(currentBuffer->data[point.line][point.col - numberOfChars - 1]) != std::string::npos)
+			numberOfChars += 1;
+			break;
+		}
+		else if (isspace(currentBuffer->data[currentLocation.line][currentLocation.col]) ||
+				 currentLocation.col == currentBuffer->data[currentLocation.line].size())
+		{
+			if (hasHitNonWhitespaceCharacter)
 			{
 				break;
 			}
 		}
+		else
+		{
+			hasHitNonWhitespaceCharacter = true;
+		}
 
+		if (numberOfChars != 0 &&
+			wordSeparators.find(currentBuffer->data[currentLocation.line][currentLocation.col]) != std::string::npos)
+		{
+			break;
+		}
+		
 		numberOfChars += 1;
 	}
 
@@ -862,25 +891,61 @@ unsigned int Frame::findWordBoundaryRight()
 {
 	static std::string wordSeparators = WORD_SEPARATORS;
 	unsigned int numberOfChars = 0;
+	Point currentLocation = point;
+	currentLocation.buffer = currentBuffer;
+	// If started on whitespace, stop at first non-whitespace
+	// character. Otherwise, stop at first whitespace character.
+	bool startedOnWhitespace;
 
-	while (point.col + numberOfChars < currentBuffer->data[point.line].size())
+	if (point.col < currentBuffer->data[point.line].size() &&
+		isspace(currentBuffer->data[point.line][point.col]) &&
+		isspace(currentBuffer->data[point.line][point.col + 1]))
 	{
-		// Stops at word boundary, only if not the first character
-		if (numberOfChars != 0)
+		startedOnWhitespace = true;
+	}
+	else if (point.col == currentBuffer->data[point.line].size())
+	{
+		startedOnWhitespace = true;
+	}
+	else
+	{
+		startedOnWhitespace = false;
+	}
+
+	while (true)
+	{
+		numberOfChars += 1;
+		currentLocation++;
+
+		if (isspace(currentBuffer->data[currentLocation.line][currentLocation.col]))
 		{
-			if (currentBuffer->data[point.line][point.col + numberOfChars] == ' ')
+			if (!startedOnWhitespace)
 			{
 				break;
 			}
-			else if (wordSeparators.find(currentBuffer->data[point.line][point.col + numberOfChars]) != std::string::npos)
+		}
+		else if (currentLocation.col == currentBuffer->data[currentLocation.line].size())
+		{
+			if (currentLocation != point || !currentLocation.isInBuffer())
+			{
+				break;
+			}
+		}
+		else
+		{
+			if (startedOnWhitespace)
 			{
 				break;
 			}
 		}
 
-		numberOfChars += 1;
+		if (numberOfChars != 0 &&
+			wordSeparators.find(currentBuffer->data[currentLocation.line][currentLocation.col]) != std::string::npos)
+		{
+			break;
+		}
 	}
-
+	
 	return numberOfChars;
 }
 
