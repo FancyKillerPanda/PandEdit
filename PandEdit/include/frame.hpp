@@ -113,7 +113,6 @@ public:
 	void centerPoint();
 	
 	// Utility
-	// TODO(fkp): Currently only registers space, do other word boundaries
 	unsigned int findWordBoundaryLeft();
 	unsigned int findWordBoundaryRight();
 	void moveColToTarget();

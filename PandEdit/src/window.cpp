@@ -177,6 +177,15 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		{
 			Frame::currentFrame->insertChar((char) wParam);
 		}
+
+		// Hides the cursor
+		while (ShowCursor(false) >= 0);
+	} return 0;
+
+	case WM_MOUSEMOVE:
+	{
+		// Shows the cursor
+		while (ShowCursor(true) <= 0);
 	} return 0;
 	
 	default:
