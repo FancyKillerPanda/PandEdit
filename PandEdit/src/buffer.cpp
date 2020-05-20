@@ -1,6 +1,7 @@
 //  ===== Date Created: 15 April, 2020 =====
 
 #include <fstream>
+#include <unordered_set>
 
 #include "buffer.hpp"
 #include "frame.hpp"
@@ -29,6 +30,20 @@ Buffer::Buffer(BufferType type, std::string name, std::string path)
 
 		// Last one
 		data.emplace_back(std::move(fileContents.substr(previous)));
+
+		// Automatic syntax highlighting based on file extension
+		// TODO(fkp): Different highlighting for C files
+		std::string extension = path.substr(path.find_last_of('.') + 1);
+		static std::unordered_set<std::string> cppExtensions = {
+			"h", "hpp", "hxx",
+			"c", "cpp", "cxx", "cc",
+		};
+
+		if (cppExtensions.find(extension) != cppExtensions.end())
+		{
+			isUsingSyntaxHighlighting = true;
+			lexer.lex(0, true);
+		}
 	}
 	
 	buffersMap.insert({ name, this });
