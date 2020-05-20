@@ -231,6 +231,56 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					goto OTHER_CHARACTER;
 				}
 			}
+			else if (character == '(')
+			{
+				/*
+				if (LINE_TOKENS.size() > 1)
+				{
+					if (LINE_TOKENS[LINE_TOKENS.size() - 1].type == Token::Type::IdentifierUsage)
+					{
+						LINE_TOKENS[LINE_TOKENS.size() - 1].type = Token::Type::FunctionDefinition;						
+					}
+					else
+					{
+						goto OTHER_CHARACTER;
+					}
+				}
+				else
+				{
+					goto OTHER_CHARACTER;
+				}
+				*/
+
+				if (LINE_TOKENS.size() == 0)
+				{
+					goto OTHER_CHARACTER;
+				}
+				else if (LINE_TOKENS.size() == 1)
+				{
+					if (LINE_TOKENS.back().type == Token::Type::IdentifierUsage)
+					{
+						LINE_TOKENS.back().type = Token::Type::FunctionUsage;
+					}
+					else
+					{
+						goto OTHER_CHARACTER;
+					}
+				}
+				else
+				{
+					if (LINE_TOKENS[LINE_TOKENS.size() - 1].type == Token::Type::IdentifierUsage &&
+						(LINE_TOKENS[LINE_TOKENS.size() - 2].type == Token::Type::TypeName ||
+						 LINE_TOKENS[LINE_TOKENS.size() - 2].type == Token::Type::IdentifierUsage))
+					{
+						LINE_TOKENS[LINE_TOKENS.size() - 1].type = Token::Type::FunctionDefinition;
+						LINE_TOKENS[LINE_TOKENS.size() - 2].type = Token::Type::TypeName;
+					}
+					else
+					{
+						goto OTHER_CHARACTER;
+					}
+				}
+			}
 			else
 			{
 			OTHER_CHARACTER:
@@ -767,6 +817,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::MacroName:				return normaliseColour(219, 219, 149, 255);
 	case Token::Type::TypeName:					return normaliseColour( 62, 118, 202, 255);
 	case Token::Type::IdentifierDefinition:		return normaliseColour(219, 219, 149, 255);
+	case Token::Type::FunctionDefinition:		return normaliseColour(111, 169, 255, 255);
 
 	default:									return getDefaultTextColour();
 	}
