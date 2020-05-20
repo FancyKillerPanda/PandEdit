@@ -204,8 +204,37 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					lexIdentifier(startPoint, point, tokenText);
 				}
 			}
+			// TODO(fkp): Maybe use all word boundary characters
+			else if (character == '=' || character == ';' || character == ',' || character == ')')
+			{
+				if (LINE_TOKENS.size() > 1)
+				{
+					if (LINE_TOKENS[LINE_TOKENS.size() - 1].type == Token::Type::IdentifierUsage &&
+						LINE_TOKENS[LINE_TOKENS.size() - 2].type == Token::Type::IdentifierUsage)
+					{
+						
+						LINE_TOKENS[LINE_TOKENS.size() - 1].type = Token::Type::IdentifierDefinition;
+						LINE_TOKENS[LINE_TOKENS.size() - 2].type = Token::Type::TypeName;
+					}
+					else if (LINE_TOKENS[LINE_TOKENS.size() - 1].type == Token::Type::IdentifierUsage &&
+						LINE_TOKENS[LINE_TOKENS.size() - 2].type == Token::Type::TypeName)
+					{
+						
+						LINE_TOKENS[LINE_TOKENS.size() - 1].type = Token::Type::IdentifierDefinition;
+					}
+					else
+					{
+						goto OTHER_CHARACTER;
+					}
+				}
+				else
+				{
+					goto OTHER_CHARACTER;
+				}
+			}
 			else
 			{
+			OTHER_CHARACTER:
 				point.moveNext(true);
 			}
 		} break;
@@ -683,6 +712,10 @@ void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std
 	{
 		LINE_TOKENS.emplace_back(Token::Type::TypeName, startPoint, point);
 	}
+	else
+	{
+		LINE_TOKENS.emplace_back(Token::Type::IdentifierUsage, startPoint, point);
+	}
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
@@ -734,6 +767,7 @@ Colour getColourForTokenType(Token::Type type)
 	case Token::Type::PreprocessorDirective:	return normaliseColour(184,   8, 180, 255);
 	case Token::Type::MacroName:				return normaliseColour(219, 219, 149, 255);
 	case Token::Type::TypeName:					return normaliseColour( 62, 118, 202, 255);
+	case Token::Type::IdentifierDefinition:		return normaliseColour(219, 219, 149, 255);
 
 	default:									return getDefaultTextColour();
 	}

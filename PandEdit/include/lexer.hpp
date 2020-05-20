@@ -35,6 +35,8 @@ public:
 		PreprocessorDirective,
 		MacroName,
 		TypeName,
+		IdentifierUsage,
+		IdentifierDefinition,
 	};
 	
 public:
