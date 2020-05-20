@@ -19,8 +19,6 @@ std::unordered_set<std::string> Lexer::keywords = {
 	"for", "goto", "if", "return", "switch", "while",
 
 	"const", "consteval", "constexpr", "constinit", "const_cast",
-
-	"false", "nullptr", "true", "void",
 	
 	"auto", "class", "delete", "enum", "explicit", "final" /* note 1 */,
 	"friend", "inline", "mutable", "namespace", "new", "noexcept",
@@ -48,6 +46,7 @@ std::unordered_set<std::string> Lexer::primitiveTypes = {
 	"double", "float",
 	"int", "long", "short",
 	"signed", "unsigned",
+	"false", "nullptr", "true", "void",
 };
 
 Lexer::Lexer(Buffer* buffer)
