@@ -291,7 +291,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 	}
 
 FINISHED_LEX:
-	;
+	doFinalAdjustments();
 }
 
 void Lexer::addLine(Point splitPoint)
@@ -764,6 +764,32 @@ void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std
 	else
 	{
 		LINE_TOKENS.emplace_back(Token::Type::IdentifierUsage, startPoint, point);
+	}
+}
+
+void Lexer::doFinalAdjustments()
+{
+	for (LineLexState& lineState : lineStates)
+	{
+		// #error shouldn't have syntax highlighting
+		if (lineState.tokens.size() > 0 &&
+			lineState.tokens.front().type == Token::Type::PreprocessorDirective &&
+			lineState.tokens.front().data == "error")
+		{
+			for (int i = 1; i < lineState.tokens.size();)
+			{
+				if (lineState.tokens[i].type != Token::Type::LineComment &&
+					lineState.tokens[i].type != Token::Type::BlockComment &&
+					lineState.tokens[i].type != Token::Type::String)
+				{
+					lineState.tokens.erase(lineState.tokens.begin() + i);
+				}
+				else
+				{
+					i += 1;
+				}
+			}
+		}
 	}
 }
 

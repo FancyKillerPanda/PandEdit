@@ -102,6 +102,8 @@ private:
 	void lexPreprocessorDirective(Point& point);
 	bool lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText);
 	void lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText);
+
+	void doFinalAdjustments();
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
