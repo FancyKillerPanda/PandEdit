@@ -233,24 +233,6 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			}
 			else if (character == '(')
 			{
-				/*
-				if (LINE_TOKENS.size() > 1)
-				{
-					if (LINE_TOKENS[LINE_TOKENS.size() - 1].type == Token::Type::IdentifierUsage)
-					{
-						LINE_TOKENS[LINE_TOKENS.size() - 1].type = Token::Type::FunctionDefinition;						
-					}
-					else
-					{
-						goto OTHER_CHARACTER;
-					}
-				}
-				else
-				{
-					goto OTHER_CHARACTER;
-				}
-				*/
-
 				if (LINE_TOKENS.size() == 0)
 				{
 					goto OTHER_CHARACTER;
@@ -279,6 +261,20 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					{
 						goto OTHER_CHARACTER;
 					}
+				}
+			}
+			else if (character == ':')
+			{
+				// Scope resolution operator
+				if (buffer->data[point.line][point.col + 1] == ':' &&
+					LINE_TOKENS.size() > 0 &&
+					LINE_TOKENS.back().type == Token::Type::IdentifierUsage)
+				{
+					LINE_TOKENS.back().type = Token::Type::TypeName;
+				}
+				else
+				{
+					goto OTHER_CHARACTER;
 				}
 			}
 			else
