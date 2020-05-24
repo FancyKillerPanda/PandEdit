@@ -179,7 +179,14 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 		}
 
 		// Hides the cursor
-		while (ShowCursor(false) >= 0);
+		POINT mousePos;
+		GetCursorPos(&mousePos);
+		ScreenToClient(windowHandle, &mousePos);
+		
+		if (mousePos.x >= 0 && mousePos.y >= 0)
+		{
+			while (ShowCursor(false) >= 0);
+		}
 	} return 0;
 
 	case WM_MOUSEMOVE:
