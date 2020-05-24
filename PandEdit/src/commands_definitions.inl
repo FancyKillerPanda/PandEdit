@@ -51,6 +51,22 @@ DEFINE_COMMAND(minibufferQuit)
 	return true;
 }
 
+DEFINE_COMMAND(toggleOverwriteMode)
+{
+	FRAME->overwriteMode = !FRAME->overwriteMode;
+
+	if (FRAME != Frame::minibufferFrame)
+	{
+		std::string msg = "Overwrite mode ";
+		msg += FRAME->overwriteMode ? "enabled" : "disabled";
+		msg += " in the current frame.";
+		
+		writeToMinibuffer(msg);
+	}
+	
+	return false;
+}
+
 
 //
 // NOTE(fkp): Frame commands

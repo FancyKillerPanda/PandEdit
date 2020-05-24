@@ -61,6 +61,8 @@ public:
 
 	Timer pointFlashTimer;
 
+	bool overwriteMode = false;
+
 private:
 	inline static std::unordered_map<std::string, Frame*> framesMap;
 

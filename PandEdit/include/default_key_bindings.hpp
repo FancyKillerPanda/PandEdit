@@ -13,6 +13,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::F4, false, false, true }, "quit");
 	KeyMap::bindKey({ Key::X, false, false, true }, "minibufferEnter");
 	KeyMap::bindKey({ Key::G, true }, "minibufferQuit");
+	KeyMap::bindKey({ Key::Insert }, "toggleOverwriteMode");
 
 	KeyMap::bindKey({ Key::_4, true }, "lexBufferAsC++"); // NOTE(fkp): Temporary
 	

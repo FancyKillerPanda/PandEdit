@@ -67,6 +67,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {
 	COMMAND(echo),
 	COMMAND(minibufferEnter),
+	COMMAND(toggleOverwriteMode),
 
 	COMMAND(frameSplitVertically),
 	COMMAND(frameSplitHorizontally),

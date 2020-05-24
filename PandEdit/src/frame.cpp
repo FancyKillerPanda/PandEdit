@@ -502,7 +502,15 @@ void Frame::insertChar(char character)
 {
 	Point startLocation = point;
 
-	currentBuffer->data[point.line].insert(currentBuffer->data[point.line].begin() + point.col, character);
+	if (overwriteMode && point.col < currentBuffer->data[point.line].size())
+	{
+		currentBuffer->data[point.line][point.col] = character;
+	}
+	else
+	{
+		currentBuffer->data[point.line].insert(currentBuffer->data[point.line].begin() + point.col, character);
+	}
+	
 	point.col += 1;
 	point.targetCol = point.col;
 
