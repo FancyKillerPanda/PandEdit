@@ -280,7 +280,10 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 			else
 			{
 			OTHER_CHARACTER:
-				point.moveNext(true);
+				if (!lexPunctuation(point))
+				{
+					point.moveNext(true);
+				}
 			}
 		} break;
 		}
@@ -761,6 +764,337 @@ void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std
 	{
 		LINE_TOKENS.emplace_back(Token::Type::IdentifierUsage, startPoint, point);
 	}
+}
+
+bool Lexer::lexPunctuation(Point& point)
+{
+	char character;
+	UPDATE_CHARACTER();
+
+	Point startPoint = point;
+	point.moveNext();
+
+	switch (character)
+	{
+	case '(':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::LeftParen, startPoint, point);
+	} break;
+	
+	case ')':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::RightParen, startPoint, point);
+	} break;
+	
+	case '{':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::LeftBrace, startPoint, point);
+	} break;
+	
+	case '}':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::RightBrace, startPoint, point);
+	} break;
+	
+	case '[':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::LeftBracket, startPoint, point);
+	} break;
+	
+	case ']':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::RightBracket, startPoint, point);
+	} break;
+	
+	case '<':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::LessEqual, startPoint, point);			
+		}
+		else if (character == '<')
+		{
+			point.moveNext();
+			UPDATE_CHARACTER();
+
+			if (character == '=')
+			{
+				point.moveNext();
+				UPDATE_CHARACTER();
+
+				if (character == '>')
+				{
+					point.moveNext();
+					LINE_TOKENS.emplace_back(Token::Type::Spaceship, startPoint, point);
+					
+				}
+				else
+				{
+					LINE_TOKENS.emplace_back(Token::Type::ShiftLeftEqual, startPoint, point);
+				}
+			}
+			else
+			{
+				LINE_TOKENS.emplace_back(Token::Type::ShiftLeft, startPoint, point);
+			}
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Less, startPoint, point);
+		}
+	} break;
+	
+	case '>':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::GreaterEqual, startPoint, point);
+		}
+		else if (character == '>')
+		{
+			point.moveNext();
+			UPDATE_CHARACTER();
+
+			if (character == '=')
+			{
+				point.moveNext();
+				LINE_TOKENS.emplace_back(Token::Type::ShiftRightEqual, startPoint, point);
+			}
+			else
+			{
+				LINE_TOKENS.emplace_back(Token::Type::ShiftRight, startPoint, point);
+			}
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Greater, startPoint, point);
+		}
+	} break;
+	
+	case '=':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::EqualEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Equal, startPoint, point);
+		}
+	} break;
+	
+	case '!':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::BangEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Bang, startPoint, point);
+		}
+	} break;
+	
+	case '&':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::BitAndEqual, startPoint, point);
+		}
+		else if (character == '&')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::LogicalAnd, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::BitAnd, startPoint, point);
+		}
+	} break;
+		
+	case '|':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::BitOrEqual, startPoint, point);
+		}
+		else if (character == '|')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::LogicalOr, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::BitOr, startPoint, point);
+		}
+	} break;
+	
+	case '^':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::BitXorEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::BitXor, startPoint, point);
+		}
+	} break;
+	
+	case '~':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::BitNot, startPoint, point);
+	} break;
+	
+	case '+':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::PlusEqual, startPoint, point);
+		}
+		else if (character == '+')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::Increment, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Plus, startPoint, point);
+		}
+	} break;
+	
+	case '-':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::MinusEqual, startPoint, point);
+		}
+		else if (character == '-')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::Decrement, startPoint, point);
+		}
+		else if (character == '>')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::Arrow, startPoint, point);			
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Minus, startPoint, point);
+		}
+	} break;
+	
+	case '*':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::AsteriskEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Asterisk, startPoint, point);
+		}
+	} break;
+	
+	case '/':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::SlashEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Slash, startPoint, point);
+		}
+	} break;
+	
+	case '%':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == '=')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::PercentEqual, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Percent, startPoint, point);
+		}
+	} break;
+	
+	case '.':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::Dot, startPoint, point);
+	} break;
+	
+	case ',':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::Commma, startPoint, point);
+	} break;
+	
+	case '?':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::Question, startPoint, point);
+	} break;
+	
+	case ':':
+	{
+		UPDATE_CHARACTER();
+
+		if (character == ':')
+		{
+			point.moveNext();
+			LINE_TOKENS.emplace_back(Token::Type::ScopeResolution, startPoint, point);
+		}
+		else
+		{
+			LINE_TOKENS.emplace_back(Token::Type::Colon, startPoint, point);
+		}
+	} break;
+
+	default:
+	{
+		// Undoes the moveNext() at the start of this method
+		point.movePrevious();
+	} return false;
+	}
+
+	return true;
 }
 
 void Lexer::doFinalAdjustments()

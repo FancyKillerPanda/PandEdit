@@ -39,6 +39,60 @@ public:
 		IdentifierDefinition,
 		FunctionUsage,
 		FunctionDefinition,
+
+		// Operator tokens
+		LeftParen,
+		RightParen,
+		LeftBrace,
+		RightBrace,
+		LeftBracket,
+		RightBracket,
+
+		Less,
+		LessEqual,
+		Greater,
+		GreaterEqual,
+		Equal,
+		EqualEqual,
+		Bang,
+		BangEqual,
+		Spaceship,
+
+		BitAnd,
+		BitAndEqual,
+		LogicalAnd,
+		BitOr,
+		BitOrEqual,
+		LogicalOr,
+		BitXor,
+		BitXorEqual,
+		BitNot,
+		ShiftLeft,
+		ShiftLeftEqual,
+		ShiftRight,
+		ShiftRightEqual,
+
+		Plus,
+		PlusEqual,
+		Minus,
+		MinusEqual,
+		Asterisk,
+		AsteriskEqual,
+		Slash,
+		SlashEqual,
+		Percent,
+		PercentEqual,
+
+		Increment,
+		Decrement,
+
+		Dot,
+		Arrow,
+		
+		Commma,
+		Question,
+		Colon,
+		ScopeResolution,
 	};
 	
 public:
@@ -102,6 +156,7 @@ private:
 	void lexPreprocessorDirective(Point& point);
 	bool lexKeyword(const Point& startPoint, const Point& point, const std::string& tokenText);
 	void lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText);
+	bool lexPunctuation(Point& point);
 
 	void doFinalAdjustments();
 	
