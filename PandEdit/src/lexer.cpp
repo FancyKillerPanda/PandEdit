@@ -204,6 +204,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 				}
 			}
 			// TODO(fkp): Maybe use all word boundary characters
+			/*
 			else if (character == '=' || character == ';' || character == ',' || character == ')')
 			{
 				if (LINE_TOKENS.size() > 1)
@@ -277,6 +278,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 					goto OTHER_CHARACTER;
 				}
 			}
+			*/
 			else
 			{
 			OTHER_CHARACTER:
@@ -1101,6 +1103,17 @@ void Lexer::doFinalAdjustments()
 {
 	for (LineLexState& lineState : lineStates)
 	{
+		for (int i = 0; i < lineState.tokens.size(); i++)
+		{
+			if (lineState.tokens[i].type == Token::Type::ScopeResolution)
+			{
+				if (i > 0 && lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+				{
+					lineState.tokens[i - 1].type = Token::Type::TypeName;
+				}
+			}
+		}
+		
 		// #error shouldn't have syntax highlighting
 		if (lineState.tokens.size() > 0 &&
 			lineState.tokens.front().type == Token::Type::PreprocessorDirective &&
