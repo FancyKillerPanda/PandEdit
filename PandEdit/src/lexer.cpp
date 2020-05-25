@@ -1101,6 +1101,7 @@ bool Lexer::lexPunctuation(Point& point)
 
 void Lexer::doFinalAdjustments()
 {
+	// TODO(fkp): Use semicolons instead of lines
 	for (LineLexState& lineState : lineStates)
 	{
 		for (int i = 0; i < lineState.tokens.size(); i++)
@@ -1110,6 +1111,32 @@ void Lexer::doFinalAdjustments()
 				if (i > 0 && lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
 				{
 					lineState.tokens[i - 1].type = Token::Type::TypeName;
+				}
+			}
+			else if (lineState.tokens[i].type == Token::Type::LeftParen)
+			{
+				if (i == 1)
+				{
+					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+					{
+						lineState.tokens[i - 1].type = Token::Type::FunctionUsage;
+					}
+				}
+				else if (i > 1)
+				{
+					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+					{
+						if (lineState.tokens[i - 2].type == Token::Type::IdentifierUsage ||
+							lineState.tokens[i - 2].type == Token::Type::TypeName)
+						{
+							lineState.tokens[i - 1].type = Token::Type::FunctionDefinition;
+							lineState.tokens[i - 2].type = Token::Type::TypeName;
+						}
+						else
+						{
+							lineState.tokens[i - 1].type = Token::Type::FunctionUsage;
+						}
+					}
 				}
 			}
 		}

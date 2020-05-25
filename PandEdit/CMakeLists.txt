@@ -75,4 +75,10 @@ add_dependencies(PandEdit_Core ResourceFileCopyTarget)
 
 if (WIN32)
 	target_link_libraries(PandEdit_Core PRIVATE opengl32.lib gdi32.lib)
-endif (WIN32)
+endif ()
+
+IF (MSVC)
+	target_compile_options(PandEdit_Core PRIVATE /WX)
+ELSE ()
+	target_compile_options(PandEdit_Core PRIVATE -Werror)
+ENDIF ()
