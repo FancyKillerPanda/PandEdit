@@ -89,9 +89,10 @@ public:
 		Dot,
 		Arrow,
 		
-		Commma,
+		Comma,
 		Question,
 		Colon,
+		Semicolon,
 		ScopeResolution,
 	};
 	

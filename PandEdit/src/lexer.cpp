@@ -1066,7 +1066,7 @@ bool Lexer::lexPunctuation(Point& point)
 	
 	case ',':
 	{
-		LINE_TOKENS.emplace_back(Token::Type::Commma, startPoint, point);
+		LINE_TOKENS.emplace_back(Token::Type::Comma, startPoint, point);
 	} break;
 	
 	case '?':
@@ -1087,6 +1087,11 @@ bool Lexer::lexPunctuation(Point& point)
 		{
 			LINE_TOKENS.emplace_back(Token::Type::Colon, startPoint, point);
 		}
+	} break;
+
+	case ';':
+	{
+		LINE_TOKENS.emplace_back(Token::Type::Semicolon, startPoint, point);
 	} break;
 
 	default:
@@ -1136,6 +1141,22 @@ void Lexer::doFinalAdjustments()
 						{
 							lineState.tokens[i - 1].type = Token::Type::FunctionUsage;
 						}
+					}
+				}
+			}
+			else if (lineState.tokens[i].type == Token::Type::Equal ||
+					 lineState.tokens[i].type == Token::Type::Semicolon ||
+					 lineState.tokens[i].type == Token::Type::Comma ||
+					 lineState.tokens[i].type == Token::Type::RightParen)
+			{
+				if (i > 1)
+				{
+					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage &&
+						(lineState.tokens[i - 2].type == Token::Type::IdentifierUsage ||
+						 lineState.tokens[i - 2].type == Token::Type::TypeName))
+					{
+						lineState.tokens[i - 1].type = Token::Type::IdentifierDefinition;
+						lineState.tokens[i - 2].type = Token::Type::TypeName;
 					}
 				}
 			}
