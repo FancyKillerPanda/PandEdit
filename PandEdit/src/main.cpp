@@ -33,9 +33,12 @@ int main(int argc, char* argv[])
 
 	mapDefaultKeyBindings();	
 	
-	std::string fpsText = "FPS: 0";
+	std::string fpsTextString = "FPS: 0";
 	Timer fpsTimer;
 	unsigned int numberOfFrames = 0;
+
+	TextToDraw fpsText { fpsTextString };
+	fpsText.x = window.width - 128;
 	
 	while (window.isOpen)
 	{
@@ -52,12 +55,14 @@ int main(int argc, char* argv[])
 		// NOTE(fkp): FPS for debugging
 		if (fpsTimer.getElapsedMs() > 1000.0)
 		{
-			fpsText = "FPS: " + std::to_string(numberOfFrames);
+			fpsTextString = "FPS: " + std::to_string(numberOfFrames);
 			fpsTimer.reset();
+			fpsText.textLength = fpsTextString.size();
+			
 			numberOfFrames = 0;
 		}
 		
-		window.renderer->drawText(fpsText, fpsText.size(), window.width - 128, 0);
+		window.renderer->drawText(fpsText);
 		numberOfFrames += 1;
 		
 		SwapBuffers(window.deviceContext);

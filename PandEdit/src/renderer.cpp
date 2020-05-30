@@ -99,12 +99,12 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-std::pair<int, int> Renderer::drawText(const std::string& text, int messageLength, float x, float y, float maxWidth, bool wrap, float startX)
+std::pair<int, int> Renderer::drawText(TextToDraw& textToDraw)
 {
 	if (!currentFont)
 	{
 		ERROR_ONCE("Error: No font selected.\n");
-		return { (int) x, (int) y };
+		return { (int) textToDraw.x, (int) textToDraw.y };
 	}
 
 	glUseProgram(textureShader.programID);
@@ -115,18 +115,18 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	// For ease of use (arrows are dumb)
 	const Font& font = *currentFont;
 
-	// Warns about a maxWidth that is too small
-	if (maxWidth != 0.0f && maxWidth < (float) font.maxGlyphAdvanceX)
+	// Warns about a max width that is too small
+	if (textToDraw.maxWidth != 0.0f && textToDraw.maxWidth < (float) font.maxGlyphAdvanceX)
 	{
 		ERROR_ONCE("Warning: Max width smaller than glyph.\n");
-		return { (int) x, (int) y };
+		return { (int) textToDraw.x, (int) textToDraw.y };
 	}
 
 	// Warns about wrap set but no width provided
-	if (wrap && maxWidth <= 0.0f)
+	if (textToDraw.wrap && textToDraw.maxWidth <= 0.0f)
 	{
 		ERROR_ONCE("Warning: Max width not provided but wrap requested.\n");
-		return { (int) x, (int) y };
+		return { (int) textToDraw.x, (int) textToDraw.y };
 	}
 
 	glBindVertexArray(font.vao);
@@ -138,24 +138,24 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 
 	// Creates a buffer for all the vertices in the text
-	unsigned int verticesBufferSize = 6 * text.size();
+	unsigned int verticesBufferSize = 6 * textToDraw.text.size();
 	Vertex* vertices = new Vertex[verticesBufferSize];
 	int count = 0;
 
-	if (startX == -1.0f)
+	if (textToDraw.startX == -1.0f)
 	{
-		startX = x;
+		textToDraw.startX = textToDraw.x;
 	}
 
 	int loopCounter = 0;
 
 	// Loop through every character (until message length (if provided))
-	for (int i = 0; i < text.size(); i++)
+	for (int i = 0; i < textToDraw.text.size(); i++)
 	{
-		char currentChar = text[i];
+		char currentChar = textToDraw.text[i];
 		
 		// Breaks after enough characters
-		if (messageLength != -1 && loopCounter++ >= messageLength)
+		if (textToDraw.textLength != -1 && loopCounter++ >= textToDraw.textLength)
 		{
 			break;
 		}
@@ -163,38 +163,38 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 		// Newline
 		if (currentChar == '\n')
 		{
-			x = startX;
-			y += font.size;
+			textToDraw.x = textToDraw.startX;
+			textToDraw.y += font.size;
 		}
 		
 		// End of width
-		if (maxWidth != 0.0f && x + font.chars[currentChar].advanceX > startX + maxWidth)
+		if (textToDraw.maxWidth != 0.0f && textToDraw.x + font.chars[currentChar].advanceX > textToDraw.startX + textToDraw.maxWidth)
 		{
-			if (wrap)
+			if (textToDraw.wrap)
 			{
-				x = startX;
-				y += font.size;
+				textToDraw.x = textToDraw.startX;
+				textToDraw.y += font.size;
 			}
 		}
 
 		// Tabs
 		if (currentChar == '\t')
 		{
-			x += font.chars[' '].advanceX * tabWidth;
-			y += font.chars[' '].advanceY * tabWidth;
+			textToDraw.x += font.chars[' '].advanceX * tabWidth;
+			textToDraw.y += font.chars[' '].advanceY * tabWidth;
 			
 			continue;
 		}
 
 		// Calculates vertex dimensions
-		float coordX = x + font.chars[currentChar].bitmapLeft;
-		float coordY = y + font.maxGlyphBearingY - font.chars[currentChar].bitmapTop;
+		float coordX = textToDraw.x + font.chars[currentChar].bitmapLeft;
+		float coordY = textToDraw.y + font.maxGlyphBearingY - font.chars[currentChar].bitmapTop;
 		float width = font.chars[currentChar].bitmapWidth;
 		float height = font.chars[currentChar].bitmapHeight;
 
 		// Advance the cursor to the next character
-		x += font.chars[currentChar].advanceX;
-		y += font.chars[currentChar].advanceY;
+		textToDraw.x += font.chars[currentChar].advanceX;
+		textToDraw.y += font.chars[currentChar].advanceY;
 
 		// Skip glyphs with no pixels
 		if (!width || !height)
@@ -202,7 +202,7 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 			continue;
 		}
 
-		if (maxWidth != 0.0f && x > startX + maxWidth && !wrap)
+		if (textToDraw.maxWidth != 0.0f && textToDraw.x > textToDraw.startX + textToDraw.maxWidth && !textToDraw.wrap)
 		{
 			// The wrap part shouldn't matter as it was checked earlier
 			continue;
@@ -268,7 +268,7 @@ std::pair<int, int> Renderer::drawText(const std::string& text, int messageLengt
 	glDrawArrays(GL_TRIANGLES, 0, count);
 
 	delete[] vertices;
-	return { (int) x, (int) y };
+	return { (int) textToDraw.x, (int) textToDraw.y };
 }
 
 // TODO(fkp): Find a better spot for this
@@ -470,7 +470,13 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (bufferTokens.size() == 0)
 	{
-		drawText(visibleLines, visibleLines.size(), framePixelX, framePixelY, framePixelWidth);
+		TextToDraw textToDraw { visibleLines };
+		textToDraw.textLength = visibleLines.size();
+		textToDraw.x = framePixelX;
+		textToDraw.y = framePixelY;
+		textToDraw.maxWidth = framePixelWidth;
+		
+		drawText(textToDraw);
 	}
 	else
 	{
@@ -478,6 +484,16 @@ void Renderer::drawFrame(Frame& frame)
 		lastTokenEnd.line = frame.topLine;
 		std::pair<int, int> lastLocation = { framePixelX, framePixelY };
 		
+		// TODO(fkp): Using std::string_view everywhere should
+		// allow reassigning of the textToDrawString, so this
+		// object ca be constructed outside the for loop.
+		std::string textToDrawString = "";
+		TextToDraw textToDraw { textToDrawString };
+		textToDraw.startX = framePixelX;
+		textToDraw.x = lastLocation.first;
+		textToDraw.y = lastLocation.second;
+		textToDraw.maxWidth = framePixelWidth;
+
 		for (const Token& token : bufferTokens)
 		{
 			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
@@ -490,7 +506,6 @@ void Renderer::drawFrame(Frame& frame)
 				continue;
 			}
 			
-			std::string textToDraw = "";
 			Point tokenStart = token.start;
 			
 			if (token.start < Point { frame.topLine, 0 })
@@ -498,21 +513,25 @@ void Renderer::drawFrame(Frame& frame)
 				tokenStart.line = frame.topLine;
 				tokenStart.col = 0;
 			}
-			
+						
 			if (tokenStart > lastTokenEnd)
 			{
 				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-				textToDraw = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
+				textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
+				textToDraw.x = lastLocation.first;
+				textToDraw.y = lastLocation.second;				
 				
-				lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
+				lastLocation = drawText(textToDraw);
 			}
 
 			lastTokenEnd = token.end;
 			Colour textColour = getColourForTokenType(token.type);
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textColour.r, textColour.g, textColour.b, textColour.a);
-			textToDraw = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
+			textToDrawString = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
+			textToDraw.x = lastLocation.first;
+			textToDraw.y = lastLocation.second;
 			
-			lastLocation = drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
+			lastLocation = drawText(textToDraw);
 		}
 
 		// Draws the rest of the text if needed
@@ -521,8 +540,11 @@ void Renderer::drawFrame(Frame& frame)
 		if (lastTokenEnd < stringEndPoint)
 		{
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-			std::string textToDraw = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
-			drawText(textToDraw, textToDraw.size(), lastLocation.first, lastLocation.second, framePixelWidth, false, framePixelX);
+			textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
+			textToDraw.x = lastLocation.first;
+			textToDraw.y = lastLocation.second;
+			
+			drawText(textToDraw);
 		}
 	}
 	
@@ -587,14 +609,20 @@ void Renderer::drawFrame(Frame& frame)
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
-		std::string modeLineText = buffer.name;
-		modeLineText += " (LINE: ";
-		modeLineText += std::to_string(frame.point.line + 1);
-		modeLineText += ", COL: ";
-		modeLineText += std::to_string(frame.point.col);
-		modeLineText += ")";
+		std::string modeLineTextString = buffer.name;
+		modeLineTextString += " (LINE: ";
+		modeLineTextString += std::to_string(frame.point.line + 1);
+		modeLineTextString += ", COL: ";
+		modeLineTextString += std::to_string(frame.point.col);
+		modeLineTextString += ")";
 
-		drawText(modeLineText, modeLineText.size(), framePixelX, framePixelY + framePixelHeight - currentFont->size, framePixelWidth, false);
+		TextToDraw modeLineText { modeLineTextString };
+		modeLineText.textLength = modeLineTextString.size();
+		modeLineText.x = framePixelX;
+		modeLineText.y = framePixelY + framePixelHeight - currentFont->size;
+		modeLineText.maxWidth = framePixelWidth;
+		
+		drawText(modeLineText);
 	}
 	
 	//
