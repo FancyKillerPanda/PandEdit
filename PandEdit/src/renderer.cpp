@@ -165,6 +165,9 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		{
 			textToDraw.x = textToDraw.startX;
 			textToDraw.y += font.size;
+			textToDraw.numberOfColumnsInLine = 0;
+
+			continue;
 		}
 		
 		// End of width
@@ -174,14 +177,21 @@ void Renderer::drawText(TextToDraw& textToDraw)
 			{
 				textToDraw.x = textToDraw.startX;
 				textToDraw.y += font.size;
+				textToDraw.numberOfColumnsInLine = 0;
+
+				continue;
 			}
 		}
 
 		// Tabs
 		if (currentChar == '\t')
 		{
-			textToDraw.x += font.chars[' '].advanceX * tabWidth;
-			textToDraw.y += font.chars[' '].advanceY * tabWidth;
+			// TODO(fkp): This doesn't work with non-monospaced fonts
+			unsigned int numberOfColumnsToNextTabStop = tabWidth - (textToDraw.numberOfColumnsInLine % tabWidth);			
+			textToDraw.numberOfColumnsInLine += numberOfColumnsToNextTabStop;
+
+			textToDraw.x += font.chars[' '].advanceX * numberOfColumnsToNextTabStop;
+			textToDraw.y += font.chars[' '].advanceY * numberOfColumnsToNextTabStop;
 			
 			continue;
 		}
@@ -195,6 +205,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		// Advance the cursor to the next character
 		textToDraw.x += font.chars[currentChar].advanceX;
 		textToDraw.y += font.chars[currentChar].advanceY;
+		textToDraw.numberOfColumnsInLine += 1;
 
 		// Skip glyphs with no pixels
 		if (!width || !height)
@@ -386,6 +397,7 @@ void Renderer::drawFrame(Frame& frame)
 	float pointY = framePixelY + ((frame.point.line - frame.topLine) * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
+	unsigned int numberOfColumnsInLine = 0;
 
 	for (unsigned int i = 0; i < frame.point.col; i++)
 	{
@@ -395,14 +407,19 @@ void Renderer::drawFrame(Frame& frame)
 		{
 			pointX = 0;
 			pointY += currentFont->size;
+			numberOfColumnsInLine = 0;
 		}
 		else if (buffer.data[frame.point.line][i] == '\t')
 		{
-			pointX += currentFont->chars[' '].advanceX * tabWidth;
+			// NOTE(fkp): This is the same calculation as in the drawText() method
+			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
+			pointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
+			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 		}
 		else
 		{
 			pointX += character.advanceX;
+			numberOfColumnsInLine += 1;
 		}
 	}
 

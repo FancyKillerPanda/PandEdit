@@ -29,6 +29,8 @@ public:
 	float maxWidth = 0.0f;
 	bool wrap = false;
 
+	unsigned int numberOfColumnsInLine = 0;
+
 public:
 	TextToDraw(const std::string& text)
 		: text(text)
