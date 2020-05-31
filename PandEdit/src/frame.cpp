@@ -758,6 +758,8 @@ void Frame::movePointDown()
 
 void Frame::movePointHome()
 {
+	Point startPoint = point;
+	
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
 		// Should move to after the 'Execute: ' part
@@ -766,6 +768,19 @@ void Frame::movePointHome()
 	else
 	{
 		point.col = 0;
+	}
+
+	unsigned int colMovedTo = point.col;
+	
+	while (currentBuffer->data[point.line][point.col] == ' ' ||
+		   currentBuffer->data[point.line][point.col] == '\t')
+	{
+		point.col += 1;
+	}
+
+	if (point >= startPoint)
+	{
+		point.col = colMovedTo;
 	}
 
 	doCommonPointManipulationTasks();
