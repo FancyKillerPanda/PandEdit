@@ -99,12 +99,12 @@ void Renderer::drawHollowRect(float x, float y, float width, float height, float
 	glUniform1f(glGetUniformLocation(shapeShader.programID, "borderWidth"), 0.0f);
 }
 
-std::pair<int, int> Renderer::drawText(TextToDraw& textToDraw)
+void Renderer::drawText(TextToDraw& textToDraw)
 {
 	if (!currentFont)
 	{
 		ERROR_ONCE("Error: No font selected.\n");
-		return { (int) textToDraw.x, (int) textToDraw.y };
+		return;
 	}
 
 	glUseProgram(textureShader.programID);
@@ -119,14 +119,14 @@ std::pair<int, int> Renderer::drawText(TextToDraw& textToDraw)
 	if (textToDraw.maxWidth != 0.0f && textToDraw.maxWidth < (float) font.maxGlyphAdvanceX)
 	{
 		ERROR_ONCE("Warning: Max width smaller than glyph.\n");
-		return { (int) textToDraw.x, (int) textToDraw.y };
+		return;
 	}
 
 	// Warns about wrap set but no width provided
 	if (textToDraw.wrap && textToDraw.maxWidth <= 0.0f)
 	{
 		ERROR_ONCE("Warning: Max width not provided but wrap requested.\n");
-		return { (int) textToDraw.x, (int) textToDraw.y };
+		return;
 	}
 
 	glBindVertexArray(font.vao);
@@ -268,7 +268,7 @@ std::pair<int, int> Renderer::drawText(TextToDraw& textToDraw)
 	glDrawArrays(GL_TRIANGLES, 0, count);
 
 	delete[] vertices;
-	return { (int) textToDraw.x, (int) textToDraw.y };
+	return;
 }
 
 // TODO(fkp): Find a better spot for this
@@ -482,16 +482,12 @@ void Renderer::drawFrame(Frame& frame)
 	{
 		Point lastTokenEnd { bufferTokens[0].start.buffer };
 		lastTokenEnd.line = frame.topLine;
-		std::pair<int, int> lastLocation = { framePixelX, framePixelY };
 		
-		// TODO(fkp): Using std::string_view everywhere should
-		// allow reassigning of the textToDrawString, so this
-		// object ca be constructed outside the for loop.
 		std::string textToDrawString = "";
 		TextToDraw textToDraw { textToDrawString };
 		textToDraw.startX = framePixelX;
-		textToDraw.x = lastLocation.first;
-		textToDraw.y = lastLocation.second;
+		textToDraw.x = framePixelX;
+		textToDraw.y = framePixelY;
 		textToDraw.maxWidth = framePixelWidth;
 
 		for (const Token& token : bufferTokens)
@@ -518,20 +514,16 @@ void Renderer::drawFrame(Frame& frame)
 			{
 				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 				textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
-				textToDraw.x = lastLocation.first;
-				textToDraw.y = lastLocation.second;				
 				
-				lastLocation = drawText(textToDraw);
+				 drawText(textToDraw);
 			}
 
 			lastTokenEnd = token.end;
 			Colour textColour = getColourForTokenType(token.type);
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textColour.r, textColour.g, textColour.b, textColour.a);
 			textToDrawString = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
-			textToDraw.x = lastLocation.first;
-			textToDraw.y = lastLocation.second;
 			
-			lastLocation = drawText(textToDraw);
+			drawText(textToDraw);
 		}
 
 		// Draws the rest of the text if needed
@@ -541,8 +533,6 @@ void Renderer::drawFrame(Frame& frame)
 		{
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 			textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
-			textToDraw.x = lastLocation.first;
-			textToDraw.y = lastLocation.second;
 			
 			drawText(textToDraw);
 		}

@@ -59,8 +59,7 @@ public:
 	
 	void drawRect(float x, float y, float width, float height);
 	void drawHollowRect(float x, float y, float width, float height, float borderWidth);
-//	std::pair<int, int> drawText(const std::string& text, int messageLength, float x, float y, float maxWidth = 0.0f, bool wrap = false, float startX = -1.0f);
-	std::pair<int, int> drawText(TextToDraw& textToDraw);
+	void drawText(TextToDraw& textToDraw);
 	void drawFrame(Frame& frame);
 };
 
