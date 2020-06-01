@@ -55,6 +55,7 @@ Lexer::Lexer(Buffer* buffer)
 }
 
 #define UPDATE_CHARACTER() character = buffer->data[point.line][point.col]
+#define LINE_STATE lineStates[point.line]
 #define LINE_TOKENS lineStates[point.line].tokens
 
 void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
@@ -122,9 +123,10 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 
 		case '<':
 		{
-			if (LINE_TOKENS.size() == 0 ||
-				LINE_TOKENS.back().type != Token::Type::PreprocessorDirective ||
-				LINE_TOKENS.back().data != "include")
+			const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size());
+			
+			if (lastToken.type != Token::Type::PreprocessorDirective ||
+				lastToken.data != "include")
 			{
 				goto DEFAULT_CASE;
 			}
@@ -676,9 +678,10 @@ bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::s
 
 void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText)
 {
-	if (LINE_TOKENS.size() > 0 &&
-		LINE_TOKENS.back().type == Token::Type::PreprocessorDirective &&
-		LINE_TOKENS.back().data == "define")
+	const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size());
+
+	if (lastToken.type == Token::Type::PreprocessorDirective &&
+		lastToken.data == "define")
 	{
 		LINE_TOKENS.emplace_back(Token::Type::MacroName, startPoint, point);
 	}
@@ -1037,33 +1040,39 @@ void Lexer::doFinalAdjustments()
 		{
 			if (lineState.tokens[i].type == Token::Type::ScopeResolution)
 			{
-				if (i > 0 && lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+				Token& lastToken = lineState.getTokenBefore(i);
+				
+				if (lastToken.type == Token::Type::IdentifierUsage)
 				{
-					lineState.tokens[i - 1].type = Token::Type::TypeName;
+					lastToken.type = Token::Type::TypeName;
 				}
 			}
 			else if (lineState.tokens[i].type == Token::Type::LeftParen)
 			{
+				Token& lastToken = lineState.getTokenBefore(i);
+				
 				if (i == 1)
 				{
-					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						lineState.tokens[i - 1].type = Token::Type::FunctionUsage;
+						lastToken.type = Token::Type::FunctionUsage;
 					}
 				}
 				else if (i > 1)
 				{
-					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage)
+					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						if (lineState.tokens[i - 2].type == Token::Type::IdentifierUsage ||
-							lineState.tokens[i - 2].type == Token::Type::TypeName)
+						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1);
+						
+						if (tokenBeforeLast.type == Token::Type::IdentifierUsage ||
+							tokenBeforeLast.type == Token::Type::TypeName)
 						{
-							lineState.tokens[i - 1].type = Token::Type::FunctionDefinition;
-							lineState.tokens[i - 2].type = Token::Type::TypeName;
+							lastToken.type = Token::Type::FunctionDefinition;
+							tokenBeforeLast.type = Token::Type::TypeName;
 						}
 						else
 						{
-							lineState.tokens[i - 1].type = Token::Type::FunctionUsage;
+							lastToken.type = Token::Type::FunctionUsage;
 						}
 					}
 				}
@@ -1073,23 +1082,24 @@ void Lexer::doFinalAdjustments()
 					 lineState.tokens[i].type == Token::Type::Comma ||
 					 lineState.tokens[i].type == Token::Type::RightParen)
 			{
-				if (i > 1)
+				Token& lastToken = lineState.getTokenBefore(i);
+				Token& tokenBeforeLast = lineState.getTokenBefore(i - 1);
+				
+				if (lastToken.type == Token::Type::IdentifierUsage &&
+					(tokenBeforeLast.type == Token::Type::IdentifierUsage ||
+					 tokenBeforeLast.type == Token::Type::TypeName))
 				{
-					if (lineState.tokens[i - 1].type == Token::Type::IdentifierUsage &&
-						(lineState.tokens[i - 2].type == Token::Type::IdentifierUsage ||
-						 lineState.tokens[i - 2].type == Token::Type::TypeName))
-					{
-						lineState.tokens[i - 1].type = Token::Type::IdentifierDefinition;
-						lineState.tokens[i - 2].type = Token::Type::TypeName;
-					}
+					lastToken.type = Token::Type::IdentifierDefinition;
+					tokenBeforeLast.type = Token::Type::TypeName;
 				}
 			}
 		}
 		
 		// #error shouldn't have syntax highlighting
-		if (lineState.tokens.size() > 0 &&
-			lineState.tokens.front().type == Token::Type::PreprocessorDirective &&
-			lineState.tokens.front().data == "error")
+		Token& firstToken = lineState.getTokenBefore(1);
+		
+		if (firstToken.type == Token::Type::PreprocessorDirective &&
+			firstToken.data == "error")
 		{
 			for (int i = 1; i < lineState.tokens.size();)
 			{
@@ -1130,6 +1140,16 @@ bool Lexer::isValidHexDigit(char character)
 	bool uppercaseHex = character >= 'A' && character <= 'F';
 
 	return number || lowercaseHex || uppercaseHex;
+}
+
+Token& LineLexState::getTokenBefore(int index)
+{
+	if (index <= 0 || index > tokens.size())
+	{
+		return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
+	}
+
+	return tokens[index - 1];
 }
 
 Colour normaliseColour(float r, float g, float b, float a)

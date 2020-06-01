@@ -94,6 +94,8 @@ public:
 		Colon,
 		Semicolon,
 		ScopeResolution,
+
+		Invalid
 	};
 	
 public:
@@ -118,6 +120,7 @@ public:
 
 struct LineLexState
 {
+public:
 	enum class FinishType
 	{
 		Finished,
@@ -127,6 +130,9 @@ struct LineLexState
 	
 	std::vector<Token> tokens;
 	FinishType finishType = FinishType::Finished;
+
+public:
+	Token& getTokenBefore(int index);
 };
 
 class Lexer
