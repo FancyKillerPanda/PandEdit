@@ -132,7 +132,7 @@ public:
 	FinishType finishType = FinishType::Finished;
 
 public:
-	Token& getTokenBefore(int index);
+	Token& getTokenBefore(int index, bool excludeComments = false);
 };
 
 class Lexer

@@ -123,7 +123,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 
 		case '<':
 		{
-			const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size());
+			const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), true);
 			
 			if (lastToken.type != Token::Type::PreprocessorDirective ||
 				lastToken.data != "include")
@@ -678,7 +678,7 @@ bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::s
 
 void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText)
 {
-	const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size());
+	const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), true);
 
 	if (lastToken.type == Token::Type::PreprocessorDirective &&
 		lastToken.data == "define")
@@ -1049,7 +1049,7 @@ void Lexer::doFinalAdjustments()
 			}
 			else if (lineState.tokens[i].type == Token::Type::LeftParen)
 			{
-				Token& lastToken = lineState.getTokenBefore(i);
+				Token& lastToken = lineState.getTokenBefore(i, true);
 				
 				if (i == 1)
 				{
@@ -1062,7 +1062,7 @@ void Lexer::doFinalAdjustments()
 				{
 					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1);
+						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true);
 						
 						if (tokenBeforeLast.type == Token::Type::IdentifierUsage ||
 							tokenBeforeLast.type == Token::Type::TypeName)
@@ -1082,8 +1082,9 @@ void Lexer::doFinalAdjustments()
 					 lineState.tokens[i].type == Token::Type::Comma ||
 					 lineState.tokens[i].type == Token::Type::RightParen)
 			{
-				Token& lastToken = lineState.getTokenBefore(i);
-				Token& tokenBeforeLast = lineState.getTokenBefore(i - 1);
+				// TODO(fkp): Return how many tokens back it went
+				Token& lastToken = lineState.getTokenBefore(i, true);
+				Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true);
 				
 				if (lastToken.type == Token::Type::IdentifierUsage &&
 					(tokenBeforeLast.type == Token::Type::IdentifierUsage ||
@@ -1096,6 +1097,7 @@ void Lexer::doFinalAdjustments()
 		}
 		
 		// #error shouldn't have syntax highlighting
+		// TODO(fkp): This should get the first non-comment token
 		Token& firstToken = lineState.getTokenBefore(1);
 		
 		if (firstToken.type == Token::Type::PreprocessorDirective &&
@@ -1142,14 +1144,26 @@ bool Lexer::isValidHexDigit(char character)
 	return number || lowercaseHex || uppercaseHex;
 }
 
-Token& LineLexState::getTokenBefore(int index)
+Token& LineLexState::getTokenBefore(int index, bool excludeComments)
 {
-	if (index <= 0 || index > tokens.size())
+	do
 	{
-		return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
-	}
+		index -= 1;
+		
+		if (index < 0 || index >= tokens.size())
+		{
+			return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
+		}
 
-	return tokens[index - 1];
+		Token& token = tokens[index];
+
+		if (!(excludeComments &&
+			  (token.type == Token::Type::LineComment ||
+			   token.type == Token::Type::BlockComment)))
+		{
+			return token;
+		}
+	} while (true);
 }
 
 Colour normaliseColour(float r, float g, float b, float a)
