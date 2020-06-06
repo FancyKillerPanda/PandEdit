@@ -39,6 +39,8 @@ set(HEADERS
 	undo.hpp
 	timer.hpp
 	lexer.hpp
+	token.hpp
+	colour.hpp
 )
 set(SOURCES
 	main.cpp
@@ -56,6 +58,8 @@ set(SOURCES
 	undo.cpp
 	timer.cpp
 	lexer.cpp
+	token.cpp
+	colour.cpp
 )
 
 # Prepends directories to the files

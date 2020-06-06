@@ -7,6 +7,7 @@
 #include "frame.hpp"
 #include "common.hpp"
 #include "lexer.hpp"
+#include "colour.hpp"
 
 Renderer::Renderer(const Matrix4& projection, float windowWidth, float windowHeight)
 	: shapeShader("shape", "res/shape.vert", "res/shape.frag"),
