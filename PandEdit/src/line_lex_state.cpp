@@ -2,6 +2,21 @@
 
 #include "line_lex_state.hpp"
 
+bool isValidToken(Token& token, int excludes)
+{
+		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
+		bool isAsterisk = token.type == Token::Type::Asterisk;
+		bool isAmpersand = token.type == Token::Type::BitAnd;
+		bool isScopeResolution = token.type == Token::Type::ScopeResolution;
+
+		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
+						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
+						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand) ||
+						 ((excludes & EXCLUDE_SCOPE_RESOLUTION) && isScopeResolution);
+
+		return !isInvalid;
+}
+
 Token& LineLexState::getTokenBefore(int index, int excludes)
 {
 	int unused = 0;
@@ -23,17 +38,8 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int
 
 		numberOfTokensTravelled += 1;
 		Token& token = tokens[index];
-		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
-		bool isAsterisk = token.type == Token::Type::Asterisk;
-		bool isAmpersand = token.type == Token::Type::BitAnd;
-		bool isScopeResolution = token.type == Token::Type::ScopeResolution;
-
-		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
-						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
-						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand) ||
-						 ((excludes & EXCLUDE_SCOPE_RESOLUTION) && isScopeResolution);
 		
-		if (!isInvalid)
+		if (isValidToken(token, excludes))
 		{
 			return token;
 		}
@@ -58,17 +64,8 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		}
 
 		Token& token = tokens[index];
-		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
-		bool isAsterisk = token.type == Token::Type::Asterisk;
-		bool isAmpersand = token.type == Token::Type::BitAnd;
-		bool isScopeResolution = token.type == Token::Type::ScopeResolution;
-
-		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
-						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
-						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand) ||
-						 ((excludes & EXCLUDE_SCOPE_RESOLUTION) && isScopeResolution);
 		
-		if (!isInvalid)
+		if (!isValidToken(token, excludes))
 		{
 			return token;
 		}
