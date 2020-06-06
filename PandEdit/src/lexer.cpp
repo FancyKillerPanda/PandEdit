@@ -576,7 +576,7 @@ void Lexer::lexBlockComment(Point& point, LineLexState::FinishType& currentLineL
 			LINE_TOKENS.emplace_back(Token::Type::BlockComment, startPoint, point);
 			lineStates[point.line].finishType = LineLexState::FinishType::UnendedComment;
 		}
-	} while (true);	
+	} while (true);
 }
 
 void Lexer::lexNumber(Point& point)
@@ -1082,9 +1082,9 @@ void Lexer::doFinalAdjustments()
 					 lineState.tokens[i].type == Token::Type::Comma ||
 					 lineState.tokens[i].type == Token::Type::RightParen)
 			{
-				// TODO(fkp): Return how many tokens back it went
-				Token& lastToken = lineState.getTokenBefore(i, true);
-				Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true);
+				int numberOfTokensBack = 0;
+				Token& lastToken = lineState.getTokenBefore(i, numberOfTokensBack, true);
+				Token& tokenBeforeLast = lineState.getTokenBefore(i - numberOfTokensBack, true);
 				
 				if (lastToken.type == Token::Type::IdentifierUsage &&
 					(tokenBeforeLast.type == Token::Type::IdentifierUsage ||
@@ -1146,6 +1146,14 @@ bool Lexer::isValidHexDigit(char character)
 
 Token& LineLexState::getTokenBefore(int index, bool excludeComments)
 {
+	int unused = 0;
+	return getTokenBefore(index, unused, excludeComments);
+}
+
+Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments)
+{
+	numberOfTokensTravelled = 0;
+	
 	do
 	{
 		index -= 1;
@@ -1155,6 +1163,7 @@ Token& LineLexState::getTokenBefore(int index, bool excludeComments)
 			return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
 		}
 
+		numberOfTokensTravelled += 1;
 		Token& token = tokens[index];
 
 		if (!(excludeComments &&

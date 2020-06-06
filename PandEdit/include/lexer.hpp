@@ -133,6 +133,7 @@ public:
 
 public:
 	Token& getTokenBefore(int index, bool excludeComments = false);
+	Token& getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments = false);
 };
 
 class Lexer
