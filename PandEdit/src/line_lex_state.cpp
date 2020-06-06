@@ -26,10 +26,12 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int
 		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
 		bool isAsterisk = token.type == Token::Type::Asterisk;
 		bool isAmpersand = token.type == Token::Type::BitAnd;
+		bool isScopeResolution = token.type == Token::Type::ScopeResolution;
 
 		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
 						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
-						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand);
+						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand) ||
+						 ((excludes & EXCLUDE_SCOPE_RESOLUTION) && isScopeResolution);
 		
 		if (!isInvalid)
 		{
@@ -59,10 +61,12 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
 		bool isAsterisk = token.type == Token::Type::Asterisk;
 		bool isAmpersand = token.type == Token::Type::BitAnd;
+		bool isScopeResolution = token.type == Token::Type::ScopeResolution;
 
 		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
 						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
-						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand);
+						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand) ||
+						 ((excludes & EXCLUDE_SCOPE_RESOLUTION) && isScopeResolution);
 		
 		if (!isInvalid)
 		{
