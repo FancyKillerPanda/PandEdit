@@ -1197,6 +1197,8 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 			
 			printf("Found function definition starting at index %d.\n", startIndex);
 			printf("Function definition ends at index %d.\n", endIndex);
+
+			
 		}
 	}
 

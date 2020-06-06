@@ -6,6 +6,7 @@
 #include "buffer.hpp"
 #include "frame.hpp"
 #include "file_util.hpp"
+#include "common.hpp"
 
 Buffer::Buffer(BufferType type, std::string name, std::string path)
 	: type(type), name(name), path(path), lexer(this)
@@ -269,4 +270,100 @@ void Buffer::saveToFile()
 	}
 
 	printf("Info: Saved buffer to file '%s'.\n", path.c_str());
+}
+
+std::string Buffer::substrFromPoints(const Point& start, const Point& end)
+{
+	std::string substr = "";
+
+	for (int i = start.line; i <= end.line; i++)
+	{
+		if (i < 0 || i >= data.size())
+		{
+			break;
+		}
+		
+		substr += data[i];
+		substr += std::string(1, '\n');
+	}
+
+	return ::substrFromPoints(substr, start, end, start.line);
+}
+
+std::string substrFromPoints(const std::string& string, const Point& start, const Point& end, unsigned int lineOffset)
+{
+	if (start > end)
+	{
+		ERROR_ONCE("Error: Start cannot be after end in substr.\n");
+		return "";
+	}
+
+	if (lineOffset > start.line)
+	{
+		ERROR_ONCE("Error: String starts after the requested start point in substr.\n");
+		return "";
+	}
+	
+	unsigned int startIndex = 0;
+	unsigned int currentIndex = 0;
+	unsigned int linesPassed = lineOffset;
+	
+	while (currentIndex < string.size() && linesPassed < start.line)
+	{
+		if (string[currentIndex] == '\n')
+		{
+			linesPassed += 1;
+		}
+
+		currentIndex += 1;
+	}
+
+	currentIndex += start.col;
+	startIndex = currentIndex;
+	linesPassed = 0;
+	unsigned int length = 0;
+
+	while (currentIndex < string.size() && linesPassed < end.line - start.line)
+	{
+		if (string[currentIndex] == '\n')
+		{
+			linesPassed += 1;
+		}
+
+		length += 1;
+		currentIndex += 1;
+	}
+
+	// The final line
+	if (start.line == end.line)
+	{
+		length += end.col - start.col;
+	}
+	else
+	{
+		length += end.col;
+	}
+
+	return string.substr(startIndex, length);
+}
+
+Point getPointAtEndOfString(const std::string& string, unsigned int lineOffset)
+{
+	Point result;
+	result.line = lineOffset;
+
+	for (char character : string)
+	{
+		if (character == '\n')
+		{
+			result.line += 1;
+			result.col = 0;
+		}
+		else
+		{
+			result.col += 1;
+		}
+	}
+
+	return result;
 }

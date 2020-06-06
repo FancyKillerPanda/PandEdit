@@ -61,6 +61,13 @@ public:
 	bool undo(Frame& frame);
 	bool redo(Frame& frame);
 	void saveToFile();
+
+	// NOTE(fkp): Calls the standalone substrFromPoints() function
+	// with the buffer's string.
+	std::string substrFromPoints(const Point& start, const Point& end);
 };
+
+std::string substrFromPoints(const std::string& string, const Point& start, const Point& end, unsigned int offset);
+Point getPointAtEndOfString(const std::string& string, unsigned int lineOffset);
 
 #endif
