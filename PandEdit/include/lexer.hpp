@@ -10,28 +10,9 @@
 
 #include "point.hpp"
 #include "token.hpp"
+#include "line_lex_state.hpp"
 
 class Buffer;
-
-struct LineLexState
-{
-public:
-	enum class FinishType
-	{
-		Finished,
-		UnendedString,
-		UnendedComment,
-	};
-	
-	std::vector<Token> tokens;
-	FinishType finishType = FinishType::Finished;
-
-public:
-	Token& getTokenBefore(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenAtOrAfter(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-};
 
 class Lexer
 {

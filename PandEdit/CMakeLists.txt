@@ -41,6 +41,7 @@ set(HEADERS
 	lexer.hpp
 	token.hpp
 	colour.hpp
+	line_lex_state.hpp
 )
 set(SOURCES
 	main.cpp
@@ -60,6 +61,7 @@ set(SOURCES
 	lexer.cpp
 	token.cpp
 	colour.cpp
+	line_lex_state.cpp
 )
 
 # Prepends directories to the files
