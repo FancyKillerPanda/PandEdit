@@ -1062,7 +1062,7 @@ void Lexer::doFinalAdjustments()
 				{
 					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true);
+						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true, true);
 						
 						if (tokenBeforeLast.type == Token::Type::IdentifierUsage ||
 							tokenBeforeLast.type == Token::Type::TypeName)
@@ -1084,7 +1084,7 @@ void Lexer::doFinalAdjustments()
 			{
 				int numberOfTokensBack = 0;
 				Token& lastToken = lineState.getTokenBefore(i, numberOfTokensBack, true);
-				Token& tokenBeforeLast = lineState.getTokenBefore(i - numberOfTokensBack, true);
+				Token& tokenBeforeLast = lineState.getTokenBefore(i - numberOfTokensBack, true, true);
 				
 				if (lastToken.type == Token::Type::IdentifierUsage &&
 					(tokenBeforeLast.type == Token::Type::IdentifierUsage ||
@@ -1144,13 +1144,13 @@ bool Lexer::isValidHexDigit(char character)
 	return number || lowercaseHex || uppercaseHex;
 }
 
-Token& LineLexState::getTokenBefore(int index, bool excludeComments)
+Token& LineLexState::getTokenBefore(int index, bool excludeComments, bool excludeAsteriskAndAmpersand)
 {
 	int unused = 0;
-	return getTokenBefore(index, unused, excludeComments);
+	return getTokenBefore(index, unused, excludeComments, excludeAsteriskAndAmpersand);
 }
 
-Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments)
+Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments, bool excludeAsteriskAndAmpersand)
 {
 	numberOfTokensTravelled = 0;
 	
@@ -1165,23 +1165,24 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, boo
 
 		numberOfTokensTravelled += 1;
 		Token& token = tokens[index];
+		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
+		bool isAsteriskOrAmpersand = token.type == Token::Type::Asterisk || token.type == Token::Type::BitAnd;
 
-		if (!(excludeComments &&
-			  (token.type == Token::Type::LineComment ||
-			   token.type == Token::Type::BlockComment)))
+		if (!((excludeComments && isComment) ||
+			  (excludeAsteriskAndAmpersand && isAsteriskOrAmpersand)))
 		{
 			return token;
 		}
 	} while (true);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, bool excludeComments)
+Token& LineLexState::getTokenAtOrAfter(int index, bool excludeComments, bool excludeAsteriskAndAmpersand)
 {
 	int unused = 0;
-	return getTokenAtOrAfter(index, unused, excludeComments);
+	return getTokenAtOrAfter(index, unused, excludeComments, excludeAsteriskAndAmpersand);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments)
+Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments, bool excludeAsteriskAndAmpersand)
 {
 	numberOfTokensTravelled = 0;
 	
@@ -1193,10 +1194,11 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		}
 
 		Token& token = tokens[index];
+		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
+		bool isAsteriskOrAmpersand = token.type == Token::Type::Asterisk || token.type == Token::Type::BitAnd;
 
-		if (!(excludeComments &&
-			  (token.type == Token::Type::LineComment ||
-			   token.type == Token::Type::BlockComment)))
+		if (!((excludeComments && isComment) ||
+			  (excludeAsteriskAndAmpersand && isAsteriskOrAmpersand)))
 		{
 			return token;
 		}

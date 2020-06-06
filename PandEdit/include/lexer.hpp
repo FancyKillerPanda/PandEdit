@@ -132,10 +132,10 @@ public:
 	FinishType finishType = FinishType::Finished;
 
 public:
-	Token& getTokenBefore(int index, bool excludeComments = false);
-	Token& getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments = false);
-	Token& getTokenAtOrAfter(int index, bool excludeComments = false);
-	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments = false);
+	Token& getTokenBefore(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
+	Token& getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
+	Token& getTokenAtOrAfter(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
+	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
 };
 
 class Lexer
