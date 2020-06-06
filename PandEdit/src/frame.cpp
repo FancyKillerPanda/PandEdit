@@ -483,7 +483,7 @@ void Frame::doCommonPointManipulationTasks()
 		Frame::minibufferFrame->point.col = 0;
 	}
 
-	if (point.line < topLine || point.line > topLine + numberOfLinesInView)
+	if (point.line < topLine || point.line + 1 > topLine + numberOfLinesInView)
 	{
 		centerPoint();
 	}
