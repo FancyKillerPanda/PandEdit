@@ -6,6 +6,14 @@
 #include <vector>
 #include "token.hpp"
 
+enum ExcludableToken
+{
+	EXCLUDE_NONE		= 0x0,
+	EXCLUDE_COMMENT		= 0x1,
+	EXCLUDE_ASTERISK	= 0x2,
+	EXCLUDE_AMPERSAND	= 0x4,
+};
+
 class LineLexState
 {
 public:
@@ -20,10 +28,11 @@ public:
 	FinishType finishType = FinishType::Finished;
 
 public:
-	Token& getTokenBefore(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenAtOrAfter(int index, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
-	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments = false, bool excludeAsteriskAndAmpersand = false);
+	// NOTE(fkp): Use ExcludableToken for the excludes
+	Token& getTokenBefore(int index, int excludes);
+	Token& getTokenBefore(int index, int& numberOfTokensTravelled, int excludes);
+	Token& getTokenAtOrAfter(int index, int excludes);
+	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes);
 };
 
 #endif

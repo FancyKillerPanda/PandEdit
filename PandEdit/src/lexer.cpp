@@ -124,7 +124,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 
 		case '<':
 		{
-			const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), true);
+			const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), EXCLUDE_COMMENT);
 			
 			if (lastToken.type != Token::Type::PreprocessorDirective ||
 				lastToken.data != "include")
@@ -679,7 +679,7 @@ bool Lexer::lexKeyword(const Point& startPoint, const Point& point, const std::s
 
 void Lexer::lexIdentifier(const Point& startPoint, const Point& point, const std::string& tokenText)
 {
-	const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), true);
+	const Token& lastToken = LINE_STATE.getTokenBefore(LINE_TOKENS.size(), EXCLUDE_COMMENT);
 
 	if (lastToken.type == Token::Type::PreprocessorDirective &&
 		lastToken.data == "define")
@@ -1041,7 +1041,7 @@ void Lexer::doFinalAdjustments()
 		{
 			if (lineState.tokens[i].type == Token::Type::ScopeResolution)
 			{
-				Token& lastToken = lineState.getTokenBefore(i);
+				Token& lastToken = lineState.getTokenBefore(i, EXCLUDE_NONE);
 				
 				if (lastToken.type == Token::Type::IdentifierUsage)
 				{
@@ -1050,7 +1050,7 @@ void Lexer::doFinalAdjustments()
 			}
 			else if (lineState.tokens[i].type == Token::Type::LeftParen)
 			{
-				Token& lastToken = lineState.getTokenBefore(i, true);
+				Token& lastToken = lineState.getTokenBefore(i, EXCLUDE_COMMENT);
 				
 				if (i == 1)
 				{
@@ -1063,7 +1063,7 @@ void Lexer::doFinalAdjustments()
 				{
 					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, true, true);
+						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, EXCLUDE_COMMENT | EXCLUDE_ASTERISK | EXCLUDE_AMPERSAND);
 						
 						if (tokenBeforeLast.type == Token::Type::IdentifierUsage ||
 							tokenBeforeLast.type == Token::Type::TypeName)
@@ -1084,8 +1084,8 @@ void Lexer::doFinalAdjustments()
 					 lineState.tokens[i].type == Token::Type::RightParen)
 			{
 				int numberOfTokensBack = 0;
-				Token& lastToken = lineState.getTokenBefore(i, numberOfTokensBack, true);
-				Token& tokenBeforeLast = lineState.getTokenBefore(i - numberOfTokensBack, true, true);
+				Token& lastToken = lineState.getTokenBefore(i, numberOfTokensBack, EXCLUDE_COMMENT);
+				Token& tokenBeforeLast = lineState.getTokenBefore(i - numberOfTokensBack, EXCLUDE_COMMENT | EXCLUDE_ASTERISK | EXCLUDE_AMPERSAND);
 				
 				if (lastToken.type == Token::Type::IdentifierUsage &&
 					(tokenBeforeLast.type == Token::Type::IdentifierUsage ||

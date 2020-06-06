@@ -2,13 +2,13 @@
 
 #include "line_lex_state.hpp"
 
-Token& LineLexState::getTokenBefore(int index, bool excludeComments, bool excludeAsteriskAndAmpersand)
+Token& LineLexState::getTokenBefore(int index, int excludes)
 {
 	int unused = 0;
-	return getTokenBefore(index, unused, excludeComments, excludeAsteriskAndAmpersand);
+	return getTokenBefore(index, unused, excludes);
 }
 
-Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, bool excludeComments, bool excludeAsteriskAndAmpersand)
+Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int excludes)
 {
 	numberOfTokensTravelled = 0;
 	
@@ -24,23 +24,27 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, boo
 		numberOfTokensTravelled += 1;
 		Token& token = tokens[index];
 		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
-		bool isAsteriskOrAmpersand = token.type == Token::Type::Asterisk || token.type == Token::Type::BitAnd;
+		bool isAsterisk = token.type == Token::Type::Asterisk;
+		bool isAmpersand = token.type == Token::Type::BitAnd;
 
-		if (!((excludeComments && isComment) ||
-			  (excludeAsteriskAndAmpersand && isAsteriskOrAmpersand)))
+		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
+						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
+						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand);
+		
+		if (!isInvalid)
 		{
 			return token;
 		}
 	} while (true);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, bool excludeComments, bool excludeAsteriskAndAmpersand)
+Token& LineLexState::getTokenAtOrAfter(int index, int excludes)
 {
 	int unused = 0;
-	return getTokenAtOrAfter(index, unused, excludeComments, excludeAsteriskAndAmpersand);
+	return getTokenAtOrAfter(index, unused, excludes);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments, bool excludeAsteriskAndAmpersand)
+Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes)
 {
 	numberOfTokensTravelled = 0;
 	
@@ -53,10 +57,14 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 
 		Token& token = tokens[index];
 		bool isComment = token.type == Token::Type::LineComment || token.type == Token::Type::BlockComment;
-		bool isAsteriskOrAmpersand = token.type == Token::Type::Asterisk || token.type == Token::Type::BitAnd;
+		bool isAsterisk = token.type == Token::Type::Asterisk;
+		bool isAmpersand = token.type == Token::Type::BitAnd;
 
-		if (!((excludeComments && isComment) ||
-			  (excludeAsteriskAndAmpersand && isAsteriskOrAmpersand)))
+		bool isInvalid = ((excludes & EXCLUDE_COMMENT) && isComment) ||
+						 ((excludes & EXCLUDE_ASTERISK) && isAsterisk) ||
+						 ((excludes & EXCLUDE_AMPERSAND) && isAmpersand);
+		
+		if (!isInvalid)
 		{
 			return token;
 		}
