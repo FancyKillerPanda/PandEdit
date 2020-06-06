@@ -1118,6 +1118,9 @@ void Lexer::doFinalAdjustments()
 			}
 		}
 	}
+
+	// TODO(fkp): Move this somewhere else
+	findFunctionsInBuffer();
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
@@ -1206,6 +1209,61 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		index += 1;
 		numberOfTokensTravelled += 1;
 	} while (true);
+}
+
+std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
+{
+	std::unordered_map<std::string, std::string> result;
+	
+	if (lineStates.size() == 0 || lineStates.size() != buffer->data.size())
+	{
+		printf("Error: Buffer not lexed, cannot find functions.\n");
+		return result;
+	}
+
+	std::vector<Token> tokens = getTokens(0, lineStates.size() - 1);
+	
+	for (int i = 0; i < tokens.size(); i++)
+	{
+		Token& token = tokens[i];
+
+		if (token.type == Token::Type::FunctionDefinition)
+		{
+			int startIndex = 0;
+			int endIndex = -1;
+			
+			// Finds the previous semicolon token
+			for (int j = i; j >= 0; j--)
+			{
+				if (tokens[j].type == Token::Type::Semicolon)
+				{
+					startIndex = j + 1;
+					break;
+				}
+			}
+
+			// Finds the next curly brace or semicolon
+			for (int j = i; j < tokens.size(); j++)
+			{
+				if (tokens[j].type == Token::Type::LeftBrace ||
+					tokens[j].type == Token::Type::Semicolon)
+				{
+					endIndex = j - 1;
+					break;
+				}
+			}
+
+			if (endIndex == -1)
+			{
+				continue;
+			}
+			
+			printf("Found function definition starting at index %d.\n", startIndex);
+			printf("Function definition ends at index %d.\n", endIndex);
+		}
+	}
+
+	return result;
 }
 
 Colour normaliseColour(float r, float g, float b, float a)

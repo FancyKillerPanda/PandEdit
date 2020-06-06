@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "point.hpp"
 
@@ -169,6 +170,8 @@ private:
 	bool lexPunctuation(Point& point);
 
 	void doFinalAdjustments();
+
+	std::unordered_map<std::string, std::string> findFunctionsInBuffer();
 	
 	static bool isIdentifierStartCharacter(char character);
 	static bool isIdentifierCharacter(char character);
