@@ -1097,13 +1097,13 @@ void Lexer::doFinalAdjustments()
 		}
 		
 		// #error shouldn't have syntax highlighting
-		// TODO(fkp): This should get the first non-comment token
-		Token& firstToken = lineState.getTokenBefore(1);
+		int numberOfTokensForward = 0;
+		Token& firstToken = lineState.getTokenAtOrAfter(0, numberOfTokensForward, true);
 		
 		if (firstToken.type == Token::Type::PreprocessorDirective &&
 			firstToken.data == "error")
 		{
-			for (int i = 1; i < lineState.tokens.size();)
+			for (int i = numberOfTokensForward + 1; i < lineState.tokens.size();)
 			{
 				if (lineState.tokens[i].type != Token::Type::LineComment &&
 					lineState.tokens[i].type != Token::Type::BlockComment &&
@@ -1172,6 +1172,37 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, boo
 		{
 			return token;
 		}
+	} while (true);
+}
+
+Token& LineLexState::getTokenAtOrAfter(int index, bool excludeComments)
+{
+	int unused = 0;
+	return getTokenAtOrAfter(index, unused, excludeComments);
+}
+
+Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, bool excludeComments)
+{
+	numberOfTokensTravelled = 0;
+	
+	do
+	{
+		if (index < 0 || index >= tokens.size())
+		{
+			return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
+		}
+
+		Token& token = tokens[index];
+
+		if (!(excludeComments &&
+			  (token.type == Token::Type::LineComment ||
+			   token.type == Token::Type::BlockComment)))
+		{
+			return token;
+		}
+		
+		index += 1;
+		numberOfTokensTravelled += 1;
 	} while (true);
 }
 
