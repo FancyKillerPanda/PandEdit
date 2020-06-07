@@ -15,6 +15,7 @@
 #include "font.hpp"
 #include "default_key_bindings.hpp"
 #include "timer.hpp"
+#include "colour.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -39,6 +40,7 @@ int main(int argc, char* argv[])
 
 	TextToDraw fpsText { fpsTextString };
 	fpsText.x = window.width - 128;
+	fpsText.colour = getDefaultTextColour();
 	
 	while (window.isOpen)
 	{
@@ -62,8 +64,13 @@ int main(int argc, char* argv[])
 			numberOfFrames = 0;
 		}
 		
-		window.renderer->drawText(fpsText);
 		numberOfFrames += 1;
+		window.renderer->drawText(fpsText);
+		
+		// TODO(fkp): Figure out how to avoid doing this. If the
+		// TextToDraw object is persistent across frames, the x value
+		// increases continually.
+		fpsText.x = fpsText.startX;
 		
 		SwapBuffers(window.deviceContext);
 	}

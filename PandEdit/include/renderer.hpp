@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 
 #include "shader.hpp"
+#include "colour.hpp"
 
 // TODO(fkp): Make this editable
 constexpr unsigned int tabWidth = 4;
@@ -22,6 +23,8 @@ public:
 	const std::string& text = "";
 	int textLength = -1;
 
+	Colour colour = normaliseColour(255, 255, 255, 255);	
+	
 	float startX = -1.0f;
 	float x = 0.0f;
 	float y = 0.0f;

@@ -109,9 +109,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 	}
 
 	glUseProgram(textureShader.programID);
-
-	// TODO(fkp): Set if not set
-	// glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textToDraw.colour.r, textToDraw.colour.g, textToDraw.colour.b, textToDraw.colour.a);
 
 	// For ease of use (arrows are dumb)
 	const Font& font = *currentFont;
@@ -424,11 +422,9 @@ void Renderer::drawFrame(Frame& frame)
 	// Text
 	//
 
-	// TODO(fkp): Uniform setters
+	// TODO(fkp): Uniform setters for colours
 	Colour defaultColour = getDefaultTextColour();
-	glUseProgram(textureShader.programID);
-	glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-
+	
 	int y = framePixelY;
 	std::string visibleLines = "";
 	unsigned int numberOfLines = 0;
@@ -459,6 +455,7 @@ void Renderer::drawFrame(Frame& frame)
 		textToDraw.x = framePixelX;
 		textToDraw.y = framePixelY;
 		textToDraw.maxWidth = framePixelWidth;
+		textToDraw.colour = defaultColour;
 		
 		drawText(textToDraw);
 	}
@@ -473,6 +470,7 @@ void Renderer::drawFrame(Frame& frame)
 		textToDraw.x = framePixelX;
 		textToDraw.y = framePixelY;
 		textToDraw.maxWidth = framePixelWidth;
+		textToDraw.colour = defaultColour;
 
 		for (int i = 0; i < bufferTokens.size(); i++)
 		{
@@ -498,15 +496,14 @@ void Renderer::drawFrame(Frame& frame)
 						
 			if (tokenStart > lastTokenEnd)
 			{
-				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
+				textToDraw.colour = defaultColour;
 				textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.currentTopLine);
 				
 				 drawText(textToDraw);
 			}
 
 			lastTokenEnd = token.end;
-			Colour textColour = getColourForTokenType(token.type);
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textColour.r, textColour.g, textColour.b, textColour.a);
+			textToDraw.colour = getColourForTokenType(token.type);
 			textToDrawString = substrFromPoints(visibleLines, tokenStart, token.end, frame.currentTopLine);
 			
 			drawText(textToDraw);
@@ -517,7 +514,7 @@ void Renderer::drawFrame(Frame& frame)
 		
 		if (lastTokenEnd < stringEndPoint)
 		{
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
+			textToDraw.colour = defaultColour;
 			textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.currentTopLine);
 			
 			drawText(textToDraw);
@@ -574,16 +571,6 @@ void Renderer::drawFrame(Frame& frame)
 		}
 
 		drawRect(realFramePixelX, framePixelY + framePixelHeight - currentFont->size, realFramePixelWidth, currentFont->size);
-		glUseProgram(textureShader.programID);
-
-		if (&frame == Frame::currentFrame)
-		{
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 0.2f, 0.2f, 0.2f, 1.0f);
-		}
-		else
-		{
-			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-		}
 
 		std::string modeLineTextString = buffer.name;
 		modeLineTextString += " (LINE: ";
@@ -593,6 +580,16 @@ void Renderer::drawFrame(Frame& frame)
 		modeLineTextString += ")";
 
 		TextToDraw modeLineText { modeLineTextString };
+		
+		if (&frame == Frame::currentFrame)
+		{
+			modeLineText.colour = Colour { 0.2f, 0.2f, 0.2f, 1.0f };
+		}
+		else
+		{
+			modeLineText.colour = Colour { 1.0f, 1.0f, 1.0f, 1.0f };
+		}
+
 		modeLineText.textLength = modeLineTextString.size();
 		modeLineText.x = framePixelX;
 		modeLineText.y = framePixelY + framePixelHeight - currentFont->size;
