@@ -8,3 +8,4 @@
 	- When scrolling up or down
 - Fix FPS counter
 - Center point when entering/exiting maximised view
+- Fix page down error, look at Frame::moveView()

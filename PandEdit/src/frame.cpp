@@ -842,9 +842,9 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 		newLineTop = 0;
 	}	
 	
-	if (newLineTop > currentBuffer->data.size() - 2)
+	if (newLineTop > (int) currentBuffer->data.size() - 2)
 	{
-		newLineTop = currentBuffer->data.size() - 2;
+		newLineTop = (int) currentBuffer->data.size() - 2;
 	}
 
 	targetTopLine = newLineTop;;
@@ -859,9 +859,16 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 			point.line = 0;
 		}
 
-		if (point.line > currentBuffer->data.size() - 2)
+		if (point.line > (int) currentBuffer->data.size() - 2)
 		{
-			point.line = currentBuffer->data.size() - 2;
+			if (currentBuffer->data.size() - 2 > 0)
+			{
+				point.line = (int) currentBuffer->data.size() - 2;
+			}
+			else
+			{
+				point.line = 0;
+			}
 		}
 	}
 }

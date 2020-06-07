@@ -57,8 +57,8 @@ public:
 	Point point;
 	Point mark;	
 
-	unsigned int currentTopLine = 0;
-	unsigned int targetTopLine = 0;
+	int currentTopLine = 0;
+	int targetTopLine = 0;
 	unsigned int numberOfLinesInView = 0;
 
 	Timer pointFlashTimer;

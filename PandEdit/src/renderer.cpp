@@ -298,13 +298,47 @@ void Renderer::drawFrame(Frame& frame)
 	// TODO(fkp): This is dependent on frame rate
 	if (frame.currentTopLine < frame.targetTopLine)
 	{
-		frame.currentTopLine += 1;
-	} 
+		frame.currentTopLine += 2;
+
+		// If on the other side now
+		if (frame.currentTopLine > frame.targetTopLine)
+		{
+			frame.currentTopLine = frame.targetTopLine;
+		}
+	}
 	else if (frame.currentTopLine > frame.targetTopLine)
 	{
-		frame.currentTopLine -= 1;
+		frame.currentTopLine -= 2;
+
+		// If on the other side now
+		if (frame.currentTopLine < frame.targetTopLine)
+		{
+			frame.currentTopLine = frame.targetTopLine;
+		}
 	}
 
+	if (frame.currentTopLine < frame.targetTopLine &&
+		frame.targetTopLine - frame.currentTopLine > frame.numberOfLinesInView)
+	{
+		frame.currentTopLine = frame.targetTopLine - frame.numberOfLinesInView;
+	}
+	else if (frame.currentTopLine > frame.targetTopLine &&
+		frame.currentTopLine - frame.targetTopLine > frame.numberOfLinesInView)
+	{
+		frame.currentTopLine = frame.targetTopLine + frame.numberOfLinesInView;
+	}
+
+	if (frame.currentTopLine > (int) buffer.data.size() - 2)
+	{
+		frame.currentTopLine = (int) buffer.data.size() - 2;
+	}
+
+	// Don't make this an else if
+	if (frame.currentTopLine < 0)
+	{
+		frame.currentTopLine = 0;
+	}
+	
 	//
 	// Pixel dimensions
 	//
@@ -327,7 +361,7 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = framePixelX;
-	float pointY = framePixelY + ((frame.point.line - frame.currentTopLine) * currentFont->size);
+	float pointY = framePixelY + ((frame.point.line - frame.targetTopLine) * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 	unsigned int numberOfColumnsInLine = 0;
@@ -449,14 +483,14 @@ void Renderer::drawFrame(Frame& frame)
 				break;
 			}
 
-			if (token.end < Point { frame.currentTopLine, 0 })
+			if (token.end < Point { (unsigned int) frame.currentTopLine, 0 })
 			{
 				continue;
 			}
 			
 			Point tokenStart = token.start;
 			
-			if (token.start < Point { frame.currentTopLine, 0 })
+			if (token.start < Point { (unsigned int) frame.currentTopLine, 0 })
 			{
 				tokenStart.line = frame.currentTopLine;
 				tokenStart.col = 0;
