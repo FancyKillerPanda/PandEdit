@@ -875,6 +875,8 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 				point.line = 0;
 			}
 		}
+
+		moveColToTarget();
 	}
 }
 
