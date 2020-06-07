@@ -56,7 +56,9 @@ public:
 	Buffer* currentBuffer = nullptr;
 	Point point;
 	Point mark;	
-	unsigned int topLine = 0;
+
+	unsigned int currentTopLine = 0;
+	unsigned int targetTopLine = 0;
 	unsigned int numberOfLinesInView = 0;
 
 	Timer pointFlashTimer;

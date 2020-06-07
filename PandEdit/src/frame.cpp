@@ -47,12 +47,13 @@ void Frame::switchToBuffer(Buffer* buffer)
 	{
 		currentBuffer->lastPoint = point;
 		currentBuffer->lastPoint.targetCol = point.col; // Don't want to save the target col
-		currentBuffer->lastTopLine = topLine;
+		currentBuffer->lastTopLine = targetTopLine;
 	}
 
 	currentBuffer = buffer;
 	point = currentBuffer->lastPoint;
-	topLine = currentBuffer->lastTopLine;
+	targetTopLine = currentBuffer->lastTopLine;
+	currentTopLine = targetTopLine;
 }
 
 void Frame::destroyBuffer(Buffer* buffer)
@@ -85,7 +86,8 @@ Frame::Frame(Frame&& other)
 	  parent(other.parent), childOne(other.childOne), childTwo(other.childTwo),
 	  pcDimensions(std::move(other.pcDimensions)),
 	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
-	  currentBuffer(other.currentBuffer), point(other.point), topLine(other.topLine)
+	  currentBuffer(other.currentBuffer), point(other.point),
+	  targetTopLine(other.targetTopLine), currentTopLine(other.currentTopLine)
 {
 	framesMap[name] = this;
 	other.name = "";
@@ -132,7 +134,8 @@ Frame& Frame::operator=(Frame&& other)
 
 		currentBuffer = other.currentBuffer;
 		point = other.point;
-		topLine = other.topLine;
+		targetTopLine = other.targetTopLine;
+		currentTopLine = other.currentTopLine;
 		
 		if (&other == Frame::currentFrame)
 		{
@@ -211,13 +214,15 @@ void Frame::split(bool vertically)
 	childOne->parent = childTwo->parent = this;
 	childOne->point = childTwo->point = point;
 	childOne->mark = childTwo->mark = mark;
-	childOne->topLine = childTwo->topLine = topLine;
+	childOne->targetTopLine = childTwo->targetTopLine = targetTopLine;
+	childOne->currentTopLine = childTwo->currentTopLine = currentTopLine;
 
 	// Invalidates everything for this frame
 	currentBuffer = nullptr;
 	point = Point {};
 	mark = Point {};
-	topLine = 0;
+	targetTopLine = 0;
+	currentTopLine = 0;
 
 	// Adds the new frames to the window's map
 	allFrames->push_back(childOne);
@@ -292,7 +297,8 @@ void Frame::deleteChildFrames(Frame* otherChild)
 		currentBuffer = otherChild->currentBuffer;
 		point = otherChild->point;
 		mark = otherChild->mark;
-		topLine = otherChild->topLine;
+		targetTopLine = otherChild->targetTopLine;
+		currentTopLine = otherChild->currentTopLine;
 
 		makeActive();
 
@@ -483,7 +489,7 @@ void Frame::doCommonPointManipulationTasks()
 		Frame::minibufferFrame->point.col = 0;
 	}
 
-	if (point.line < topLine || point.line + 1 > topLine + numberOfLinesInView)
+	if (point.line < targetTopLine || point.line + 1 > targetTopLine + numberOfLinesInView)
 	{
 		centerPoint();
 	}
@@ -668,7 +674,7 @@ void Frame::insertString(const std::string& string)
 {
 	Point startLocation = point;
 	bool oldShouldAddInformation = currentBuffer->shouldAddToUndoInformation;
-	unsigned int oldTopLine = topLine;
+	unsigned int oldTopLine = targetTopLine;
 	currentBuffer->shouldAddToUndoInformation = false;
 
 	for (char character : string)
@@ -683,7 +689,7 @@ void Frame::insertString(const std::string& string)
 		}
 	}
 
-	if (topLine != oldTopLine)
+	if (targetTopLine != oldTopLine)
 	{
 		centerPoint();
 	}
@@ -828,8 +834,8 @@ void Frame::movePointToBufferEnd()
 
 void Frame::moveView(int numberOfLines, bool movePoint)
 {
-	unsigned int oldLineTop = topLine;
-	int newLineTop = (int) topLine + numberOfLines;
+	unsigned int oldLineTop = targetTopLine;
+	int newLineTop = (int) targetTopLine + numberOfLines;
 
 	if (newLineTop < 0)
 	{
@@ -841,8 +847,8 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 		newLineTop = currentBuffer->data.size() - 2;
 	}
 
-	topLine = newLineTop;;
-	int numberOfLinesMoved = (int) topLine - (int) oldLineTop;
+	targetTopLine = newLineTop;;
+	int numberOfLinesMoved = (int) targetTopLine - (int) oldLineTop;
 
 	if (movePoint)
 	{
@@ -862,7 +868,7 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 
 void Frame::centerPoint()
 {
-	int numberOfLinesToMove = point.line - ((int) topLine + (numberOfLinesInView / 2));
+	int numberOfLinesToMove = point.line - ((int) targetTopLine + (numberOfLinesInView / 2));
 	moveView(numberOfLinesToMove, false);
 }
 

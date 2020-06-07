@@ -293,6 +293,18 @@ void Renderer::drawFrame(Frame& frame)
 	
 	Buffer& buffer = *frame.currentBuffer;
 
+	// TODO(fkp): Should this be done in a dedicated update() method
+	// for the frame?
+	// TODO(fkp): This is dependent on frame rate
+	if (frame.currentTopLine < frame.targetTopLine)
+	{
+		frame.currentTopLine += 1;
+	} 
+	else if (frame.currentTopLine > frame.targetTopLine)
+	{
+		frame.currentTopLine -= 1;
+	}
+
 	//
 	// Pixel dimensions
 	//
@@ -315,7 +327,7 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = framePixelX;
-	float pointY = framePixelY + ((frame.point.line - frame.topLine) * currentFont->size);
+	float pointY = framePixelY + ((frame.point.line - frame.currentTopLine) * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 	unsigned int numberOfColumnsInLine = 0;
@@ -387,7 +399,7 @@ void Renderer::drawFrame(Frame& frame)
 	std::string visibleLines = "";
 	unsigned int numberOfLines = 0;
 
-	for (unsigned int i = frame.topLine; i < buffer.data.size(); i++)
+	for (unsigned int i = frame.currentTopLine; i < buffer.data.size(); i++)
 	{
 		if (y + currentFont->size > framePixelY + framePixelHeight)
 		{
@@ -403,7 +415,7 @@ void Renderer::drawFrame(Frame& frame)
 	
 	if (buffer.isUsingSyntaxHighlighting)
 	{
-		bufferTokens = buffer.lexer.getTokens(frame.topLine, frame.topLine + numberOfLines - 1);
+		bufferTokens = buffer.lexer.getTokens(frame.currentTopLine, frame.currentTopLine + numberOfLines - 1);
 	}
 
 	if (bufferTokens.size() == 0)
@@ -419,7 +431,7 @@ void Renderer::drawFrame(Frame& frame)
 	else
 	{
 		Point lastTokenEnd { bufferTokens[0]->start.buffer };
-		lastTokenEnd.line = frame.topLine;
+		lastTokenEnd.line = frame.currentTopLine;
 		
 		std::string textToDrawString = "";
 		TextToDraw textToDraw { textToDrawString };
@@ -432,28 +444,28 @@ void Renderer::drawFrame(Frame& frame)
 		{
 			const Token& token = *bufferTokens[i];
 			
-			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
+			if (token.start > getPointAtEndOfString(visibleLines, frame.currentTopLine))
 			{
 				break;
 			}
 
-			if (token.end < Point { frame.topLine, 0 })
+			if (token.end < Point { frame.currentTopLine, 0 })
 			{
 				continue;
 			}
 			
 			Point tokenStart = token.start;
 			
-			if (token.start < Point { frame.topLine, 0 })
+			if (token.start < Point { frame.currentTopLine, 0 })
 			{
-				tokenStart.line = frame.topLine;
+				tokenStart.line = frame.currentTopLine;
 				tokenStart.col = 0;
 			}
 						
 			if (tokenStart > lastTokenEnd)
 			{
 				glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-				textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.topLine);
+				textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, tokenStart, frame.currentTopLine);
 				
 				 drawText(textToDraw);
 			}
@@ -461,18 +473,18 @@ void Renderer::drawFrame(Frame& frame)
 			lastTokenEnd = token.end;
 			Colour textColour = getColourForTokenType(token.type);
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), textColour.r, textColour.g, textColour.b, textColour.a);
-			textToDrawString = substrFromPoints(visibleLines, tokenStart, token.end, frame.topLine);
+			textToDrawString = substrFromPoints(visibleLines, tokenStart, token.end, frame.currentTopLine);
 			
 			drawText(textToDraw);
 		}
 
 		// Draws the rest of the text if needed
-		Point stringEndPoint = getPointAtEndOfString(visibleLines, frame.topLine);
+		Point stringEndPoint = getPointAtEndOfString(visibleLines, frame.currentTopLine);
 		
 		if (lastTokenEnd < stringEndPoint)
 		{
 			glUniform4f(glGetUniformLocation(textureShader.programID, "textColour"), defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
-			textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.topLine);
+			textToDrawString = substrFromPoints(visibleLines, lastTokenEnd, stringEndPoint, frame.currentTopLine);
 			
 			drawText(textToDraw);
 		}
