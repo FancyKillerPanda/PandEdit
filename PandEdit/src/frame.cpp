@@ -837,14 +837,14 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 	unsigned int oldLineTop = targetTopLine;
 	int newLineTop = (int) targetTopLine + numberOfLines;
 
-	if (newLineTop < 0)
-	{
-		newLineTop = 0;
-	}	
-	
 	if (newLineTop > (int) currentBuffer->data.size() - 2)
 	{
 		newLineTop = (int) currentBuffer->data.size() - 2;
+	}
+
+	if (newLineTop < 0)
+	{
+		newLineTop = 0;
 	}
 
 	targetTopLine = newLineTop;;
