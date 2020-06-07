@@ -1177,6 +1177,7 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 					tokens[j].type != Token::Type::ScopeResolution &&
 					tokens[j].type != Token::Type::BitAnd &&
 					tokens[j].type != Token::Type::Asterisk &&
+					tokens[j].type != Token::Type::Keyword &&
 					// TODO(fkp): Properly lex the return type so this isn't needed
 					tokens[j].type != Token::Type::IdentifierUsage)
 				{
@@ -1188,6 +1189,7 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 			// Finds the next curly brace or semicolon
 			for (int j = i; j < tokens.size(); j++)
 			{
+				// TODO(fkp): Handle ending keywords such as override and noexcept
 				if (tokens[j].type == Token::Type::LeftBrace ||
 					tokens[j].type == Token::Type::Semicolon)
 				{
@@ -1219,6 +1221,7 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 				if (signatureToken.type == Token::Type::BitAnd ||
 					signatureToken.type == Token::Type::Asterisk ||
 					signatureToken.type == Token::Type::Comma ||
+					signatureToken.type == Token::Type::Keyword ||
 					(signatureToken.type == Token::Type::TypeName && !isModifiedType))
 				{
 					functionSignature += std::string(1, ' ');
