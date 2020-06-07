@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <unordered_set>
+#include <algorithm>
 
 #include "buffer.hpp"
 #include "frame.hpp"
@@ -35,6 +36,8 @@ Buffer::Buffer(BufferType type, std::string name, std::string path)
 		// Automatic syntax highlighting based on file extension
 		// TODO(fkp): Different highlighting for C files
 		std::string extension = path.substr(path.find_last_of('.') + 1);
+		std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
+		
 		static std::unordered_set<std::string> cppExtensions = {
 			"h", "hpp", "hxx",
 			"c", "cpp", "cxx", "cc",
