@@ -1063,7 +1063,7 @@ void Lexer::doFinalAdjustments()
 				{
 					if (lastToken.type == Token::Type::IdentifierUsage)
 					{
-						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, EXCLUDE_COMMENT | EXCLUDE_ASTERISK | EXCLUDE_AMPERSAND | EXCLUDE_SCOPE_RESOLUTION);
+						Token& tokenBeforeLast = lineState.getTokenBefore(i - 1, EXCLUDE_COMMENT | EXCLUDE_ASTERISK | EXCLUDE_AMPERSAND | EXCLUDE_SCOPE_RESOLUTION | EXCLUDE_TYPE_BEFORE_SCOPE);
 						
 						if (tokenBeforeLast.type == Token::Type::IdentifierUsage ||
 							tokenBeforeLast.type == Token::Type::TypeName)
