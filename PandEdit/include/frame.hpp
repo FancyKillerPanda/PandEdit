@@ -83,7 +83,7 @@ public:
 	void switchToBuffer(Buffer* buffer);
 	void destroyBuffer(Buffer* buffer = nullptr);
 	void updateWindowSize(unsigned int newWidth, unsigned int newHeight, Font* font);
-	void split(bool vertically);
+	void split(bool vertically, Font* currentFont);
 	void destroy();
 	void getNumberOfLines(Font* currentFont);
 

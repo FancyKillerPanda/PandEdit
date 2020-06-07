@@ -75,14 +75,14 @@ DEFINE_COMMAND(toggleOverwriteMode)
 DEFINE_COMMAND(frameSplitVertically)
 {
 	exitMinibuffer("");
-	FRAME->split(true);
+	FRAME->split(true, window.renderer->currentFont);
 	return true;
 }
 
 DEFINE_COMMAND(frameSplitHorizontally)
 {
 	exitMinibuffer("");
-	FRAME->split(false);
+	FRAME->split(false, window.renderer->currentFont);
 	return true;
 }
 

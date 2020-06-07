@@ -359,7 +359,7 @@ void Renderer::drawFrame(Frame& frame)
 	//
 
 	float pointX = framePixelX;
-	float pointY = framePixelY + ((frame.point.line - frame.targetTopLine) * currentFont->size);
+	float pointY = framePixelY + ((frame.point.line - frame.currentTopLine) * currentFont->size);
 	float pointWidth;
 	float pointHeight = (float) currentFont->size;
 	unsigned int numberOfColumnsInLine = 0;

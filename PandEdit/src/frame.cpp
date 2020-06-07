@@ -195,7 +195,7 @@ void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight, Font
 	}
 }
 
-void Frame::split(bool vertically)
+void Frame::split(bool vertically, Font* currentFont)
 {
 	// TODO(fkp): Make sure it's not the minibuffer
 	childOne = new Frame(name + "_C1", pcDimensions, windowWidth, windowHeight, currentBuffer, false);
@@ -221,6 +221,10 @@ void Frame::split(bool vertically)
 	childOne->mark = childTwo->mark = mark;
 	childOne->targetTopLine = childTwo->targetTopLine = targetTopLine;
 	childOne->currentTopLine = childTwo->currentTopLine = currentTopLine;
+
+	// Calculates how many lines are in view
+	childOne->getNumberOfLines(currentFont);
+	childTwo->getNumberOfLines(currentFont);
 
 	// Invalidates everything for this frame
 	currentBuffer = nullptr;
@@ -252,8 +256,6 @@ void Frame::destroy()
 		sibling = parent->childOne;
 	}
 
-	// TODO(fkp): This will work for bottom-level frames only. Maybe
-	// check if the frame has chidren first?
 	parent->deleteChildFrames(sibling);
 }
 
