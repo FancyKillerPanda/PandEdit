@@ -188,6 +188,11 @@ void Frame::updateWindowSize(unsigned int newWidth, unsigned int newHeight, Font
 	windowWidth = newWidth;
 	windowHeight = newHeight;
 	getNumberOfLines(font);
+
+	if (point.line > targetTopLine + numberOfLinesInView)
+	{
+		centerPoint();
+	}
 }
 
 void Frame::split(bool vertically)
