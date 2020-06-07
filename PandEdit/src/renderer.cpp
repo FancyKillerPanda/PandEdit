@@ -399,7 +399,7 @@ void Renderer::drawFrame(Frame& frame)
 		numberOfLines += 1;
 	}
 
-	std::vector<Token> bufferTokens;
+	std::vector<Token*> bufferTokens;
 	
 	if (buffer.isUsingSyntaxHighlighting)
 	{
@@ -418,7 +418,7 @@ void Renderer::drawFrame(Frame& frame)
 	}
 	else
 	{
-		Point lastTokenEnd { bufferTokens[0].start.buffer };
+		Point lastTokenEnd { bufferTokens[0]->start.buffer };
 		lastTokenEnd.line = frame.topLine;
 		
 		std::string textToDrawString = "";
@@ -428,8 +428,10 @@ void Renderer::drawFrame(Frame& frame)
 		textToDraw.y = framePixelY;
 		textToDraw.maxWidth = framePixelWidth;
 
-		for (const Token& token : bufferTokens)
+		for (int i = 0; i < bufferTokens.size(); i++)
 		{
+			const Token& token = *bufferTokens[i];
+			
 			if (token.start > getPointAtEndOfString(visibleLines, frame.topLine))
 			{
 				break;

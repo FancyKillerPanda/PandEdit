@@ -30,7 +30,7 @@ public:
 	void lex(unsigned int startLine, bool lexEntireBuffer);
 	void addLine(Point splitPoint);
 	void removeLine(Point newPoint);
-	std::vector<Token> getTokens(unsigned int startLine, unsigned int endLine);
+	std::vector<Token*> getTokens(unsigned int startLine, unsigned int endLine);
 
 private:
 	void lexString(Point& point, LineLexState::FinishType& currentLineLastFinishType);

@@ -281,7 +281,7 @@ void Lexer::removeLine(Point newPoint)
 	}
 }
 
-std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine)
+std::vector<Token*> Lexer::getTokens(unsigned int startLine, unsigned int endLine)
 {
 	if (lineStates.size() == 0)
 	{
@@ -294,14 +294,14 @@ std::vector<Token> Lexer::getTokens(unsigned int startLine, unsigned int endLine
 		return {};
 	}
 
-	std::vector<Token> result;
+	std::vector<Token*> result;
 
 	// TODO(fkp): Merging
 	for (int i = startLine; i <= endLine; i++)
 	{
-		for (Token token : lineStates[i].tokens)
+		for (Token& token : lineStates[i].tokens)
 		{
-			result.push_back(token);
+			result.push_back(&token);
 		}
 	}
 
@@ -1158,11 +1158,11 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 		return result;
 	}
 
-	std::vector<Token> tokens = getTokens(0, lineStates.size() - 1);
+	std::vector<Token*> tokens = getTokens(0, lineStates.size() - 1);
 	
 	for (int i = 0; i < tokens.size(); i++)
 	{
-		Token& token = tokens[i];
+		Token& token = *tokens[i];
 
 		if (token.type == Token::Type::FunctionDefinition)
 		{
@@ -1173,13 +1173,13 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 			// TODO(fkp): Comments will break this
 			for (int j = i - 1; j >= 0; j--)
 			{
-				if (tokens[j].type != Token::Type::TypeName &&
-					tokens[j].type != Token::Type::ScopeResolution &&
-					tokens[j].type != Token::Type::BitAnd &&
-					tokens[j].type != Token::Type::Asterisk &&
-					tokens[j].type != Token::Type::Keyword &&
+				if (tokens[j]->type != Token::Type::TypeName &&
+					tokens[j]->type != Token::Type::ScopeResolution &&
+					tokens[j]->type != Token::Type::BitAnd &&
+					tokens[j]->type != Token::Type::Asterisk &&
+					tokens[j]->type != Token::Type::Keyword &&
 					// TODO(fkp): Properly lex the return type so this isn't needed
-					tokens[j].type != Token::Type::IdentifierUsage)
+					tokens[j]->type != Token::Type::IdentifierUsage)
 				{
 					startIndex = j + 1;
 					break;
@@ -1190,8 +1190,8 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 			for (int j = i; j < tokens.size(); j++)
 			{
 				// TODO(fkp): Handle ending keywords such as override and noexcept
-				if (tokens[j].type == Token::Type::LeftBrace ||
-					tokens[j].type == Token::Type::Semicolon)
+				if (tokens[j]->type == Token::Type::LeftBrace ||
+					tokens[j]->type == Token::Type::Semicolon)
 				{
 					endIndex = j - 1;
 					break;
@@ -1203,20 +1203,19 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 				continue;
 			}
 
-			// TODO(fkp): Check if const works
 			std::string functionSignature = "";
 			
 			for (int j = startIndex; j <= endIndex; j++)
 			{
-				Token& signatureToken = tokens[j];
+				Token& signatureToken = *tokens[j];
 				functionSignature += buffer->substrFromPoints(signatureToken.start, signatureToken.end);
 
 				// Adds a space on the end if necessary
 				bool isModifiedType = (j < endIndex) &&
 									  (signatureToken.type == Token::Type::TypeName) &
-									  (tokens[j + 1].type == Token::Type::BitAnd ||
-									   tokens[j + 1].type == Token::Type::Asterisk ||
-									   tokens[j + 1].type == Token::Type::ScopeResolution);
+									  (tokens[j + 1]->type == Token::Type::BitAnd ||
+									   tokens[j + 1]->type == Token::Type::Asterisk ||
+									   tokens[j + 1]->type == Token::Type::ScopeResolution);
 				
 				if (signatureToken.type == Token::Type::BitAnd ||
 					signatureToken.type == Token::Type::Asterisk ||
@@ -1230,6 +1229,7 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 
 			printf("Function: '%s'\n", functionSignature.c_str());
 			result.emplace(buffer->substrFromPoints(token.start, token.end), functionSignature);
+			i = endIndex;
 		}
 	}
 
