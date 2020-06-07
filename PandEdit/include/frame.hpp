@@ -113,6 +113,8 @@ public:
 
 	void moveView(int numberOfLines, bool movePoint);
 	void centerPoint();
+
+	Token* getTokenUnderPoint();
 	
 	// Utility
 	unsigned int findWordBoundaryLeft();

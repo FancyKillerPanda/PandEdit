@@ -36,6 +36,7 @@ public:
 	std::vector<std::string> data;
 	Lexer lexer;
 	bool isUsingSyntaxHighlighting = false;
+	std::unordered_map<std::string, std::string> functionDefinitions;
 	
 	bool shouldAddToUndoInformation = true;
 	std::deque<Action> undoInformation;

@@ -1121,7 +1121,7 @@ void Lexer::doFinalAdjustments()
 	}
 
 	// TODO(fkp): Move this somewhere else
-	findFunctionsInBuffer();
+	buffer->functionDefinitions = findFunctionsInBuffer();
 }
 
 bool Lexer::isIdentifierStartCharacter(char character)
@@ -1227,7 +1227,6 @@ std::unordered_map<std::string, std::string> Lexer::findFunctionsInBuffer()
 				}
 			}
 
-			printf("Function: '%s'\n", functionSignature.c_str());
 			result.emplace(buffer->substrFromPoints(token.start, token.end), functionSignature);
 			i = endIndex;
 		}

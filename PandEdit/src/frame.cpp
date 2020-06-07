@@ -487,6 +487,19 @@ void Frame::doCommonPointManipulationTasks()
 	{
 		centerPoint();
 	}
+
+	Token* tokenUnderPoint = getTokenUnderPoint();
+	
+	if (tokenUnderPoint && tokenUnderPoint->type == Token::Type::FunctionUsage)
+	{
+		auto function = currentBuffer->functionDefinitions.find(currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end));
+		
+		// TODO(fkp): Standard library functions
+		if (function != currentBuffer->functionDefinitions.end())
+		{
+			printf("Function: '%s'\n", function->second.c_str());
+		}
+	}
 }
 
 void Frame::doCommonBufferManipulationTasks()
@@ -908,6 +921,25 @@ unsigned int Frame::findWordBoundaryLeft()
 	}
 
 	return numberOfChars;
+}
+
+Token* Frame::getTokenUnderPoint()
+{
+	if (currentBuffer->isUsingSyntaxHighlighting &&
+		point.line < currentBuffer->lexer.lineStates.size())
+	{
+		LineLexState& line = currentBuffer->lexer.lineStates[point.line];
+
+		for (Token& token : line.tokens)
+		{
+			if (point.col >= token.start.col && point.col < token.end.col)
+			{
+				return &token;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 unsigned int Frame::findWordBoundaryRight()

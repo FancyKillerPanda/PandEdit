@@ -45,7 +45,6 @@ private:
 	bool lexPunctuation(Point& point);
 
 	void doFinalAdjustments();
-
 	std::unordered_map<std::string, std::string> findFunctionsInBuffer();
 	
 	static bool isIdentifierStartCharacter(char character);
