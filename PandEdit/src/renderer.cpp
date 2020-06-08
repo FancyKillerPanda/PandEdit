@@ -560,5 +560,29 @@ void Renderer::drawFrame(Frame& frame)
 
 void Renderer::drawFramePopups(Frame& frame)
 {
+	if (frame.shouldDrawPopup)
+	{
+		// Gets the rects
+		// NOTE(fkp): We don't actually need most of these values
+		int realFramePixelX;
+		unsigned int realFramePixelWidth;
+		int framePixelX;
+		int framePixelY;
+		unsigned int framePixelWidth;
+		unsigned int framePixelHeight;
+		frame.getRect(currentFont, &realFramePixelX, &realFramePixelWidth, &framePixelX, &framePixelY, &framePixelWidth, &framePixelHeight);
+
+		float pointX;
+		float pointY;
+		float pointWidth;
+		float pointHeight;
+		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
 	
+		// Draws the background
+		// TODO(fkp): Try fit on the other side of the point
+		glUseProgram(shapeShader.programID);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.7f);
+
+		drawRect(pointX + (pointWidth * 1.5f), pointY, 350, currentFont->size * 8);
+	}
 }

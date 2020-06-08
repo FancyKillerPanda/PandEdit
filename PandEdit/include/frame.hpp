@@ -63,6 +63,8 @@ public:
 
 	Timer pointFlashTimer;
 
+	// TODO(fkp): Set this one properly
+	bool shouldDrawPopup = true;
 	bool overwriteMode = false;
 
 private:
