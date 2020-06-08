@@ -501,6 +501,7 @@ void Frame::doCommonPointManipulationTasks()
 		centerPoint();
 	}
 
+	// This is to display the signature of the function that is being hovered over
 	Token* tokenUnderPoint = getTokenUnderPoint();
 	
 	if (tokenUnderPoint && tokenUnderPoint->type == Token::Type::FunctionUsage)
@@ -513,6 +514,8 @@ void Frame::doCommonPointManipulationTasks()
 			printf("Function: '%s'\n", function->second.c_str());
 		}
 	}
+
+	popupLines.clear();
 }
 
 void Frame::doCommonBufferManipulationTasks()
@@ -547,6 +550,7 @@ void Frame::insertChar(char character)
 	doCommonBufferManipulationTasks();
 
 	// Popup window if necessary
+	// TODO(fkp): Do this for backspace as well
 	Token* tokenUnderPoint = getTokenUnderPoint(true);
 	
 	if (tokenUnderPoint &&
@@ -559,13 +563,12 @@ void Frame::insertChar(char character)
 		 tokenUnderPoint->type == Token::Type::Keyword
 		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
 	{
-		popupLines.clear();
-
+		std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
+		
 		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
 		{
 			const std::string& functionName = function.first;
-			std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
-			unsigned int index = functionName.find(tokenText);
+			std::string::size_type index = functionName.find(tokenText);
 
 			if (index != std::string::npos)
 			{
@@ -573,10 +576,27 @@ void Frame::insertChar(char character)
 				popupLines.push_back(functionName);
 			}
 		}
-	}
-	else
-	{
-		popupLines.clear();
+
+		// TODO(fkp): Should we really be iterating these every time?
+		for (const std::string& keyword : Lexer::keywords)
+		{
+			std::string::size_type index = keyword.find(tokenText);
+			
+			if (index != std::string::npos)
+			{
+				popupLines.push_back(keyword);				
+			}
+		}
+		
+		for (const std::string& type : Lexer::primitiveTypes)
+		{
+			std::string::size_type index = type.find(tokenText);
+			
+			if (index != std::string::npos)
+			{
+				popupLines.push_back(type);				
+			}
+		}
 	}
 }
 

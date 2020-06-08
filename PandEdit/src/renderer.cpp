@@ -600,9 +600,9 @@ void Renderer::drawFramePopups(Frame& frame)
 		textToDraw.maxWidth = popupWidth - pointWidth;
 		textToDraw.colour = getDefaultTextColour();
 
-		for (const std::string& popupLine : frame.popupLines)
+		for (int i = 0; i < numberOfLines; i++)
 		{
-			text += popupLine;
+			text += frame.popupLines[i];
 			text += std::string(1, '\n');
 		}
 		
