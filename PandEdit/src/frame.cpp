@@ -39,11 +39,6 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 	{
 		minibufferFrame = this;
 	}
-	// TODO(fkp): Remove this
-	else
-	{
-		popupLines.push_back("Popup line #1");
-	}
 }
 
 void Frame::switchToBuffer(Buffer* buffer)
@@ -550,6 +545,39 @@ void Frame::insertChar(char character)
 	adjustOtherFramePointLocations(true, false);
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
+
+	// Popup window if necessary
+	Token* tokenUnderPoint = getTokenUnderPoint(true);
+	
+	if (tokenUnderPoint &&
+		point.col == tokenUnderPoint->end.col &&
+		(tokenUnderPoint->type == Token::Type::IdentifierUsage ||
+		 tokenUnderPoint->type == Token::Type::FunctionUsage ||
+		 tokenUnderPoint->type == Token::Type::IdentifierDefinition ||
+		 tokenUnderPoint->type == Token::Type::FunctionDefinition ||
+		 tokenUnderPoint->type == Token::Type::TypeName ||
+		 tokenUnderPoint->type == Token::Type::Keyword
+		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
+	{
+		popupLines.clear();
+
+		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
+		{
+			const std::string& functionName = function.first;
+			std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
+			unsigned int index = functionName.find(tokenText);
+
+			if (index != std::string::npos)
+			{
+				// TODO(fkp): Order them by index
+				popupLines.push_back(functionName);
+			}
+		}
+	}
+	else
+	{
+		popupLines.clear();
+	}
 }
 
 void Frame::backspaceChar(unsigned int num, bool copyText)
@@ -1017,7 +1045,7 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 	}
 }
 
-Token* Frame::getTokenUnderPoint()
+Token* Frame::getTokenUnderPoint(bool includeEnd)
 {
 	if (currentBuffer->isUsingSyntaxHighlighting &&
 		point.line < currentBuffer->lexer.lineStates.size())
@@ -1026,9 +1054,24 @@ Token* Frame::getTokenUnderPoint()
 
 		for (Token& token : line.tokens)
 		{
-			if (point.col >= token.start.col && point.col < token.end.col)
+			if (point.col >= token.start.col)
 			{
-				return &token;
+				// There's probably a more compact way to do this, but
+				// this is easier to read and comprehend.
+				if (includeEnd)
+				{
+					if (point.col <= token.end.col)
+					{
+						return &token;
+					}
+				}
+				else
+				{
+					if (point.col < token.end.col)
+					{
+						return &token;
+					}
+				}
 			}
 		}
 	}
