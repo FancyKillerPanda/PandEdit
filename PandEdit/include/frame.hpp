@@ -127,6 +127,7 @@ public:
 	unsigned int findWordBoundaryRight();
 	void moveColToTarget();
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
+	void updatePopups();
 
 	// Copy/cut/paste
 	void copyRegion(std::string text = "");

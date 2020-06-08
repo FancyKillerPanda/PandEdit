@@ -548,56 +548,7 @@ void Frame::insertChar(char character)
 	adjustOtherFramePointLocations(true, false);
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
-
-	// Popup window if necessary
-	// TODO(fkp): Do this for backspace as well
-	Token* tokenUnderPoint = getTokenUnderPoint(true);
-	
-	if (tokenUnderPoint &&
-		point.col == tokenUnderPoint->end.col &&
-		(tokenUnderPoint->type == Token::Type::IdentifierUsage ||
-		 tokenUnderPoint->type == Token::Type::FunctionUsage ||
-		 tokenUnderPoint->type == Token::Type::IdentifierDefinition ||
-		 tokenUnderPoint->type == Token::Type::FunctionDefinition ||
-		 tokenUnderPoint->type == Token::Type::TypeName ||
-		 tokenUnderPoint->type == Token::Type::Keyword
-		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
-	{
-		std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
-		
-		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
-		{
-			const std::string& functionName = function.first;
-			std::string::size_type index = functionName.find(tokenText);
-
-			if (index != std::string::npos)
-			{
-				// TODO(fkp): Order them by index
-				popupLines.push_back(functionName);
-			}
-		}
-
-		// TODO(fkp): Should we really be iterating these every time?
-		for (const std::string& keyword : Lexer::keywords)
-		{
-			std::string::size_type index = keyword.find(tokenText);
-			
-			if (index != std::string::npos)
-			{
-				popupLines.push_back(keyword);				
-			}
-		}
-		
-		for (const std::string& type : Lexer::primitiveTypes)
-		{
-			std::string::size_type index = type.find(tokenText);
-			
-			if (index != std::string::npos)
-			{
-				popupLines.push_back(type);				
-			}
-		}
-	}
+	updatePopups();
 }
 
 void Frame::backspaceChar(unsigned int num, bool copyText)
@@ -655,6 +606,7 @@ void Frame::backspaceChar(unsigned int num, bool copyText)
 	
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
+	updatePopups();
 }
 
 void Frame::deleteChar(unsigned int num, bool copyText)
@@ -1256,6 +1208,57 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 						frame->point.line -= 1;
 					}
 				}
+			}
+		}
+	}
+}
+
+void Frame::updatePopups()
+{
+	Token* tokenUnderPoint = getTokenUnderPoint(true);
+	
+	if (tokenUnderPoint &&
+		point.col == tokenUnderPoint->end.col &&
+		(tokenUnderPoint->type == Token::Type::IdentifierUsage ||
+		 tokenUnderPoint->type == Token::Type::FunctionUsage ||
+		 tokenUnderPoint->type == Token::Type::IdentifierDefinition ||
+		 tokenUnderPoint->type == Token::Type::FunctionDefinition ||
+		 tokenUnderPoint->type == Token::Type::TypeName ||
+		 tokenUnderPoint->type == Token::Type::Keyword
+		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
+	{
+		std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
+		
+		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
+		{
+			const std::string& functionName = function.first;
+			std::string::size_type index = functionName.find(tokenText);
+
+			if (index != std::string::npos)
+			{
+				// TODO(fkp): Order them by index
+				popupLines.push_back(functionName);
+			}
+		}
+
+		// TODO(fkp): Should we really be iterating these every time?
+		for (const std::string& keyword : Lexer::keywords)
+		{
+			std::string::size_type index = keyword.find(tokenText);
+			
+			if (index != std::string::npos)
+			{
+				popupLines.push_back(keyword);				
+			}
+		}
+		
+		for (const std::string& type : Lexer::primitiveTypes)
+		{
+			std::string::size_type index = type.find(tokenText);
+			
+			if (index != std::string::npos)
+			{
+				popupLines.push_back(type);				
 			}
 		}
 	}
