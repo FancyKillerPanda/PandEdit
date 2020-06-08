@@ -116,6 +116,8 @@ public:
 	void moveView(int numberOfLines, bool movePoint);
 	void centerPoint();
 
+	void getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelWidth, int* pixelX, int* pixelY, unsigned int* pixelWidth, unsigned int* pixelHeight);
+	void getPointRect(Font* currentFont, unsigned int tabWidth, int framePixelX, int framePixelY, float* pointX, float* pointY, float* pointWidth, float* pointHeight);	
 	Token* getTokenUnderPoint();
 	
 	// Utility

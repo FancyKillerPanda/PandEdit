@@ -338,74 +338,23 @@ void Renderer::drawFrame(Frame& frame)
 	}
 	
 	//
-	// Pixel dimensions
-	//
-	
-	int realFramePixelX = (int) (frame.pcDimensions.x * frame.windowWidth);
-	unsigned int realFramePixelWidth = (unsigned int) (frame.pcDimensions.width * frame.windowWidth);
-	int framePixelX = realFramePixelX + (FRAME_BORDER_WIDTH * 2);
-	int framePixelY = (int) (frame.pcDimensions.y * frame.windowHeight);
-	unsigned int framePixelWidth = realFramePixelWidth - (FRAME_BORDER_WIDTH * 2);
-	unsigned int framePixelHeight = (unsigned int) (frame.pcDimensions.height * frame.windowHeight);
-
-	if (frame.pcDimensions.y == 1.0f)
-	{
-		// This is the minibuffer
-		framePixelHeight = currentFont->size;
-	}
-	
-	//
-	// Point dimensions
+	// Frame and point rects
 	//
 
-	float pointX = framePixelX;
-	float pointY = framePixelY + ((frame.point.line - frame.currentTopLine) * currentFont->size);
+	int realFramePixelX;
+	unsigned int realFramePixelWidth;
+	int framePixelX;
+	int framePixelY;
+	unsigned int framePixelWidth;
+	unsigned int framePixelHeight;
+	frame.getRect(currentFont, &realFramePixelX, &realFramePixelWidth, &framePixelX, &framePixelY, &framePixelWidth, &framePixelHeight);
+
+	float pointX;
+	float pointY;
 	float pointWidth;
-	float pointHeight = (float) currentFont->size;
-	unsigned int numberOfColumnsInLine = 0;
-
-	for (unsigned int i = 0; i < frame.point.col; i++)
-	{
-		const Character& character = currentFont->chars[buffer.data[frame.point.line][i]];
-
-		if (buffer.data[frame.point.line][i] == '\n')
-		{
-			pointX = 0;
-			pointY += currentFont->size;
-			numberOfColumnsInLine = 0;
-		}
-		else if (buffer.data[frame.point.line][i] == '\t')
-		{
-			// NOTE(fkp): This is the same calculation as in the drawText() method
-			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
-			pointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
-			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
-		}
-		else
-		{
-			pointX += character.advanceX;
-			numberOfColumnsInLine += 1;
-		}
-	}
-
-	if (frame.point.col == buffer.data[frame.point.line].size())
-	{
-		pointWidth = (float) currentFont->maxGlyphAdvanceX;
-	}
-	else
-	{
-		char currentChar = buffer.data[frame.point.line][frame.point.col];
-
-		if (currentChar == '\n' || currentChar == '\t')
-		{
-			pointWidth = currentFont->chars[' '].advanceX;
-		}
-		else
-		{
-			pointWidth = currentFont->chars[currentChar].advanceX;
-		}
-	}
-
+	float pointHeight;
+	frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
+	
 	//
 	// Highlighting the current line
 	//
@@ -607,4 +556,9 @@ void Renderer::drawFrame(Frame& frame)
 
 	drawRect(realFramePixelX, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
 	drawRect(realFramePixelX + realFramePixelWidth - FRAME_BORDER_WIDTH, framePixelY, FRAME_BORDER_WIDTH, framePixelHeight);
+}
+
+void Renderer::drawFramePopups(Frame& frame)
+{
+	
 }

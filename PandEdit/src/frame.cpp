@@ -945,6 +945,73 @@ unsigned int Frame::findWordBoundaryLeft()
 	return numberOfChars;
 }
 
+void Frame::getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelWidth, int* pixelX, int* pixelY, unsigned int* pixelWidth, unsigned int* pixelHeight)
+{
+	*realPixelX = (int) (pcDimensions.x * windowWidth);
+	*realPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
+	
+	*pixelX = *realPixelX + (FRAME_BORDER_WIDTH * 2);
+	*pixelY = (int) (pcDimensions.y * windowHeight);
+	*pixelWidth = *realPixelWidth - (FRAME_BORDER_WIDTH * 2);
+	*pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
+
+	if (pcDimensions.y == 1.0f)
+	{
+		// This is the minibuffer
+		*pixelHeight = currentFont->size;
+	}
+}
+
+void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixelX, int framePixelY, float* pointX, float* pointY, float* pointWidth, float* pointHeight)
+{
+	*pointX = framePixelX;
+	*pointY = framePixelY + ((point.line - currentTopLine) * currentFont->size);
+	*pointHeight = (float) currentFont->size;
+	unsigned int numberOfColumnsInLine = 0;
+
+	for (unsigned int i = 0; i < point.col; i++)
+	{
+		const Character& character = currentFont->chars[currentBuffer->data[point.line][i]];
+
+		if (currentBuffer->data[point.line][i] == '\n')
+		{
+			*pointX = 0;
+			*pointY += currentFont->size;
+			numberOfColumnsInLine = 0;
+		}
+		else if (currentBuffer->data[point.line][i] == '\t')
+		{
+			// NOTE(fkp): This is the same calculation as in the drawText() method
+			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
+			*pointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
+			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
+		}
+		else
+		{
+			*pointX += character.advanceX;
+			numberOfColumnsInLine += 1;
+		}
+	}
+
+	if (point.col == currentBuffer->data[point.line].size())
+	{
+		*pointWidth = (float) currentFont->maxGlyphAdvanceX;
+	}
+	else
+	{
+		char currentChar = currentBuffer->data[point.line][point.col];
+
+		if (currentChar == '\n' || currentChar == '\t')
+		{
+			*pointWidth = currentFont->chars[' '].advanceX;
+		}
+		else
+		{
+			*pointWidth = currentFont->chars[currentChar].advanceX;
+		}
+	}
+}
+
 Token* Frame::getTokenUnderPoint()
 {
 	if (currentBuffer->isUsingSyntaxHighlighting &&

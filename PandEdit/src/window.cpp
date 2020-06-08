@@ -271,6 +271,12 @@ void Window::draw()
 	{
 		renderer->drawFrame(*frame);
 	}
+
+	// Pop-ups should be over the top of all frames
+	for (Frame* frame : frames)
+	{
+		renderer->drawFramePopups(*frame);
+	}
 }
 
 void Window::resize(unsigned int newWidth, unsigned int newHeight)

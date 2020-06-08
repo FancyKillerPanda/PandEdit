@@ -66,6 +66,7 @@ public:
 	void drawHollowRect(float x, float y, float width, float height, float borderWidth);
 	void drawText(TextToDraw& textToDraw);
 	void drawFrame(Frame& frame);
+	void drawFramePopups(Frame& frame);
 };
 
 #endif
