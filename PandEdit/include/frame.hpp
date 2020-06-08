@@ -63,8 +63,8 @@ public:
 
 	Timer pointFlashTimer;
 
-	// TODO(fkp): Set this one properly
-	bool shouldDrawPopup = true;
+	std::vector<std::string> popupLines;
+	
 	bool overwriteMode = false;
 
 private:

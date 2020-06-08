@@ -560,7 +560,7 @@ void Renderer::drawFrame(Frame& frame)
 
 void Renderer::drawFramePopups(Frame& frame)
 {
-	if (frame.shouldDrawPopup)
+	if (frame.popupLines.size() > 0)
 	{
 		// Gets the rects
 		// NOTE(fkp): We don't actually need most of these values
@@ -583,6 +583,29 @@ void Renderer::drawFramePopups(Frame& frame)
 		glUseProgram(shapeShader.programID);
 		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.7f);
 
-		drawRect(pointX + (pointWidth * 1.5f), pointY, 350, currentFont->size * 8);
+		unsigned int numberOfLines = frame.popupLines.size();
+		if (numberOfLines > 8) numberOfLines = 8;
+
+		int popupX = pointX + (pointWidth * 1.5f);
+		int popupY = pointY;
+		unsigned int popupWidth = 350;
+		unsigned int popupHeight = currentFont->size * numberOfLines;
+		drawRect(popupX, popupY, popupWidth, popupHeight);
+
+		// Draws the text
+		std::string text;
+		TextToDraw textToDraw { text };
+		textToDraw.x = popupX + (pointWidth / 2);
+		textToDraw.y = popupY;
+		textToDraw.maxWidth = popupWidth - pointWidth;
+		textToDraw.colour = getDefaultTextColour();
+
+		for (const std::string& popupLine : frame.popupLines)
+		{
+			text += popupLine;
+			text += std::string(1, '\n');
+		}
+		
+		drawText(textToDraw);
 	}
 }

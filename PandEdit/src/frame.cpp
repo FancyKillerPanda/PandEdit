@@ -39,6 +39,11 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 	{
 		minibufferFrame = this;
 	}
+	// TODO(fkp): Remove this
+	else
+	{
+		popupLines.push_back("Popup line #1");
+	}
 }
 
 void Frame::switchToBuffer(Buffer* buffer)
