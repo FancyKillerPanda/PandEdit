@@ -59,6 +59,8 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::K, false, false, true }, "destroyBuffer");
 	KeyMap::bindKey({ Key::F, false, false, true }, "findFile");
 	KeyMap::bindKey({ Key::S, false, false, true }, "saveCurrentBuffer");
+
+	KeyMap::bindKey({ Key::Tab }, "completeSuggestion");
 }
 
 #endif

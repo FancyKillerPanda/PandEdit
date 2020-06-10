@@ -111,8 +111,6 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{
-		KeyMap::registerKeyPress(*window, KeyMap::convertWin32CodeToKey(wParam));
-		
 		switch (wParam)
 		{
 		// NOTE(fkp): This is just for debugging
@@ -156,6 +154,8 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			}
 		} break;
 		}
+		
+		KeyMap::registerKeyPress(*window, KeyMap::convertWin32CodeToKey(wParam));
 	} return 0;
 
 	case WM_SYSKEYUP:

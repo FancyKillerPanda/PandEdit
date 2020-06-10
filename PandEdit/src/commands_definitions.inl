@@ -461,3 +461,17 @@ DEFINE_COMMAND(lexBufferAsCpp)
 	
 	return true;
 }
+
+DEFINE_COMMAND(completeSuggestion)
+{
+	// This is a little hacky, but it is to get rid of the tab that
+	// gets inserted when this is used as a keybind.
+	if (FRAME->point.col > 0 &&
+		BUFFER->data[FRAME->point.line][FRAME->point.col - 1] == '\t')
+	{
+		FRAME->backspaceChar();
+	}
+	
+	FRAME->completeSuggestion();
+	return false;
+}

@@ -28,6 +28,8 @@ void exitMinibuffer(std::string message)
 #include "commands_definitions.inl"
 #define COMMAND(name) { #name, name }
 
+// TODO(fkp): Try to remember the criteria for what is and isn't
+// essential and see if everything still fits correctly.
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsMap = {
 	COMMAND(quit),
 	COMMAND(minibufferQuit),
@@ -62,6 +64,8 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(deleteRegion),
 	COMMAND(undo),
 	COMMAND(redo),
+	
+	COMMAND(completeSuggestion),
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {

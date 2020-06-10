@@ -1274,6 +1274,27 @@ void Frame::updatePopups()
 	}
 }
 
+void Frame::completeSuggestion()
+{
+	if (popupLines.size() > 0)
+	{
+		Token* tokenUnderPoint = getTokenUnderPoint(true);
+		std::string suggestion = popupLines[0];
+
+		if (tokenUnderPoint)
+		{
+			point = tokenUnderPoint->end;
+
+			while (point > tokenUnderPoint->start)
+			{
+				backspaceChar();
+			}
+
+			insertString(suggestion);
+		}
+	}
+}
+
 void Frame::copyRegion(std::string text)
 {
 	std::string textToCopy;
