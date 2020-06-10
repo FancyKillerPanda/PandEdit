@@ -1228,6 +1228,7 @@ void Frame::updatePopups()
 		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
 	{
 		std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
+		std::vector<std::pair<std::string::size_type, std::string>> foundMatches;
 		
 		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
 		{
@@ -1239,8 +1240,7 @@ void Frame::updatePopups()
 
 				if (index != std::string::npos)
 				{
-					// TODO(fkp): Order them by index
-					popupLines.push_back(functionName);
+					foundMatches.emplace_back(index, functionName);
 				}
 			}
 		}
@@ -1254,7 +1254,7 @@ void Frame::updatePopups()
 			
 				if (index != std::string::npos)
 				{
-					popupLines.push_back(keyword);				
+					foundMatches.emplace_back(index, keyword);
 				}
 			}
 		}
@@ -1267,9 +1267,19 @@ void Frame::updatePopups()
 			
 				if (index != std::string::npos)
 				{
-					popupLines.push_back(type);				
+					foundMatches.emplace_back(index, type);
 				}
 			}
+		}
+
+		std::sort(foundMatches.begin(), foundMatches.end(), [](auto& left, auto& right)
+															{
+																return left.first < right.first;
+															});
+
+		for (std::pair<std::string::size_type, std::string>& match : foundMatches)
+		{
+			popupLines.push_back(std::move(match.second));
 		}
 	}
 }
