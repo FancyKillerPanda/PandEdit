@@ -1232,33 +1232,43 @@ void Frame::updatePopups()
 		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
 		{
 			const std::string& functionName = function.first;
-			std::string::size_type index = functionName.find(tokenText);
 
-			if (index != std::string::npos)
+			if (tokenText != functionName)
 			{
-				// TODO(fkp): Order them by index
-				popupLines.push_back(functionName);
+				std::string::size_type index = functionName.find(tokenText);
+
+				if (index != std::string::npos)
+				{
+					// TODO(fkp): Order them by index
+					popupLines.push_back(functionName);
+				}
 			}
 		}
 
 		// TODO(fkp): Should we really be iterating these every time?
 		for (const std::string& keyword : Lexer::keywords)
 		{
-			std::string::size_type index = keyword.find(tokenText);
-			
-			if (index != std::string::npos)
+			if (tokenText != keyword)
 			{
-				popupLines.push_back(keyword);				
+				std::string::size_type index = keyword.find(tokenText);
+			
+				if (index != std::string::npos)
+				{
+					popupLines.push_back(keyword);				
+				}
 			}
 		}
 		
 		for (const std::string& type : Lexer::primitiveTypes)
 		{
-			std::string::size_type index = type.find(tokenText);
-			
-			if (index != std::string::npos)
+			if (tokenText != type)
 			{
-				popupLines.push_back(type);				
+				std::string::size_type index = type.find(tokenText);
+			
+				if (index != std::string::npos)
+				{
+					popupLines.push_back(type);				
+				}
 			}
 		}
 	}

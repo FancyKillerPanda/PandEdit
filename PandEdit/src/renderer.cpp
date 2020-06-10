@@ -560,7 +560,7 @@ void Renderer::drawFrame(Frame& frame)
 
 void Renderer::drawFramePopups(Frame& frame)
 {
-	if (frame.popupLines.size() > 0)
+	if (&frame == Frame::currentFrame && frame.popupLines.size() > 0)
 	{
 		// Gets the rects
 		// NOTE(fkp): We don't actually need most of these values
