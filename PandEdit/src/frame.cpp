@@ -7,6 +7,7 @@
 #include "frame.hpp"
 #include "font.hpp"
 #include "undo.hpp"
+#include "commands.hpp"
 
 Frame::Frame(std::string name, Vector4f dimensions, unsigned int windowWidth, unsigned int windowHeight, Buffer* buffer, bool isActive)
 {
@@ -1215,72 +1216,100 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 
 void Frame::updatePopups()
 {
-	Token* tokenUnderPoint = getTokenUnderPoint(true);
-	
-	if (tokenUnderPoint &&
-		point.col == tokenUnderPoint->end.col &&
-		(tokenUnderPoint->type == Token::Type::IdentifierUsage ||
-		 tokenUnderPoint->type == Token::Type::FunctionUsage ||
-		 tokenUnderPoint->type == Token::Type::IdentifierDefinition ||
-		 tokenUnderPoint->type == Token::Type::FunctionDefinition ||
-		 tokenUnderPoint->type == Token::Type::TypeName ||
-		 tokenUnderPoint->type == Token::Type::Keyword
-		 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
+	std::vector<std::pair<std::string::size_type, std::string>> foundMatches;
+			
+	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
-		std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
-		std::vector<std::pair<std::string::size_type, std::string>> foundMatches;
+		std::string commandText = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
+
+		for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
+		{
+			std::string::size_type index = command.first.find(commandText);
+
+			if (index != std::string::npos)
+			{
+				foundMatches.emplace_back(index, command.first);
+			}
+		}
+
+		for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::essentialCommandsMap)
+		{
+			std::string::size_type index = command.first.find(commandText);
+
+			if (index != std::string::npos)
+			{
+				foundMatches.emplace_back(index, command.first);
+			}
+		}
+	}
+	else
+	{
+		Token* tokenUnderPoint = getTokenUnderPoint(true);
+	
+		if (tokenUnderPoint &&
+			point.col == tokenUnderPoint->end.col &&
+			(tokenUnderPoint->type == Token::Type::IdentifierUsage ||
+			 tokenUnderPoint->type == Token::Type::FunctionUsage ||
+			 tokenUnderPoint->type == Token::Type::IdentifierDefinition ||
+			 tokenUnderPoint->type == Token::Type::FunctionDefinition ||
+			 tokenUnderPoint->type == Token::Type::TypeName ||
+			 tokenUnderPoint->type == Token::Type::Keyword
+			 /* tokenUnderPoint->type == Token::Type::PreprocessorDirective */))
+		{
+			std::string tokenText = currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end);
 		
-		for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
-		{
-			const std::string& functionName = function.first;
-
-			if (tokenText != functionName)
+			for (const std::pair<const std::string, std::string>& function : currentBuffer->functionDefinitions)
 			{
-				std::string::size_type index = functionName.find(tokenText);
+				const std::string& functionName = function.first;
 
-				if (index != std::string::npos)
+				if (tokenText != functionName)
 				{
-					foundMatches.emplace_back(index, functionName);
+					std::string::size_type index = functionName.find(tokenText);
+
+					if (index != std::string::npos)
+					{
+						foundMatches.emplace_back(index, functionName);
+					}
 				}
 			}
-		}
 
-		// TODO(fkp): Should we really be iterating these every time?
-		for (const std::string& keyword : Lexer::keywords)
-		{
-			if (tokenText != keyword)
+			// TODO(fkp): Should we really be iterating these every time?
+			for (const std::string& keyword : Lexer::keywords)
 			{
-				std::string::size_type index = keyword.find(tokenText);
+				if (tokenText != keyword)
+				{
+					std::string::size_type index = keyword.find(tokenText);
 			
-				if (index != std::string::npos)
-				{
-					foundMatches.emplace_back(index, keyword);
+					if (index != std::string::npos)
+					{
+						foundMatches.emplace_back(index, keyword);
+					}
 				}
 			}
-		}
 		
-		for (const std::string& type : Lexer::primitiveTypes)
-		{
-			if (tokenText != type)
+			for (const std::string& type : Lexer::primitiveTypes)
 			{
-				std::string::size_type index = type.find(tokenText);
-			
-				if (index != std::string::npos)
+				if (tokenText != type)
 				{
-					foundMatches.emplace_back(index, type);
+					std::string::size_type index = type.find(tokenText);
+			
+					if (index != std::string::npos)
+					{
+						foundMatches.emplace_back(index, type);
+					}
 				}
 			}
 		}
+	}
+	
+	std::sort(foundMatches.begin(), foundMatches.end(), [](auto& left, auto& right)
+														{
+															return left.first < right.first;
+														});
 
-		std::sort(foundMatches.begin(), foundMatches.end(), [](auto& left, auto& right)
-															{
-																return left.first < right.first;
-															});
-
-		for (std::pair<std::string::size_type, std::string>& match : foundMatches)
-		{
-			popupLines.push_back(std::move(match.second));
-		}
+	for (std::pair<std::string::size_type, std::string>& match : foundMatches)
+	{
+		popupLines.push_back(std::move(match.second));
 	}
 }
 
