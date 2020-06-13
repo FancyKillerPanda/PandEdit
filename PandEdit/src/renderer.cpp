@@ -578,11 +578,7 @@ void Renderer::drawFramePopups(Frame& frame)
 		float pointHeight;
 		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
 	
-		// Draws the background
-		// TODO(fkp): Try fit on the other side of the point
-		glUseProgram(shapeShader.programID);
-		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.7f);
-
+		// Figures out the location and dimensions of the popup
 		unsigned int numberOfLines = frame.popupLines.size();
 		if (numberOfLines > 8) numberOfLines = 8;
 
@@ -590,6 +586,24 @@ void Renderer::drawFramePopups(Frame& frame)
 		int popupY = pointY;
 		unsigned int popupWidth = 350;
 		unsigned int popupHeight = currentFont->size * numberOfLines;
+
+		if (popupX + popupWidth > realFramePixelX + realFramePixelWidth)
+		{
+			popupX -= popupWidth;
+			popupY += currentFont->size;
+		}
+		
+		if (popupY + popupHeight > framePixelY + framePixelHeight)
+		{
+			// Doesn't fit on the bottom of the screen
+			popupY -= popupHeight;
+			popupY += currentFont->size;
+		}
+		
+		// Draws the background
+		// TODO(fkp): Try fit on the other side of the point
+		glUseProgram(shapeShader.programID);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.7f);
 		drawRect(popupX, popupY, popupWidth, popupHeight);
 
 		// Draws the text
