@@ -470,6 +470,11 @@ DEFINE_COMMAND(completeSuggestion)
 		BUFFER->data[FRAME->point.line][FRAME->point.col - 1] == '\t')
 	{
 		FRAME->backspaceChar();
+
+		if (FRAME->popupLines.size() == 0)
+		{
+			FRAME->insertChar('\t');
+		}
 	}
 	
 	FRAME->completeSuggestion();
