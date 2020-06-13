@@ -166,7 +166,7 @@ Point& Point::movePrevious()
 	if (col > 0)
 	{
 		if (buffer->type == BufferType::MiniBuffer &&
-			col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' ') + 1)
+			col <= Frame::minibufferFrame->currentBuffer->data[0].find_first_of(' '))
 		{
 			// Should not be able to move into the 'Execute: ' part
 			return *this;

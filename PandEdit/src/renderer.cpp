@@ -474,8 +474,9 @@ void Renderer::drawFrame(Frame& frame)
 	// Point
 	//
 
-	if (pointX + pointWidth <= framePixelX + framePixelWidth &&
-		pointY + pointHeight <= framePixelY + framePixelHeight - currentFont->size)
+	if (frame.currentBuffer->type == BufferType::MiniBuffer ||
+		(pointX + pointWidth <= framePixelX + framePixelWidth &&
+		 pointY + pointHeight <= framePixelY + framePixelHeight - currentFont->size))
 	{
 		glUseProgram(shapeShader.programID);
 		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);

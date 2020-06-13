@@ -1222,6 +1222,11 @@ void Frame::updatePopups()
 	{
 		std::string commandText = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
 
+		if (commandText == "")
+		{
+			return;
+		}
+
 		for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
 		{
 			std::string::size_type index = command.first.find(commandText);

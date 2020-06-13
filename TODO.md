@@ -1,8 +1,6 @@
 # PandEdit TODO
 
 ### Bug Fixes
-- When lexing is enabled and a newline is entered, program crashes
-- Program hangs when using Ctrl+Backspace in the minibuffer
 
 ### Features
 - Proper right align of text
