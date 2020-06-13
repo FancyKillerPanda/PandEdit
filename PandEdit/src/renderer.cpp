@@ -598,8 +598,16 @@ void Renderer::drawFramePopups(Frame& frame)
 		if (popupY + popupHeight > framePixelY + framePixelHeight)
 		{
 			// Doesn't fit on the bottom of the screen
-			popupY -= popupHeight;
-			popupY += currentFont->size;
+			if (popupY == pointY)
+			{				
+				popupY -= popupHeight;
+				popupY += currentFont->size;
+			}
+			else
+			{
+				popupY -= popupHeight;
+				popupY -= currentFont->size;
+			}
 		}
 		
 		// Draws the background
