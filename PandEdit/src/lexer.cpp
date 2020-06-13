@@ -53,6 +53,9 @@ std::unordered_set<std::string> Lexer::primitiveTypes = {
 Lexer::Lexer(Buffer* buffer)
 	: buffer(buffer)
 {
+	// As the buffer will never be empty (will always have at least
+	// one line), this should also never be empty.
+	lineStates.emplace_back();
 }
 
 #define UPDATE_CHARACTER() character = buffer->data[point.line][point.col]
@@ -61,10 +64,16 @@ Lexer::Lexer(Buffer* buffer)
 
 void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 {
-	if (buffer->data.size() == 0 ||
-		(buffer->data.size() == 1 && buffer->data[0].size() == 0))
+	if (buffer->data.size() == 0)
+	{
+		ERROR_ONCE("Error: Buffer has no lines in it.\n");
+		return;
+	}
+	else if (buffer->data.size() == 1 && buffer->data[0].size() == 0)
 	{
 		lineStates.clear();
+		lineStates.emplace_back();
+
 		return;
 	}
 
