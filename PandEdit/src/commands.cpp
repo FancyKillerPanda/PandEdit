@@ -15,6 +15,7 @@ void exitMinibuffer()
 	if (Frame::currentFrame->currentBuffer->type == BufferType::MiniBuffer)
 	{
 		Frame::minibufferFrame->point.col = 0; // Just to be safe
+		Frame::minibufferFrame->popupLines.clear();
 		Frame::previousFrame->makeActive();
 	}
 }
