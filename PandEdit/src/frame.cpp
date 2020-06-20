@@ -3,6 +3,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include <algorithm>
+#include <filesystem>
 
 #include "frame.hpp"
 #include "font.hpp"
@@ -1240,30 +1241,67 @@ void Frame::updatePopups()
 			
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
-		std::string commandText = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
-
-		if (commandText == "")
+		if (Commands::isReadingPath)
 		{
-			return;
-		}
+			// The path up to the last directory
+			std::string::size_type startOfPathIndex = currentBuffer->data[0].find_first_of(' ') + 1;
+			std::string::size_type lastSlashIndex = currentBuffer->data[0].find_last_of("/\\");
+			std::string currentValidPath = currentBuffer->data[0].substr(startOfPathIndex, lastSlashIndex - startOfPathIndex);
 
-		for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
-		{
-			std::string::size_type index = command.first.find(commandText);
-
-			if (index != std::string::npos)
+			if (lastSlashIndex == std::string::npos)
 			{
-				foundMatches.emplace_back(index, command.first);
+				lastSlashIndex = startOfPathIndex - 1;
+				currentValidPath = "";
+			}
+			
+			std::string currentNextItem = currentBuffer->data[0].substr(lastSlashIndex + 1);
+
+			// Iterates all filess and directories in the path
+			for (const auto& file : std::filesystem::directory_iterator(currentValidPath))
+			{
+				std::string name = file.path().filename().string();
+				std::error_code isDirectoryErrorCode;
+				
+				if (std::filesystem::is_directory(file.path(), isDirectoryErrorCode))
+				{
+					name += "/";
+				}
+				
+				std::string::size_type index = name.find(currentNextItem);
+				
+				if (index != std::string::npos)
+				{
+					foundMatches.emplace_back(index, name);
+				}
 			}
 		}
-
-		for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::essentialCommandsMap)
+		else
 		{
-			std::string::size_type index = command.first.find(commandText);
+			std::string commandText = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
 
-			if (index != std::string::npos)
+			if (commandText == "")
 			{
-				foundMatches.emplace_back(index, command.first);
+				return;
+			}
+
+			for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
+			{
+				std::string::size_type index = command.first.find(commandText);
+
+				if (index != std::string::npos)
+				{
+					foundMatches.emplace_back(index, command.first);
+				}
+			}
+
+			for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::essentialCommandsMap)
+			{
+				std::string::size_type index = command.first.find(commandText);
+
+				if (index != std::string::npos)
+				{
+					foundMatches.emplace_back(index, command.first);
+				}
 			}
 		}
 	}
