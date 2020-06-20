@@ -1246,7 +1246,7 @@ void Frame::updatePopups()
 			// The path up to the last directory
 			std::string::size_type startOfPathIndex = currentBuffer->data[0].find_first_of(' ') + 1;
 			std::string::size_type lastSlashIndex = currentBuffer->data[0].find_last_of("/\\");
-			std::string currentValidPath = currentBuffer->data[0].substr(startOfPathIndex, lastSlashIndex - startOfPathIndex);
+			std::string currentValidPath = currentBuffer->data[0].substr(startOfPathIndex, lastSlashIndex - startOfPathIndex + 1);
 
 			if (lastSlashIndex == std::string::npos)
 			{
@@ -1256,22 +1256,25 @@ void Frame::updatePopups()
 			
 			std::string currentNextItem = currentBuffer->data[0].substr(lastSlashIndex + 1);
 
-			// Iterates all filess and directories in the path
-			for (const auto& file : std::filesystem::directory_iterator(currentValidPath))
+			if (std::filesystem::exists(currentValidPath))
 			{
-				std::string name = file.path().filename().string();
-				std::error_code isDirectoryErrorCode;
-				
-				if (std::filesystem::is_directory(file.path(), isDirectoryErrorCode))
+				// Iterates all filess and directories in the path
+				for (const auto& file : std::filesystem::directory_iterator(currentValidPath))
 				{
-					name += "/";
-				}
+					std::string name = file.path().filename().string();
+					std::error_code isDirectoryErrorCode;
 				
-				std::string::size_type index = name.find(currentNextItem);
+					if (std::filesystem::is_directory(file.path(), isDirectoryErrorCode))
+					{
+						name += "/";
+					}
 				
-				if (index != std::string::npos)
-				{
-					foundMatches.emplace_back(index, name);
+					std::string::size_type index = name.find(currentNextItem);
+				
+					if (index != std::string::npos)
+					{
+						foundMatches.emplace_back(index, name);
+					}
 				}
 			}
 		}

@@ -432,8 +432,8 @@ DEFINE_COMMAND(findFile)
 		
 		std::string message = "Path: " + window.currentWorkingDirectory;
 		Commands::isReadingPath = true;
-		FRAME->updatePopups();
 		writeToMinibuffer(message);
+		FRAME->updatePopups();
 
 		return false;
 	}
@@ -482,10 +482,10 @@ DEFINE_COMMAND(saveCurrentBuffer)
 			Frame::minibufferFrame->makeActive();
 			Commands::currentCommand = saveCurrentBuffer;
 			
-			std::string message = "Path: " + window.currentWorkingDirectory;		
+			std::string message = "Path: " + window.currentWorkingDirectory;
 			Commands::isReadingPath = true;
-			FRAME->updatePopups();
 			writeToMinibuffer(message);
+			FRAME->updatePopups();
 
 			return false;
 		}
