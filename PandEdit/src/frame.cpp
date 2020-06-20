@@ -55,6 +55,7 @@ void Frame::switchToBuffer(Buffer* buffer)
 	point = currentBuffer->lastPoint;
 	targetTopLine = currentBuffer->lastTopLine;
 	currentTopLine = targetTopLine;
+	popupLines.clear();
 }
 
 void Frame::destroyBuffer(Buffer* buffer)
@@ -1349,6 +1350,8 @@ void Frame::completeSuggestion()
 
 			insertString(suggestion);
 		}
+
+		popupLines.clear();
 	}
 }
 
