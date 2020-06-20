@@ -953,6 +953,29 @@ unsigned int Frame::findWordBoundaryLeft()
 
 void Frame::getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelWidth, int* pixelX, int* pixelY, unsigned int* pixelWidth, unsigned int* pixelHeight)
 {
+	/*
+	int temp_realPixelX = (int) (pcDimensions.x * windowWidth);
+	int temp_realPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
+	
+	int temp_pixelX = temp_realPixelX + (FRAME_BORDER_WIDTH * 2);
+	int temp_pixelY = (int) (pcDimensions.y * windowHeight);
+	int temp_pixelWidth = temp_realPixelWidth - (FRAME_BORDER_WIDTH * 2);
+	int temp_pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
+
+	if (pcDimensions.y == 1.0f)
+	{
+		// This is the minibuffer
+		temp_pixelHeight = currentFont->size;
+	}
+
+	if (realPixelX) *realPixelX = temp_realPixelX;
+	if (realPixelWidth) *realPixelWidth = temp_realPixelWidth;
+	if (pixelX) *pixelX = temp_pixelX;
+	if (pixelY) *pixelY = temp_pixelY;
+	if (pixelWidth) *pixelWidth = temp_pixelWidth;
+	if (pixelHeight) *pixelX = temp_pixelHeight;
+	*/
+
 	*realPixelX = (int) (pcDimensions.x * windowWidth);
 	*realPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
 	
@@ -968,6 +991,8 @@ void Frame::getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelW
 	}
 }
 
+// TODO(fkp): Modify this function like above
+// TODO(fkp): Modify all use cases of this to pass nullptr for data it doesn't want
 void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixelX, int framePixelY, float* pointX, float* pointY, float* pointWidth, float* pointHeight)
 {
 	*pointX = framePixelX;

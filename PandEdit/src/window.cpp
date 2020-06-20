@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <windows.h>
+#include <windowsx.h> // For GET_X/Y_LPARAM macro
 #include <filesystem>
 
 #include <glad/glad.h>
@@ -193,6 +194,36 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 		// Shows the cursor
 		while (ShowCursor(true) <= 0);
+	} return 0;
+
+	case WM_MOUSEWHEEL:
+	{
+		for (Frame* frame : window->frames)
+		{
+			// Only want frames with buffers, not grouping ones
+			if (!frame->currentBuffer)
+			{
+				continue;
+			}
+
+			int realFrameX;			
+			unsigned int realFrameWidth;
+			int frameX; // Unused
+			int frameY;
+			unsigned int frameWidth; // Unused
+			unsigned int frameHeight;
+			frame->getRect(window->renderer->currentFont, &realFrameX, &realFrameWidth, &frameX, &frameY, &frameWidth, &frameHeight);
+
+			short mouseX = GET_X_LPARAM(lParam);
+			short mouseY = GET_Y_LPARAM(lParam);
+
+			if (mouseX >= realFrameX && mouseX <= realFrameX + realFrameWidth &&
+				mouseY >= frameY && mouseY <= frameY + frameHeight)
+			{
+				frame->moveView((GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * -3, false);
+				break;
+			}
+		}
 	} return 0;
 	
 	default:
