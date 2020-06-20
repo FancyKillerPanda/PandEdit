@@ -481,6 +481,12 @@ void Renderer::drawFrame(Frame& frame)
 		glUseProgram(shapeShader.programID);
 		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 1.0f, 1.0f, 1.0f, 1.0f);
 
+		if (frame.overwriteMode)
+		{
+			pointY += pointHeight * 0.85f;
+			pointHeight *= 0.15f;
+		}
+		
 		if (&frame == Frame::currentFrame)
 		{
 			constexpr double FLASH_TIME = 600.0;
