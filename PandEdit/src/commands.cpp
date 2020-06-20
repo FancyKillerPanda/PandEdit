@@ -36,6 +36,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(minibufferQuit),
 	
 	COMMAND(backspaceChar),
+	COMMAND(backspaceCharExtra),
 	COMMAND(deleteChar),
 	COMMAND(backspaceWord),
 	COMMAND(deleteWord),

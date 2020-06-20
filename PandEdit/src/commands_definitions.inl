@@ -38,6 +38,7 @@ DEFINE_COMMAND(minibufferEnter)
 	{
 		Frame::minibufferFrame->makeActive();
 		writeToMinibuffer("Execute: ");
+		Commands::isReadingPath = false; // This shouldn't be necessary
 	}
 	return false;
 }
@@ -47,6 +48,7 @@ DEFINE_COMMAND(minibufferQuit)
 	exitMinibuffer("Quit");
 	Frame::previousFrame->makeActive();
 	Commands::currentCommand = nullptr;
+	Commands::isReadingPath = false;
 	
 	return true;
 }
@@ -116,6 +118,39 @@ DEFINE_COMMAND(backspaceChar)
 {
 	FRAME->backspaceChar(1);
 	return false;
+}
+
+DEFINE_COMMAND(backspaceCharExtra)
+{
+	if (BUFFER->type == BufferType::MiniBuffer && Commands::isReadingPath)
+	{
+		std::string::size_type indexSlashBefore = BUFFER->data[0].find_last_of("/\\", FRAME->point.col - 2);
+		std::string::size_type indexSlashAfter = BUFFER->data[0].find_first_of("/\\", FRAME->point.col - 1);
+
+		if (indexSlashBefore == std::string::npos)
+		{
+			indexSlashBefore = BUFFER->data[0].find_first_of(" ");
+		}
+
+		if (indexSlashAfter == std::string::npos)
+		{
+			indexSlashAfter = BUFFER->data[0].size();
+		}
+
+		FRAME->point.col = indexSlashAfter + 1;
+		
+		while (FRAME->point.col > indexSlashBefore + 1)
+		{
+			FRAME->backspaceChar(1);
+		}
+		
+		return false;
+	}
+	else
+	{
+		// TODO(fkp): Figure out a way to forward all the arguments
+		return backspaceChar(window, text);
+	}
 }
 
 DEFINE_COMMAND(deleteChar)
@@ -396,6 +431,7 @@ DEFINE_COMMAND(findFile)
 		Commands::currentCommand = findFile;
 		
 		std::string message = "Path: " + window.currentWorkingDirectory;
+		Commands::isReadingPath = true;
 		writeToMinibuffer(message);
 
 		return false;
@@ -446,6 +482,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 			Commands::currentCommand = saveCurrentBuffer;
 			
 			std::string message = "Path: " + window.currentWorkingDirectory;		
+			Commands::isReadingPath = true;
 			writeToMinibuffer(message);
 
 			return false;

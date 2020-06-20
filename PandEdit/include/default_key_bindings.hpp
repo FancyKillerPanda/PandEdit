@@ -24,7 +24,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::W, false, true, true }, "frameMovePrevious");
 	
 	KeyMap::bindKey({ Key::Backspace }, "backspaceChar");
-	KeyMap::bindKey({ Key::Backspace, false, true }, "backspaceChar");
+	KeyMap::bindKey({ Key::Backspace, false, true }, "backspaceCharExtra");
 	KeyMap::bindKey({ Key::Delete }, "deleteChar");
 	KeyMap::bindKey({ Key::Backspace, true }, "backspaceWord");
 	KeyMap::bindKey({ Key::Delete, true }, "deleteWord");
