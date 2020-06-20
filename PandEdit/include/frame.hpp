@@ -64,7 +64,8 @@ public:
 	Timer pointFlashTimer;
 
 	std::vector<std::string> popupLines;
-	
+
+	bool shouldReLexBuffer = true;
 	bool overwriteMode = false;
 
 private:

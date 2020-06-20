@@ -523,7 +523,7 @@ void Frame::doCommonPointManipulationTasks()
 void Frame::doCommonBufferManipulationTasks()
 {
 	// TODO(fkp): Figure out which lex mode to use
-	if (currentBuffer->isUsingSyntaxHighlighting)
+	if (currentBuffer->isUsingSyntaxHighlighting && shouldReLexBuffer)
 	{
 		currentBuffer->lexer.lex(point.line, false);
 	}
@@ -699,7 +699,12 @@ void Frame::insertString(const std::string& string)
 		}
 		else if (character != '\r') // Windows has CRLF endings
 		{
+			bool oldShouldReLexBuffer = shouldReLexBuffer;
+			shouldReLexBuffer = false;
+			
 			insertChar(character);
+			
+			shouldReLexBuffer = oldShouldReLexBuffer;
 		}
 	}
 
@@ -708,6 +713,7 @@ void Frame::insertString(const std::string& string)
 		centerPoint();
 	}
 
+	doCommonBufferManipulationTasks();
 	currentBuffer->shouldAddToUndoInformation = oldShouldAddInformation;
 	currentBuffer->addActionToUndoBuffer(Action::insertion(startLocation, point, string));
 }
