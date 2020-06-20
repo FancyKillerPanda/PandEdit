@@ -84,12 +84,12 @@ Frame::~Frame()
 }
 
 Frame::Frame(Frame&& other)
-	: name(std::move(other.name)),
-	  parent(other.parent), childOne(other.childOne), childTwo(other.childTwo),
+	: parent(other.parent), childOne(other.childOne), childTwo(other.childTwo),
+	  name(std::move(other.name)),
 	  pcDimensions(std::move(other.pcDimensions)),
 	  windowWidth(other.windowWidth), windowHeight(other.windowHeight),
 	  currentBuffer(other.currentBuffer), point(other.point),
-	  targetTopLine(other.targetTopLine), currentTopLine(other.currentTopLine)
+	  currentTopLine(other.currentTopLine), targetTopLine(other.targetTopLine)
 {
 	framesMap[name] = this;
 	other.name = "";
@@ -442,7 +442,7 @@ std::string Frame::getTextPointToMark()
 		}
 	}
 
-	return std::move(result);
+	return result;
 }
 
 void Frame::deleteTextPointToMark(bool appendToKillRing)
@@ -992,7 +992,7 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 
 	for (unsigned int i = 0; i < point.col; i++)
 	{
-		const Character& character = currentFont->chars[currentBuffer->data[point.line][i]];
+		const Character& character = currentFont->chars[(unsigned char) currentBuffer->data[point.line][i]];
 
 		if (currentBuffer->data[point.line][i] == '\n')
 		{
@@ -1004,7 +1004,7 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 		{
 			// NOTE(fkp): This is the same calculation as in the drawText() method
 			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
-			tempPointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
+			tempPointX += currentFont->chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
 			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 		}
 		else
@@ -1020,11 +1020,11 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 	}
 	else
 	{
-		char currentChar = currentBuffer->data[point.line][point.col];
+		unsigned char currentChar = currentBuffer->data[point.line][point.col];
 
 		if (currentChar == '\n' || currentChar == '\t')
 		{
-			tempPointWidth = currentFont->chars[' '].advanceX;
+			tempPointWidth = currentFont->chars[(unsigned char) ' '].advanceX;
 		}
 		else
 		{

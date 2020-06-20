@@ -3,11 +3,11 @@
 #include "token.hpp"
 
 Token::Token(Type type, Point start, std::string data)
-	: type(type), start(start), data(data)
+	: type(type), data(data), start(start)
 {
 }
 
 Token::Token(Type type, Point start, Point end, std::string data)
-	: type(type), start(start), end(end), data(data)
+	: type(type), data(data), start(start), end(end)
 {
 }

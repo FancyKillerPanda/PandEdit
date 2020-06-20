@@ -26,12 +26,12 @@ Buffer::Buffer(BufferType type, std::string name, std::string path)
 
 		while ((pos = fileContents.find("\n", previous)) != std::string::npos)
 		{
-			data.emplace_back(std::move(fileContents.substr(previous, pos - previous)));
+			data.emplace_back(fileContents.substr(previous, pos - previous));
 			previous = pos + 1;
 		}
 
 		// Last one
-		data.emplace_back(std::move(fileContents.substr(previous)));
+		data.emplace_back(fileContents.substr(previous));
 
 		// Automatic syntax highlighting based on file extension
 		// TODO(fkp): Different highlighting for C files
@@ -75,8 +75,8 @@ Buffer::~Buffer()
 
 Buffer::Buffer(Buffer&& other)
 	: type(other.type), name(std::move(other.name)), data(std::move(other.data)),
-	  lastPoint(other.lastPoint), lastTopLine(other.lastTopLine),
-	  lexer(other.lexer)
+	  lexer(other.lexer),
+	  lastPoint(other.lastPoint), lastTopLine(other.lastTopLine)
 {
 	buffersMap[name] = this;
 	other.name = "";

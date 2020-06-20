@@ -151,7 +151,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 	// Loop through every character (until message length (if provided))
 	for (int i = 0; i < textToDraw.text.size(); i++)
 	{
-		char currentChar = textToDraw.text[i];
+		unsigned char currentChar = textToDraw.text[i];
 		
 		// Breaks after enough characters
 		if (textToDraw.textLength != -1 && loopCounter++ >= textToDraw.textLength)
@@ -189,8 +189,8 @@ void Renderer::drawText(TextToDraw& textToDraw)
 			unsigned int numberOfColumnsToNextTabStop = tabWidth - (textToDraw.numberOfColumnsInLine % tabWidth);			
 			textToDraw.numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 
-			textToDraw.x += font.chars[' '].advanceX * numberOfColumnsToNextTabStop;
-			textToDraw.y += font.chars[' '].advanceY * numberOfColumnsToNextTabStop;
+			textToDraw.x += font.chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
+			textToDraw.y += font.chars[(unsigned char) ' '].advanceY * numberOfColumnsToNextTabStop;
 			
 			continue;
 		}

@@ -19,13 +19,13 @@ bool isValidToken(Token& token, int excludes, Token::Type nextType = Token::Type
 		return !isInvalid;
 }
 
-Token& LineLexState::getTokenBefore(int index, int excludes)
+Token* LineLexState::getTokenBefore(int index, int excludes)
 {
 	int unused = 0;
 	return getTokenBefore(index, unused, excludes);
 }
 
-Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int excludes)
+Token* LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int excludes)
 {
 	numberOfTokensTravelled = 0;
 	Token::Type previousTokenType = Token::Type::Invalid;
@@ -36,7 +36,7 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int
 		
 		if (index < 0 || index >= tokens.size())
 		{
-			return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
+			return nullptr;
 		}
 
 		numberOfTokensTravelled += 1;
@@ -44,20 +44,20 @@ Token& LineLexState::getTokenBefore(int index, int& numberOfTokensTravelled, int
 		
 		if (isValidToken(token, excludes, previousTokenType))
 		{
-			return token;
+			return &token;
 		}
 		
 		previousTokenType = token.type;
 	} while (true);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, int excludes)
+Token* LineLexState::getTokenAtOrAfter(int index, int excludes)
 {
 	int unused = 0;
 	return getTokenAtOrAfter(index, unused, excludes);
 }
 
-Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes)
+Token* LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes)
 {
 	numberOfTokensTravelled = 0;
 	
@@ -65,7 +65,7 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 	{
 		if (index < 0 || index >= tokens.size())
 		{
-			return Token { Token::Type::Invalid, { 0, 0 }, { 0, 0 }, "" };
+			return nullptr;
 		}
 
 		Token& token = tokens[index];
@@ -79,7 +79,7 @@ Token& LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		
 		if (!isValidToken(token, excludes, nextTokenType))
 		{
-			return token;
+			return &token;
 		}
 		
 		index += 1;

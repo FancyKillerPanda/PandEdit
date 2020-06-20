@@ -19,7 +19,7 @@ FOR %%A IN (%*) DO (
 IF NOT EXIST build\ md build
 cd build
 
-cmake .. -G "Visual Studio 16 2019"
+cmake .. -G "Visual Studio 16 2019" -T "llvm" -A "x64"
 IF ERRORLEVEL 1 GOTO end
 cmake --build . --config %CONFIG%
 IF ERRORLEVEL 1 GOTO end

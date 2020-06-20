@@ -31,10 +31,10 @@ public:
 
 public:
 	// NOTE(fkp): Use ExcludableToken for the excludes
-	Token& getTokenBefore(int index, int excludes);
-	Token& getTokenBefore(int index, int& numberOfTokensTravelled, int excludes);
-	Token& getTokenAtOrAfter(int index, int excludes);
-	Token& getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes);
+	Token* getTokenBefore(int index, int excludes);
+	Token* getTokenBefore(int index, int& numberOfTokensTravelled, int excludes);
+	Token* getTokenAtOrAfter(int index, int excludes);
+	Token* getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes);
 };
 
 #endif
