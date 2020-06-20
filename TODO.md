@@ -1,6 +1,7 @@
 # PandEdit TODO
 
 ### Bug Fixes
+- Crashes when typing before the last slash in minibuffer path
 
 ### Features
 - Proper right align of text

@@ -1380,9 +1380,34 @@ void Frame::completeSuggestion()
 {
 	if (popupLines.size() > 0)
 	{
-		Token* tokenUnderPoint = getTokenUnderPoint(true);
 		std::string suggestion = popupLines[0];
+		
+		Token* tokenUnderPoint = getTokenUnderPoint(true);
+		Token token { Token::Type::Invalid, Point { 0, 0 } }; // Unused unless minibuffer
 
+		// The getTokenUnderPoint() would not have worked as this
+		// buffer is not lexed.
+		if (currentBuffer->type == BufferType::MiniBuffer)
+		{
+			// NOTE(fkp): Copied from commands_definitions.inl
+			std::string::size_type indexSlashBefore = currentBuffer->data[0].find_last_of("/\\", point.col - 2);
+			std::string::size_type indexSlashAfter = currentBuffer->data[0].find_first_of("/\\", point.col - 1);
+
+			if (indexSlashBefore == std::string::npos)
+			{
+				indexSlashBefore = currentBuffer->data[0].find_first_of(" ");
+			}
+
+			if (indexSlashAfter == std::string::npos)
+			{
+				indexSlashAfter = currentBuffer->data[0].size();
+			}
+
+			token.start.col = (unsigned int) indexSlashBefore + 1;
+			token.end.col = (unsigned int) indexSlashAfter;
+			tokenUnderPoint = &token;
+		}
+		
 		if (tokenUnderPoint)
 		{
 			point = tokenUnderPoint->end;
