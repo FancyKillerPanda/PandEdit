@@ -565,20 +565,17 @@ void Renderer::drawFramePopups(Frame& frame)
 	if (&frame == Frame::currentFrame && frame.popupLines.size() > 0)
 	{
 		// Gets the rects
-		// NOTE(fkp): We don't actually need most of these values
 		int realFramePixelX;
 		unsigned int realFramePixelWidth;
 		int framePixelX;
 		int framePixelY;
-		unsigned int framePixelWidth;
 		unsigned int framePixelHeight;
-		frame.getRect(currentFont, &realFramePixelX, &realFramePixelWidth, &framePixelX, &framePixelY, &framePixelWidth, &framePixelHeight);
+		frame.getRect(currentFont, &realFramePixelX, &realFramePixelWidth, &framePixelX, &framePixelY, nullptr, &framePixelHeight);
 
 		float pointX;
 		float pointY;
 		float pointWidth;
-		float pointHeight;
-		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
+		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, nullptr);
 	
 		// Figures out the location and dimensions of the popup
 		unsigned int numberOfLines = frame.popupLines.size();

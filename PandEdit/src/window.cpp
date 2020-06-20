@@ -208,11 +208,9 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 
 			int realFrameX;			
 			unsigned int realFrameWidth;
-			int frameX; // Unused
 			int frameY;
-			unsigned int frameWidth; // Unused
 			unsigned int frameHeight;
-			frame->getRect(window->renderer->currentFont, &realFrameX, &realFrameWidth, &frameX, &frameY, &frameWidth, &frameHeight);
+			frame->getRect(window->renderer->currentFont, &realFrameX, &realFrameWidth, nullptr, &frameY, nullptr, &frameHeight);
 
 			short mouseX = GET_X_LPARAM(lParam);
 			short mouseY = GET_Y_LPARAM(lParam);

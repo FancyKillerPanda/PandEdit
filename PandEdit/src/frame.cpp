@@ -953,51 +953,34 @@ unsigned int Frame::findWordBoundaryLeft()
 
 void Frame::getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelWidth, int* pixelX, int* pixelY, unsigned int* pixelWidth, unsigned int* pixelHeight)
 {
-	/*
-	int temp_realPixelX = (int) (pcDimensions.x * windowWidth);
-	int temp_realPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
+	int tempRealPixelX = (int) (pcDimensions.x * windowWidth);
+	unsigned int tempRealPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
 	
-	int temp_pixelX = temp_realPixelX + (FRAME_BORDER_WIDTH * 2);
-	int temp_pixelY = (int) (pcDimensions.y * windowHeight);
-	int temp_pixelWidth = temp_realPixelWidth - (FRAME_BORDER_WIDTH * 2);
-	int temp_pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
+	int tempPixelX = tempRealPixelX + (FRAME_BORDER_WIDTH * 2);
+	int tempPixelY = (int) (pcDimensions.y * windowHeight);
+	unsigned int tempPixelWidth = tempRealPixelWidth - (FRAME_BORDER_WIDTH * 2);
+	unsigned int tempPixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
 
 	if (pcDimensions.y == 1.0f)
 	{
 		// This is the minibuffer
-		temp_pixelHeight = currentFont->size;
+		tempPixelHeight = currentFont->size;
 	}
 
-	if (realPixelX) *realPixelX = temp_realPixelX;
-	if (realPixelWidth) *realPixelWidth = temp_realPixelWidth;
-	if (pixelX) *pixelX = temp_pixelX;
-	if (pixelY) *pixelY = temp_pixelY;
-	if (pixelWidth) *pixelWidth = temp_pixelWidth;
-	if (pixelHeight) *pixelX = temp_pixelHeight;
-	*/
-
-	*realPixelX = (int) (pcDimensions.x * windowWidth);
-	*realPixelWidth = (unsigned int) (pcDimensions.width * windowWidth);
-	
-	*pixelX = *realPixelX + (FRAME_BORDER_WIDTH * 2);
-	*pixelY = (int) (pcDimensions.y * windowHeight);
-	*pixelWidth = *realPixelWidth - (FRAME_BORDER_WIDTH * 2);
-	*pixelHeight = (unsigned int) (pcDimensions.height * windowHeight);
-
-	if (pcDimensions.y == 1.0f)
-	{
-		// This is the minibuffer
-		*pixelHeight = currentFont->size;
-	}
+	if (realPixelX) *realPixelX = tempRealPixelX;
+	if (realPixelWidth) *realPixelWidth = tempRealPixelWidth;
+	if (pixelX) *pixelX = tempPixelX;
+	if (pixelY) *pixelY = tempPixelY;
+	if (pixelWidth) *pixelWidth = tempPixelWidth;
+	if (pixelHeight) *pixelHeight = tempPixelHeight;
 }
 
-// TODO(fkp): Modify this function like above
-// TODO(fkp): Modify all use cases of this to pass nullptr for data it doesn't want
 void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixelX, int framePixelY, float* pointX, float* pointY, float* pointWidth, float* pointHeight)
 {
-	*pointX = framePixelX;
-	*pointY = framePixelY + ((point.line - currentTopLine) * currentFont->size);
-	*pointHeight = (float) currentFont->size;
+	float tempPointX = framePixelX;
+	float tempPointY = framePixelY + ((point.line - currentTopLine) * currentFont->size);
+	float tempPointWidth;
+	float tempPointHeight = (float) currentFont->size;
 	unsigned int numberOfColumnsInLine = 0;
 
 	for (unsigned int i = 0; i < point.col; i++)
@@ -1006,27 +989,27 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 
 		if (currentBuffer->data[point.line][i] == '\n')
 		{
-			*pointX = 0;
-			*pointY += currentFont->size;
+			tempPointX = 0;
+			tempPointY += currentFont->size;
 			numberOfColumnsInLine = 0;
 		}
 		else if (currentBuffer->data[point.line][i] == '\t')
 		{
 			// NOTE(fkp): This is the same calculation as in the drawText() method
 			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
-			*pointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
+			tempPointX += currentFont->chars[' '].advanceX * numberOfColumnsToNextTabStop;
 			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 		}
 		else
 		{
-			*pointX += character.advanceX;
+			tempPointX += character.advanceX;
 			numberOfColumnsInLine += 1;
 		}
 	}
 
 	if (point.col == currentBuffer->data[point.line].size())
 	{
-		*pointWidth = (float) currentFont->maxGlyphAdvanceX;
+		tempPointWidth = (float) currentFont->maxGlyphAdvanceX;
 	}
 	else
 	{
@@ -1034,13 +1017,18 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 
 		if (currentChar == '\n' || currentChar == '\t')
 		{
-			*pointWidth = currentFont->chars[' '].advanceX;
+			tempPointWidth = currentFont->chars[' '].advanceX;
 		}
 		else
 		{
-			*pointWidth = currentFont->chars[currentChar].advanceX;
+			tempPointWidth = currentFont->chars[currentChar].advanceX;
 		}
 	}
+
+	if (pointX) *pointX = tempPointX;
+	if (pointY) *pointY = tempPointY;
+	if (pointWidth) *pointWidth = tempPointWidth;
+	if (pointHeight) *pointHeight = tempPointHeight;
 }
 
 Token* Frame::getTokenUnderPoint(bool includeEnd)
