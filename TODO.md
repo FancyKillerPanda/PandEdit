@@ -11,4 +11,3 @@
 - Change point to represent overwrite mode
 - Clear suggestions after completing
 - Allow choosing which selection
-- Faster scrolling when pressing control/shift (which one?)

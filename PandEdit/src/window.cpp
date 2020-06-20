@@ -218,7 +218,14 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			if (mouseX >= realFrameX && mouseX <= realFrameX + realFrameWidth &&
 				mouseY >= frameY && mouseY <= frameY + frameHeight)
 			{
-				frame->moveView((GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * -3, false);
+				int speed = 3;
+
+				if (GET_KEYSTATE_WPARAM(wParam) & MK_CONTROL)
+				{
+					speed = 8;
+				}
+				
+				frame->moveView((GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * -speed, false);
 				break;
 			}
 		}
