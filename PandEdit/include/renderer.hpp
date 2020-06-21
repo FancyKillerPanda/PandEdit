@@ -25,6 +25,7 @@ public:
 
 	Colour colour = normaliseColour(255, 255, 255, 255);	
 	
+	bool rightAlign = false;
 	float startX = -1.0f;
 	float x = 0.0f;
 	float y = 0.0f;

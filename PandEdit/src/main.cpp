@@ -39,8 +39,9 @@ int main(int argc, char* argv[])
 	unsigned int numberOfFrames = 0;
 
 	TextToDraw fpsText { fpsTextString };
-	fpsText.x = window.width - 128;
+	fpsText.startX = window.width - 20;
 	fpsText.colour = getDefaultTextColour();
+	fpsText.rightAlign = true;
 	
 	while (window.isOpen)
 	{
@@ -70,6 +71,7 @@ int main(int argc, char* argv[])
 		// TODO(fkp): Figure out how to avoid doing this. If the
 		// TextToDraw object is persistent across frames, the x value
 		// increases continually.
+		fpsText.startX = window.width - 20;
 		fpsText.x = fpsText.startX;
 		
 		SwapBuffers(window.deviceContext);

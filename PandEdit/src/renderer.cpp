@@ -147,6 +147,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 	}
 
 	int loopCounter = 0;
+	unsigned int maxLineWidth = 0;
 
 	// Loop through every character (until message length (if provided))
 	for (int i = 0; i < textToDraw.text.size(); i++)
@@ -186,7 +187,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		if (currentChar == '\t')
 		{
 			// TODO(fkp): This doesn't work with non-monospaced fonts
-			unsigned int numberOfColumnsToNextTabStop = tabWidth - (textToDraw.numberOfColumnsInLine % tabWidth);			
+			unsigned int numberOfColumnsToNextTabStop = tabWidth - (textToDraw.numberOfColumnsInLine % tabWidth);
 			textToDraw.numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 
 			textToDraw.x += font.chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
@@ -206,6 +207,12 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		textToDraw.y += font.chars[currentChar].advanceY;
 		textToDraw.numberOfColumnsInLine += 1;
 
+		// Adds to the line width
+		if (textToDraw.x - textToDraw.startX > maxLineWidth)
+		{
+			maxLineWidth = textToDraw.x - textToDraw.startX;
+		}
+		
 		// Skip glyphs with no pixels
 		if (!width || !height)
 		{
@@ -273,6 +280,15 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		};
 	}
 
+	// Adjusts x-position if we are supposed to be right aligned
+	if (textToDraw.rightAlign)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			vertices[i].x -= maxLineWidth;
+		}
+	}
+	
 	// Draw the text
 	glBufferData(GL_ARRAY_BUFFER, verticesBufferSize * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
 	glDrawArrays(GL_TRIANGLES, 0, count);
