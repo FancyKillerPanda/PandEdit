@@ -35,6 +35,9 @@ public:
 	Token* getTokenBefore(int index, int& numberOfTokensTravelled, int excludes);
 	Token* getTokenAtOrAfter(int index, int excludes);
 	Token* getTokenAtOrAfter(int index, int& numberOfTokensTravelled, int excludes);
+
+	// NOTE(fkp): Returns -1 if token does not exist
+	int getIndexOfToken(Token* tokenToMatch);
 };
 
 #endif

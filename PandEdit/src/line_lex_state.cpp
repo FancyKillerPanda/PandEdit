@@ -86,3 +86,16 @@ Token* LineLexState::getTokenAtOrAfter(int index, int& numberOfTokensTravelled, 
 		numberOfTokensTravelled += 1;
 	} while (true);
 }
+
+int LineLexState::getIndexOfToken(Token* tokenToMatch)
+{
+	for (int i = 0; i < tokens.size(); i++)
+	{
+		if (&tokens[i] == tokenToMatch)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
