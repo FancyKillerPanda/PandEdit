@@ -507,54 +507,43 @@ void Frame::doCommonPointManipulationTasks()
 	// This is to display the signature of the function that is being hovered over
 	Token* tokenUnderPoint = getTokenUnderPoint();
 	
-	// TODO(fkp): Compress this if/else as they do the same thing in places
 	if (tokenUnderPoint)
 	{
-		if (tokenUnderPoint->type == Token::Type::FunctionUsage)
-		{
-			auto function = currentBuffer->functionDefinitions.find(currentBuffer->substrFromPoints(tokenUnderPoint->start, tokenUnderPoint->end));
-		
-			// TODO(fkp): Standard library functions
-			if (function != currentBuffer->functionDefinitions.end())
-			{
-				printf("Function: '%s'\n", function->second.c_str());
-			}
-		}
-		else
-		{
-			LineLexState& lineState = currentBuffer->lexer.lineStates[tokenUnderPoint->start.line];
-			int indexOfTokenUnderPoint = lineState.getIndexOfToken(tokenUnderPoint);
-			int currentIndex = indexOfTokenUnderPoint;
-			int parenCount = 0; // Reduces on close paren, increases on open paren
+		LineLexState& lineState = currentBuffer->lexer.lineStates[tokenUnderPoint->start.line];
+		int indexOfTokenUnderPoint = lineState.getIndexOfToken(tokenUnderPoint);
+		int currentIndex = indexOfTokenUnderPoint + 1;
+		int parenCount = 0; // Reduces on close paren, increases on open paren
 
-			while (Token* tokenBefore = lineState.getTokenBefore(currentIndex, EXCLUDE_NONE))
+		while (Token* tokenBefore = lineState.getTokenBefore(currentIndex, EXCLUDE_NONE))
+		{
+			if (tokenBefore->type == Token::Type::FunctionUsage)
 			{
-				if (tokenBefore->type == Token::Type::FunctionUsage)
-				{
-					if (parenCount > 0)
-					{	
-						auto function = currentBuffer->functionDefinitions.find(currentBuffer->substrFromPoints(tokenBefore->start, tokenBefore->end));
+				// The second bit is there because if the point is
+				// directly over the function name, parenCount will be
+				// equal to 0 (because the parenthesis is on the right).
+				if (parenCount > 0 || currentIndex == indexOfTokenUnderPoint + 1)
+				{	
+					auto function = currentBuffer->functionDefinitions.find(currentBuffer->substrFromPoints(tokenBefore->start, tokenBefore->end));
 		
-						// TODO(fkp): Standard library functions
-						if (function != currentBuffer->functionDefinitions.end())
-						{
-							printf("Function: '%s'\n", function->second.c_str());
-						}
+					// TODO(fkp): Standard library functions
+					if (function != currentBuffer->functionDefinitions.end())
+					{
+						printf("Function: '%s'\n", function->second.c_str());
 					}
-
-					break;
-				}
-				else if (tokenBefore->type == Token::Type::LeftParen)
-				{
-					parenCount += 1;
-				}
-				else if (tokenBefore->type == Token::Type::RightParen)
-				{
-					parenCount -= 1;
 				}
 
-				currentIndex -= 1;
+				break;
 			}
+			else if (tokenBefore->type == Token::Type::LeftParen)
+			{
+				parenCount += 1;
+			}
+			else if (tokenBefore->type == Token::Type::RightParen)
+			{
+				parenCount -= 1;
+			}
+
+			currentIndex -= 1;
 		}
 	}
 	
