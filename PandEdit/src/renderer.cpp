@@ -605,7 +605,7 @@ void Renderer::drawFramePopups(Frame& frame)
 
 		int popupX = pointX + (pointWidth * 1.5f);
 		int popupY = pointY;
-		unsigned int popupWidth = 350;
+		unsigned int popupWidth = 400;
 		unsigned int popupHeight = currentFont->size * numberOfLines;
 
 		if (popupX + popupWidth > realFramePixelX + realFramePixelWidth)

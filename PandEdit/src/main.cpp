@@ -29,8 +29,9 @@ int main(int argc, char* argv[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Font arialFont("arial", "res/arial.ttf", 30);
-	Font consolasFont("consolas", "res/consola.ttf", 24);
-	window.setFont(&consolasFont);
+	Font consolasFont16("consolas-16", "res/consola.ttf", 16);
+	Font consolasFont24("consolas-24", "res/consola.ttf", 24);
+	window.setFont(&consolasFont24);
 
 	mapDefaultKeyBindings();	
 	

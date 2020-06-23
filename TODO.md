@@ -5,9 +5,12 @@
 
 ### Features
 - std::string_view
+- UTF-8 characters
+
 - Allow choosing which selection
 - Make suggestion box size as needed
-- UTF-8 characters
+- Right-align suggestion information
+
 - Project file
 	- Can contain frame layout information
 	- Specify include directories

@@ -121,9 +121,13 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 			{
 				if (window->renderer->currentFont->name == "arial")
 				{
-					window->setFont(Font::get("consolas"));
+					window->setFont(Font::get("consolas-24"));
 				}
-				else if (window->renderer->currentFont->name == "consolas")
+				else if (window->renderer->currentFont->name == "consolas-24")
+				{
+					window->setFont(Font::get("consolas-16"));
+				}
+				else if (window->renderer->currentFont->name == "consolas-16")
 				{
 					window->setFont(Font::get("arial"));
 				}
