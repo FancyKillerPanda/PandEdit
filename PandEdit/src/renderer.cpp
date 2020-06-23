@@ -636,6 +636,7 @@ void Renderer::drawFramePopups(Frame& frame)
 		drawRect(popupX, popupY, popupWidth, popupHeight);
 
 		// Draws the text
+		/*
 		std::string text;
 		TextToDraw textToDraw { text };
 		textToDraw.x = popupX + (pointWidth / 2);
@@ -650,5 +651,32 @@ void Renderer::drawFramePopups(Frame& frame)
 		}
 		
 		drawText(textToDraw);
+		*/
+
+		std::string text;
+		TextToDraw textToDraw { text };
+		textToDraw.x = popupX + (pointWidth / 2);
+		textToDraw.y = popupY;
+		textToDraw.maxWidth = popupWidth - pointWidth;
+		textToDraw.colour = getDefaultTextColour();
+
+		Colour infoColour = normaliseColour(127, 127, 127, 255);
+
+		for (int i = 0; i < numberOfLines; i++)
+		{
+			// Main suggestion
+			textToDraw.colour = getDefaultTextColour();			
+			text = frame.popupLines[i].first;
+			drawText(textToDraw);
+
+			// Adds some spacing
+			textToDraw.x += currentFont->chars[(unsigned char) ' '].advanceX * 2;
+
+			// Additional information
+			textToDraw.colour = infoColour;
+			text = frame.popupLines[i].second;
+			text += std::string(1, '\n');
+			drawText(textToDraw);
+		}
 	}
 }

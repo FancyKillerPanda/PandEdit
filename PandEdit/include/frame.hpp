@@ -63,7 +63,8 @@ public:
 
 	Timer pointFlashTimer;
 
-	std::vector<std::string> popupLines;
+	// First string is the completion, second is additional information
+	std::vector<std::pair<std::string, std::string>> popupLines;
 
 	bool shouldReLexBuffer = true;
 	bool overwriteMode = false;

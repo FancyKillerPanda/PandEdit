@@ -1404,7 +1404,8 @@ void Frame::updatePopups()
 
 	for (std::pair<std::string::size_type, std::string>& match : foundMatches)
 	{
-		popupLines.push_back(std::move(match.second));
+		// TODO(fkp): Push back real information
+		popupLines.emplace_back(std::move(match.second), "Hello");
 	}
 }
 
@@ -1412,7 +1413,7 @@ void Frame::completeSuggestion()
 {
 	if (popupLines.size() > 0)
 	{
-		std::string suggestion = popupLines[0];
+		std::string suggestion = popupLines[0].first;
 		
 		Token* tokenUnderPoint = getTokenUnderPoint(true);
 		Token token { Token::Type::Invalid, Point { 0, 0 } }; // Unused unless minibuffer
