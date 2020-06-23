@@ -12,14 +12,14 @@
 Buffer::Buffer(BufferType type, std::string name, std::string path)
 	: type(type), name(name), path(path), lexer(this)
 {
-	if (path == "")
+	if (path == "" || !doesFileExist(path.c_str()))
 	{
 		// Makes sure there's at least one line in the buffer
 		data.emplace_back();
 	}
 	else
 	{
-		std::string fileContents = readFile(path.c_str(), true);
+		std::string fileContents = readFile(path.c_str());
 
 		std::string::size_type pos = 0;
 		std::string::size_type previous = 0;

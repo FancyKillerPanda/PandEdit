@@ -42,6 +42,12 @@ std::string readFile(const char* filename, bool createIfNotExists)
 	return buffer;
 }
 
+bool doesFileExist(const char* path)
+{
+	std::ifstream file(path);
+	return (bool) file;
+}
+
 std::string getFilenameFromPath(const std::string& path)
 {
 	std::size_t lastSlashIndex = path.find_last_of("/\\");
