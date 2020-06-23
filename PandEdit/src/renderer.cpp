@@ -632,27 +632,10 @@ void Renderer::drawFramePopups(Frame& frame)
 		// Draws the background
 		// TODO(fkp): Try fit on the other side of the point
 		glUseProgram(shapeShader.programID);
-		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.7f);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.85f);
 		drawRect(popupX, popupY, popupWidth, popupHeight);
 
 		// Draws the text
-		/*
-		std::string text;
-		TextToDraw textToDraw { text };
-		textToDraw.x = popupX + (pointWidth / 2);
-		textToDraw.y = popupY;
-		textToDraw.maxWidth = popupWidth - pointWidth;
-		textToDraw.colour = getDefaultTextColour();
-
-		for (int i = 0; i < numberOfLines; i++)
-		{
-			text += frame.popupLines[i];
-			text += std::string(1, '\n');
-		}
-		
-		drawText(textToDraw);
-		*/
-
 		std::string text;
 		TextToDraw textToDraw { text };
 		textToDraw.x = popupX + (pointWidth / 2);

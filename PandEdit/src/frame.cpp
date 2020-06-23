@@ -1266,7 +1266,7 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 
 void Frame::updatePopups()
 {
-	std::vector<std::pair<std::string::size_type, std::string>> foundMatches;
+	std::vector<std::pair<std::string::size_type, std::pair<std::string, std::string>>> foundMatches;
 			
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
@@ -1302,7 +1302,7 @@ void Frame::updatePopups()
 				
 					if (index != std::string::npos)
 					{
-						foundMatches.emplace_back(index, name);
+						foundMatches.emplace_back(index, std::make_pair(name, ""));
 					}
 				}
 			}
@@ -1322,7 +1322,7 @@ void Frame::updatePopups()
 
 				if (index != std::string::npos)
 				{
-					foundMatches.emplace_back(index, command.first);
+					foundMatches.emplace_back(index, std::make_pair(command.first, ""));
 				}
 			}
 
@@ -1332,7 +1332,7 @@ void Frame::updatePopups()
 
 				if (index != std::string::npos)
 				{
-					foundMatches.emplace_back(index, command.first);
+					foundMatches.emplace_back(index, std::make_pair(command.first, ""));
 				}
 			}
 		}
@@ -1363,7 +1363,7 @@ void Frame::updatePopups()
 
 					if (index != std::string::npos)
 					{
-						foundMatches.emplace_back(index, functionName);
+						foundMatches.emplace_back(index, std::make_pair(functionName, function.second));
 					}
 				}
 			}
@@ -1377,7 +1377,7 @@ void Frame::updatePopups()
 			
 					if (index != std::string::npos)
 					{
-						foundMatches.emplace_back(index, keyword);
+						foundMatches.emplace_back(index, std::make_pair(keyword, ""));
 					}
 				}
 			}
@@ -1390,7 +1390,7 @@ void Frame::updatePopups()
 			
 					if (index != std::string::npos)
 					{
-						foundMatches.emplace_back(index, type);
+						foundMatches.emplace_back(index, std::make_pair(type, ""));
 					}
 				}
 			}
@@ -1402,10 +1402,9 @@ void Frame::updatePopups()
 															return left.first < right.first;
 														});
 
-	for (std::pair<std::string::size_type, std::string>& match : foundMatches)
+	for (std::pair<std::string::size_type, std::pair<std::string, std::string>>& match : foundMatches)
 	{
-		// TODO(fkp): Push back real information
-		popupLines.emplace_back(std::move(match.second), "Hello");
+		popupLines.emplace_back(std::move(match.second));
 	}
 }
 
