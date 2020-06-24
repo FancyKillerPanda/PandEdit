@@ -578,6 +578,8 @@ void Renderer::drawFrame(Frame& frame)
 
 void Renderer::drawFramePopups(Frame& frame)
 {
+#define NUM_CHAR_SPACE_BEFORE_INFO 2
+	
 	if (&frame == Frame::currentFrame && frame.popupLines.size() > 0)
 	{
 		// Gets the rects
@@ -599,13 +601,33 @@ void Renderer::drawFramePopups(Frame& frame)
 
 		int popupX = pointX + (pointWidth * 1.5f);
 		int popupY = pointY;
-		unsigned int popupWidth = 400;
+		unsigned int popupWidth;
 		unsigned int popupHeight = currentFont->size * numberOfLines;
 
+		unsigned int maxNumberOfChars = 0;
+		
+		for (int i = 0; i < numberOfLines; i++)
+		{
+			const std::pair<std::string, std::string>& line = frame.popupLines[i];
+			unsigned int numberOfChars = getMaxWidthOfText(line.first) + NUM_CHAR_SPACE_BEFORE_INFO + 1 + getMaxWidthOfText(line.second);
+
+			if (numberOfChars > maxNumberOfChars)
+			{
+				maxNumberOfChars = numberOfChars;
+			}
+		}
+
+		popupWidth = maxNumberOfChars * currentFont->chars[(unsigned int) ' '].advanceX;
+		
 		if (popupX + popupWidth > realFramePixelX + realFramePixelWidth)
 		{
 			popupX -= popupWidth;
 			popupY += currentFont->size;
+		}
+
+		if (popupX < 0)
+		{
+			popupX = 0;
 		}
 		
 		if (popupY + popupHeight > framePixelY + framePixelHeight)
@@ -647,7 +669,7 @@ void Renderer::drawFramePopups(Frame& frame)
 			drawText(textToDraw);
 
 			// Adds some spacing
-			textToDraw.x += currentFont->chars[(unsigned char) ' '].advanceX * 2;
+			textToDraw.x += currentFont->chars[(unsigned char) ' '].advanceX * NUM_CHAR_SPACE_BEFORE_INFO;
 
 			// Additional information
 			textToDraw.colour = infoColour;
@@ -656,4 +678,41 @@ void Renderer::drawFramePopups(Frame& frame)
 			drawText(textToDraw);
 		}
 	}
+
+#undef NUM_CHAR_SPACE_BEFORE_INFO
+}
+
+unsigned int Renderer::getMaxWidthOfText(const std::string& text)
+{
+	unsigned int maxWidth = 0;
+	unsigned int currentWidth = 0;
+
+	for (const char& character : text)
+	{
+		if (character == '\n')
+		{
+			if (currentWidth > maxWidth)
+			{
+				maxWidth = currentWidth;
+			}
+
+			currentWidth = 0;
+		}
+		else if (character == '\t')
+		{
+			float _unused = 0.0f;
+			advanceToNextTabStop(tabWidth, currentFont, _unused, currentWidth);
+		}
+		else
+		{
+			currentWidth += 1;
+		}
+	}
+
+	if (currentWidth > maxWidth)
+	{
+		maxWidth = currentWidth;
+	}
+
+	return maxWidth;
 }

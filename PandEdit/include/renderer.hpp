@@ -68,6 +68,10 @@ public:
 	void drawText(TextToDraw& textToDraw);
 	void drawFrame(Frame& frame);
 	void drawFramePopups(Frame& frame);
+
+	// NOTE(fkp): Returns the *number of characters* wide, not the
+	// actual pixel width
+	unsigned int getMaxWidthOfText(const std::string& text);
 };
 
 #endif
