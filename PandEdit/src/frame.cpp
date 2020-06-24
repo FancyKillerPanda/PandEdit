@@ -57,6 +57,7 @@ void Frame::switchToBuffer(Buffer* buffer)
 	targetTopLine = currentBuffer->lastTopLine;
 	currentTopLine = targetTopLine;
 	popupLines.clear();
+	popupCurrentSuggestion = 0;
 }
 
 void Frame::destroyBuffer(Buffer* buffer)
@@ -548,6 +549,9 @@ void Frame::doCommonPointManipulationTasks()
 	}
 	
 	popupLines.clear();
+	// TODO(fkp): This doesn't work because a '\t' is inserted
+	// before the suggestion is completed.
+	// popupCurrentSuggestion = 0;
 }
 
 void Frame::doCommonBufferManipulationTasks()
@@ -922,6 +926,7 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 		}
 
 		popupLines.clear();
+		popupCurrentSuggestion = 0;
 		moveColToTarget();
 	}
 }
@@ -1410,7 +1415,7 @@ void Frame::completeSuggestion()
 {
 	if (popupLines.size() > 0)
 	{
-		std::string suggestion = popupLines[0].first;
+		std::string suggestion = popupLines[popupCurrentSuggestion].first;
 		
 		Token* tokenUnderPoint = getTokenUnderPoint(true);
 		Token token { Token::Type::Invalid, Point { 0, 0 } }; // Unused unless minibuffer
@@ -1451,6 +1456,7 @@ void Frame::completeSuggestion()
 		}
 
 		popupLines.clear();
+		popupCurrentSuggestion = 0;
 	}
 }
 

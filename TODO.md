@@ -2,13 +2,13 @@
 
 ### Bug Fixes
 - When typing just before a function definition, the letters typed show up in the information
+- Completing a directory in the minibuffer acts weirdly
+- Popup should scroll with selection
 
 ### Features
 - std::string_view
 - UTF-8 characters
 
-- Allow choosing which selection
-- Make suggestion box size as needed
 - Right-align suggestion information
 
 - Project file

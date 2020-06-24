@@ -516,7 +516,37 @@ DEFINE_COMMAND(completeSuggestion)
 			FRAME->insertChar('\t');
 		}
 	}
-	
-	FRAME->completeSuggestion();
+
+	FRAME->completeSuggestion();	
+	return false;
+}
+
+DEFINE_COMMAND(previousSuggestion)
+{
+	if (FRAME->popupLines.size() > 0)
+	{
+		if (FRAME->popupCurrentSuggestion == 0)
+		{
+			FRAME->popupCurrentSuggestion = FRAME->popupLines.size();
+		}
+
+		FRAME->popupCurrentSuggestion -= 1;
+	}
+
+	return false;
+}
+
+DEFINE_COMMAND(nextSuggestion)
+{
+	if (FRAME->popupLines.size() > 0)
+	{
+		FRAME->popupCurrentSuggestion += 1;
+
+		if (FRAME->popupCurrentSuggestion >= FRAME->popupLines.size())
+		{
+			FRAME->popupCurrentSuggestion = 0;
+		}
+	}
+
 	return false;
 }

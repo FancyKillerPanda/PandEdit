@@ -61,6 +61,8 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::S, KEY_ALT }, "saveCurrentBuffer");
 
 	KeyMap::bindKey({ Key::Tab }, "completeSuggestion");
+	KeyMap::bindKey({ Key::UpArrow, KEY_CONTROL }, "previousSuggestion");
+	KeyMap::bindKey({ Key::DownArrow, KEY_CONTROL }, "nextSuggestion");
 }
 
 #endif

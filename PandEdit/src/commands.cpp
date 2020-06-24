@@ -68,6 +68,8 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::essentialCommandsM
 	COMMAND(redo),
 	
 	COMMAND(completeSuggestion),
+	COMMAND(nextSuggestion),
+	COMMAND(previousSuggestion),
 };
 
 std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialCommandsMap = {
