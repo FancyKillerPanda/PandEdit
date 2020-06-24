@@ -921,6 +921,7 @@ void Frame::moveView(int numberOfLines, bool movePoint)
 			}
 		}
 
+		popupLines.clear();
 		moveColToTarget();
 	}
 }

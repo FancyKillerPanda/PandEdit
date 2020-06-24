@@ -259,8 +259,9 @@ DEFINE_COMMAND(swapPointAndMark)
 	FRAME->point.col = FRAME->mark.col;
 	FRAME->mark.line = tempLine;
 	FRAME->mark.col = tempCol;
-
 	FRAME->point.targetCol = FRAME->point.col;
+
+	FRAME->doCommonPointManipulationTasks();
 
 	return false;
 }

@@ -2,7 +2,6 @@
 
 ### Bug Fixes
 - When typing just before a function definition, the letters typed show up in the information
-- When switching point and mark, scroll to new point location
 
 ### Features
 - std::string_view
