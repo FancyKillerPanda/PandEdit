@@ -1032,10 +1032,7 @@ void Frame::getPointRect(Font* currentFont, unsigned int tabWidth, int framePixe
 		}
 		else if (currentBuffer->data[point.line][i] == '\t')
 		{
-			// NOTE(fkp): This is the same calculation as in the drawText() method
-			unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
-			tempPointX += currentFont->chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
-			numberOfColumnsInLine += numberOfColumnsToNextTabStop;
+			advanceToNextTabStop(tabWidth, currentFont, tempPointX, numberOfColumnsInLine);
 		}
 		else
 		{
@@ -1575,4 +1572,12 @@ void Frame::pastePop()
 	}
 	
 	paste();
+}
+
+void advanceToNextTabStop(unsigned int tabWidth, const Font* font, float& x, unsigned int& numberOfColumnsInLine)
+{
+	// TODO(fkp): This doesn't work with non-monopspaced fonts
+	unsigned int numberOfColumnsToNextTabStop = tabWidth - (numberOfColumnsInLine % tabWidth);
+	x += font->chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
+	numberOfColumnsInLine += numberOfColumnsToNextTabStop;
 }

@@ -146,4 +146,7 @@ private:
 	void resizeChildrenToFitSize();
 };
 
+// TODO(fkp): Find a better spot for this
+void advanceToNextTabStop(unsigned int tabWidth, const Font* font, float& x, unsigned int& numberOfColumnsInLine);
+
 #endif

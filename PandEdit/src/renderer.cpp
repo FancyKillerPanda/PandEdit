@@ -186,13 +186,7 @@ void Renderer::drawText(TextToDraw& textToDraw)
 		// Tabs
 		if (currentChar == '\t')
 		{
-			// TODO(fkp): This doesn't work with non-monospaced fonts
-			unsigned int numberOfColumnsToNextTabStop = tabWidth - (textToDraw.numberOfColumnsInLine % tabWidth);
-			textToDraw.numberOfColumnsInLine += numberOfColumnsToNextTabStop;
-
-			textToDraw.x += font.chars[(unsigned char) ' '].advanceX * numberOfColumnsToNextTabStop;
-			textToDraw.y += font.chars[(unsigned char) ' '].advanceY * numberOfColumnsToNextTabStop;
-			
+			advanceToNextTabStop(tabWidth, &font, textToDraw.x, textToDraw.numberOfColumnsInLine);			
 			continue;
 		}
 
