@@ -75,29 +75,41 @@ enum class Key
 	Count
 };
 
+enum ModifierKey
+{
+	// TODO(fkp): Right now the left/right variants don't really do
+	// anything specific.
+	NO_MODIFIERS  = 0x00,
+	
+	LEFT_CONTROL  = 0x01,
+	RIGHT_CONTROL = 0x02,
+	KEY_CONTROL   = LEFT_CONTROL | RIGHT_CONTROL,
+	
+	LEFT_SHIFT    = 0x04,
+	RIGHT_SHIFT   = 0x08,
+	KEY_SHIFT     = LEFT_SHIFT | RIGHT_SHIFT,
+	
+	LEFT_ALT      = 0x10,
+	RIGHT_ALT     = 0x20,
+	KEY_ALT       = LEFT_ALT | RIGHT_ALT,
+	
+	KEY_WINDOWS       = 0x40,
+};
+
 struct KeyCombo
 {
 	Key mainKey;
-	bool controlPressed;
-	bool shiftPressed;
-	bool altPressed;
-	bool windowsPressed;
+	int modifiers = NO_MODIFIERS;
 
-	KeyCombo() = default;	
-	KeyCombo(Key key, bool control = false, bool shift = false, bool alt = false, bool windows = false)
-		: mainKey(key), controlPressed(control), shiftPressed(shift), altPressed(alt), windowsPressed(windows)
+	KeyCombo() = default;
+	KeyCombo(Key key, int modifiers = NO_MODIFIERS)
+		: mainKey(key), modifiers(modifiers)
 	{
 	}
 
 	bool operator==(const KeyCombo& other) const
 	{
-		bool keyEqual		= mainKey == other.mainKey;
-		bool controlEqual	= controlPressed == other.controlPressed;
-		bool shiftEqual		= shiftPressed == other.shiftPressed;
-		bool altEqual		= altPressed == other.altPressed;
-		bool windowsEqual	= windowsPressed == other.windowsPressed;
-		
-		return keyEqual && controlEqual && shiftEqual && altEqual && windowsEqual;
+		return mainKey == other.mainKey && modifiers == other.modifiers;
 	}
 };
 

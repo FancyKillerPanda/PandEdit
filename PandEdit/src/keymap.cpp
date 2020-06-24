@@ -26,13 +26,15 @@ void KeyMap::registerKeyPress(Window& window, Key key)
 	}
 	else
 	{
+		// TODO(fkp): Find a way to get rid of all those if statements
 		KeyCombo combo;
 		combo.mainKey = key;
-		combo.controlPressed = modifiersPressed[(unsigned int) Key::Control];
-		combo.shiftPressed = modifiersPressed[(unsigned int) Key::Shift];
-		combo.altPressed = modifiersPressed[(unsigned int) Key::Alt];
-		combo.windowsPressed = modifiersPressed[(unsigned int) Key::Windows];
-
+		combo.modifiers = NO_MODIFIERS;
+		if (modifiersPressed[(unsigned int) Key::Control]) combo.modifiers |= KEY_CONTROL;
+		if (modifiersPressed[(unsigned int) Key::Shift]) combo.modifiers |= KEY_SHIFT;
+		if (modifiersPressed[(unsigned int) Key::Alt]) combo.modifiers |= KEY_ALT;
+		if (modifiersPressed[(unsigned int) Key::Windows]) combo.modifiers |= KEY_WINDOWS;
+		
 		auto result = keyMap.find(combo);
 
 		if (result != keyMap.end())

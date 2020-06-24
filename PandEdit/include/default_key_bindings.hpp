@@ -10,55 +10,55 @@ void mapDefaultKeyBindings()
 	// NOTE(fkp): KeyCombo constructor is in the order:
 	// Key, Control, Shift, Alt, Windows
 
-	KeyMap::bindKey({ Key::F4, false, false, true }, "quit");
-	KeyMap::bindKey({ Key::X, false, false, true }, "minibufferEnter");
-	KeyMap::bindKey({ Key::G, true }, "minibufferQuit");
+	KeyMap::bindKey({ Key::F4, KEY_ALT }, "quit");
+	KeyMap::bindKey({ Key::X, KEY_ALT }, "minibufferEnter");
+	KeyMap::bindKey({ Key::G, KEY_CONTROL }, "minibufferQuit");
 	KeyMap::bindKey({ Key::Insert }, "toggleOverwriteMode");
 
-	KeyMap::bindKey({ Key::_4, true }, "lexBufferAsC++"); // NOTE(fkp): Temporary
+	KeyMap::bindKey({ Key::_4, KEY_CONTROL }, "lexBufferAsC++"); // NOTE(fkp): Temporary
 	
-	KeyMap::bindKey({ Key::_2, true }, "frameSplitVertically"); // TODO(fkp): Remap later
-	KeyMap::bindKey({ Key::_3, true }, "frameSplitHorizontally"); // TODO(fkp): Remap later
-	KeyMap::bindKey({ Key::_0, true }, "frameDestroy"); // TODO(fkp): Remap later
-	KeyMap::bindKey({ Key::W, false, false, true }, "frameMoveNext");
-	KeyMap::bindKey({ Key::W, false, true, true }, "frameMovePrevious");
+	KeyMap::bindKey({ Key::_2, KEY_CONTROL }, "frameSplitVertically"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::_3, KEY_CONTROL }, "frameSplitHorizontally"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::_0, KEY_CONTROL }, "frameDestroy"); // TODO(fkp): Remap later
+	KeyMap::bindKey({ Key::W, KEY_ALT }, "frameMoveNext");
+	KeyMap::bindKey({ Key::W, KEY_ALT | KEY_SHIFT }, "frameMovePrevious");
 	
 	KeyMap::bindKey({ Key::Backspace }, "backspaceChar");
-	KeyMap::bindKey({ Key::Backspace, false, true }, "backspaceCharExtra");
+	KeyMap::bindKey({ Key::Backspace, KEY_SHIFT }, "backspaceCharExtra");
 	KeyMap::bindKey({ Key::Delete }, "deleteChar");
-	KeyMap::bindKey({ Key::Backspace, true }, "backspaceWord");
-	KeyMap::bindKey({ Key::Delete, true }, "deleteWord");
-	KeyMap::bindKey({ Key::K, true }, "deleteRestOfLine");
+	KeyMap::bindKey({ Key::Backspace, KEY_CONTROL }, "backspaceWord");
+	KeyMap::bindKey({ Key::Delete, KEY_CONTROL }, "deleteWord");
+	KeyMap::bindKey({ Key::K, KEY_CONTROL }, "deleteRestOfLine");
 	
 	KeyMap::bindKey({ Key::LeftArrow }, "movePointLeftChar");
 	KeyMap::bindKey({ Key::RightArrow }, "movePointRightChar");
-	KeyMap::bindKey({ Key::LeftArrow, true }, "movePointLeftWord");
-	KeyMap::bindKey({ Key::RightArrow, true }, "movePointRightWord");
+	KeyMap::bindKey({ Key::LeftArrow, KEY_CONTROL }, "movePointLeftWord");
+	KeyMap::bindKey({ Key::RightArrow, KEY_CONTROL }, "movePointRightWord");
 	KeyMap::bindKey({ Key::UpArrow }, "movePointLineUp");
 	KeyMap::bindKey({ Key::DownArrow }, "movePointLineDown");
 	KeyMap::bindKey({ Key::Home }, "movePointHome");
 	KeyMap::bindKey({ Key::End }, "movePointEnd");
-	KeyMap::bindKey({ Key::Home, true }, "movePointToBufferStart");
-	KeyMap::bindKey({ Key::End, true }, "movePointToBufferEnd");
+	KeyMap::bindKey({ Key::Home, KEY_CONTROL }, "movePointToBufferStart");
+	KeyMap::bindKey({ Key::End, KEY_CONTROL }, "movePointToBufferEnd");
 
-	KeyMap::bindKey({ Key::Space, true }, "setMark");
-	KeyMap::bindKey({ Key::Semicolon, false, false, true }, "swapPointAndMark");
+	KeyMap::bindKey({ Key::Space, KEY_CONTROL }, "setMark");
+	KeyMap::bindKey({ Key::Semicolon, KEY_ALT }, "swapPointAndMark");
 
 	KeyMap::bindKey({ Key::PageUp }, "pageUp");
 	KeyMap::bindKey({ Key::PageDown }, "pageDown");
-	KeyMap::bindKey({ Key::L, true }, "centerPoint");
+	KeyMap::bindKey({ Key::L, KEY_CONTROL }, "centerPoint");
 
-	KeyMap::bindKey({ Key::C, true }, "copyRegion");
-	KeyMap::bindKey({ Key::V, true }, "paste");
-	KeyMap::bindKey({ Key::V, false, false, true }, "pastePop");
-	KeyMap::bindKey({ Key::W, true }, "deleteRegion");
-	KeyMap::bindKey({ Key::Z, true }, "undo");
-	KeyMap::bindKey({ Key::Y, true }, "redo");
+	KeyMap::bindKey({ Key::C, KEY_CONTROL }, "copyRegion");
+	KeyMap::bindKey({ Key::V, KEY_CONTROL }, "paste");
+	KeyMap::bindKey({ Key::V, KEY_ALT }, "pastePop");
+	KeyMap::bindKey({ Key::W, KEY_CONTROL }, "deleteRegion");
+	KeyMap::bindKey({ Key::Z, KEY_CONTROL }, "undo");
+	KeyMap::bindKey({ Key::Y, KEY_CONTROL }, "redo");
 	
-	KeyMap::bindKey({ Key::B, false, false, true }, "switchToBuffer");
-	KeyMap::bindKey({ Key::K, false, false, true }, "destroyBuffer");
-	KeyMap::bindKey({ Key::F, false, false, true }, "findFile");
-	KeyMap::bindKey({ Key::S, false, false, true }, "saveCurrentBuffer");
+	KeyMap::bindKey({ Key::B, KEY_ALT }, "switchToBuffer");
+	KeyMap::bindKey({ Key::K, KEY_ALT }, "destroyBuffer");
+	KeyMap::bindKey({ Key::F, KEY_ALT }, "findFile");
+	KeyMap::bindKey({ Key::S, KEY_ALT }, "saveCurrentBuffer");
 
 	KeyMap::bindKey({ Key::Tab }, "completeSuggestion");
 }
