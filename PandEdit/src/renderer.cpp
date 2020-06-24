@@ -593,7 +593,8 @@ void Renderer::drawFramePopups(Frame& frame)
 		float pointX;
 		float pointY;
 		float pointWidth;
-		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, nullptr);
+		float pointHeight;
+		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
 	
 		// Figures out the location and dimensions of the popup
 		unsigned int numberOfLines = frame.popupLines.size();
@@ -648,7 +649,7 @@ void Renderer::drawFramePopups(Frame& frame)
 		// Draws the background
 		// TODO(fkp): Try fit on the other side of the point
 		glUseProgram(shapeShader.programID);
-		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 0.85f);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 1.0f);
 		drawRect(popupX, popupY, popupWidth, popupHeight);
 
 		// Draws the text
@@ -677,6 +678,11 @@ void Renderer::drawFramePopups(Frame& frame)
 			text += std::string(1, '\n');
 			drawText(textToDraw);
 		}
+		
+		// Draws the highlight box
+		glUseProgram(shapeShader.programID);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.5f, 0.5f, 0.8f, 1.0f);
+		drawHollowRect(popupX, popupY + (frame.popupCurrentSuggestion * pointHeight), popupWidth, pointHeight, 1 + (pointHeight / 24));
 	}
 
 #undef NUM_CHAR_SPACE_BEFORE_INFO
