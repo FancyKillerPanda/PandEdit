@@ -598,7 +598,7 @@ void Renderer::drawFramePopups(Frame& frame)
 	
 		// Figures out the location and dimensions of the popup
 		unsigned int numberOfLines = frame.popupLines.size();
-		if (numberOfLines > 8) numberOfLines = 8;
+		if (numberOfLines > popupMaxNumberOfLines) numberOfLines = popupMaxNumberOfLines;
 
 		int popupX = pointX + (pointWidth * 1.5f);
 		int popupY = pointY;
@@ -663,12 +663,25 @@ void Renderer::drawFramePopups(Frame& frame)
 		textToDraw.colour = getDefaultTextColour();
 
 		Colour infoColour = normaliseColour(127, 127, 127, 255);
+		int selectionListIndex = -1;
 
 		for (int i = 0; i < numberOfLines; i++)
 		{
+			int lineIndex = frame.popupTopLine + i;
+
+			if (lineIndex >= frame.popupLines.size())
+			{
+				lineIndex -= frame.popupLines.size();
+			}
+
+			if (lineIndex == frame.popupCurrentSuggestion)
+			{
+				selectionListIndex = i;
+			}
+			
 			// Main suggestion
 			textToDraw.colour = getDefaultTextColour();			
-			text = frame.popupLines[i].first;
+			text = frame.popupLines[lineIndex].first;
 			drawText(textToDraw);
 
 			// Adds some spacing
@@ -676,15 +689,18 @@ void Renderer::drawFramePopups(Frame& frame)
 
 			// Additional information
 			textToDraw.colour = infoColour;
-			text = frame.popupLines[i].second;
+			text = frame.popupLines[lineIndex].second;
 			text += std::string(1, '\n');
 			drawText(textToDraw);
 		}
 		
 		// Draws the highlight box
-		glUseProgram(shapeShader.programID);
-		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.5f, 0.5f, 0.8f, 1.0f);
-		drawHollowRect(popupX, popupY + (frame.popupCurrentSuggestion * pointHeight), popupWidth, pointHeight, 1 + (pointHeight / 24));
+		if (selectionListIndex != -1)
+		{
+			glUseProgram(shapeShader.programID);
+			glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.5f, 0.5f, 0.8f, 1.0f);
+			drawHollowRect(popupX, popupY + (selectionListIndex * pointHeight), popupWidth, pointHeight, 1 + (pointHeight / 24));
+		}
 	}
 
 #undef NUM_CHAR_SPACE_BEFORE_INFO

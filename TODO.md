@@ -2,7 +2,7 @@
 
 ### Bug Fixes
 - When typing just before a function definition, the letters typed show up in the information
-- Popup should scroll with selection
+- Popup scrolling has bug when you go up one then down one
 
 ### Features
 - std::string_view
@@ -14,3 +14,4 @@
 	- Can contain frame layout information
 	- Specify include directories
 		- Should find functions in all files
+	- Can specify a compile command

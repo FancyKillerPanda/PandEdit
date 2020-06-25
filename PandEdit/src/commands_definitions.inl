@@ -521,6 +521,26 @@ DEFINE_COMMAND(completeSuggestion)
 	return false;
 }
 
+void centerSuggestions()
+{
+	// Copied from renderer.cpp
+	unsigned int numberOfLines = FRAME->popupLines.size();
+	if (numberOfLines > Renderer::popupMaxNumberOfLines) numberOfLines = Renderer::popupMaxNumberOfLines;
+	
+	if (FRAME->popupCurrentSuggestion < FRAME->popupTopLine ||
+		FRAME->popupCurrentSuggestion >= FRAME->popupTopLine + numberOfLines)
+	{
+		int topLine = (int) FRAME->popupCurrentSuggestion - ((int) numberOfLines / 2);
+
+		if (topLine < 0)
+		{
+			topLine += numberOfLines;
+		}
+		
+		FRAME->popupTopLine = topLine;
+	}
+}
+
 DEFINE_COMMAND(previousSuggestion)
 {
 	if (FRAME->popupLines.size() > 0)
@@ -531,6 +551,7 @@ DEFINE_COMMAND(previousSuggestion)
 		}
 
 		FRAME->popupCurrentSuggestion -= 1;
+		centerSuggestions();
 	}
 
 	return false;
@@ -546,6 +567,8 @@ DEFINE_COMMAND(nextSuggestion)
 		{
 			FRAME->popupCurrentSuggestion = 0;
 		}
+
+		centerSuggestions();
 	}
 
 	return false;
