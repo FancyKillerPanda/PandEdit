@@ -651,6 +651,8 @@ void Renderer::drawFramePopups(Frame& frame)
 		glUseProgram(shapeShader.programID);
 		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.0f, 0.0f, 0.0f, 1.0f);
 		drawRect(popupX, popupY, popupWidth, popupHeight);
+		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.4f, 0.4f, 0.4f, 1.0f);
+		drawHollowRect(popupX, popupY, popupWidth, popupHeight, 1 + (pointHeight / 24));
 
 		// Draws the text
 		std::string text;

@@ -10,6 +10,7 @@
 - UTF-8 characters
 
 - Right-align suggestion information
+- Add a border around popup
 
 - Project file
 	- Can contain frame layout information
