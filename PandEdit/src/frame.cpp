@@ -1424,9 +1424,9 @@ void Frame::completeSuggestion()
 		// buffer is not lexed.
 		if (currentBuffer->type == BufferType::MiniBuffer)
 		{
-			// NOTE(fkp): Copied from commands_definitions.inl
-			std::string::size_type indexSlashBefore = currentBuffer->data[0].find_last_of("/\\", point.col - 2);
-			std::string::size_type indexSlashAfter = currentBuffer->data[0].find_first_of("/\\", point.col - 1);
+			// NOTE(fkp): (Almost) copied from commands_definitions.inl
+			std::string::size_type indexSlashBefore = currentBuffer->data[0].find_last_of("/\\", point.col - 1);
+			std::string::size_type indexSlashAfter = currentBuffer->data[0].find_first_of("/\\", point.col);
 
 			if (indexSlashBefore == std::string::npos)
 			{
