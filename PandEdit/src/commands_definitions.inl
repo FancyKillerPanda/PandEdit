@@ -526,15 +526,18 @@ void centerSuggestions()
 	// Copied from renderer.cpp
 	unsigned int numberOfLines = FRAME->popupLines.size();
 	if (numberOfLines > Renderer::popupMaxNumberOfLines) numberOfLines = Renderer::popupMaxNumberOfLines;
-	
-	if (FRAME->popupCurrentSuggestion < FRAME->popupTopLine ||
-		FRAME->popupCurrentSuggestion >= FRAME->popupTopLine + numberOfLines)
+
+	// One unweildy if...
+	if (!((FRAME->popupCurrentSuggestion >= FRAME->popupTopLine &&
+		   FRAME->popupCurrentSuggestion < FRAME->popupTopLine + numberOfLines) ||
+		  (FRAME->popupTopLine + numberOfLines > FRAME->popupLines.size() &&
+		   FRAME->popupCurrentSuggestion < (FRAME->popupTopLine + numberOfLines) - FRAME->popupLines.size())))
 	{
 		int topLine = (int) FRAME->popupCurrentSuggestion - ((int) numberOfLines / 2);
 
 		if (topLine < 0)
 		{
-			topLine += numberOfLines;
+			topLine = FRAME->popupLines.size() + topLine;
 		}
 		
 		FRAME->popupTopLine = topLine;
