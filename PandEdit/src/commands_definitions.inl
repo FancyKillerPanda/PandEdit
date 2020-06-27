@@ -537,7 +537,7 @@ void centerSuggestions()
 
 		if (topLine < 0)
 		{
-			topLine = FRAME->popupLines.size() + topLine;
+			topLine += FRAME->popupLines.size();
 		}
 		
 		FRAME->popupTopLine = topLine;

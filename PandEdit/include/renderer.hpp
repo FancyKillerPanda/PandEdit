@@ -53,7 +53,7 @@ class Renderer
 	};
 	
 public:
-	inline static unsigned int popupMaxNumberOfLines = 8;
+	inline static unsigned int popupMaxNumberOfLines = 7;
 	
 	Shader shapeShader;
 	Shader textureShader;
