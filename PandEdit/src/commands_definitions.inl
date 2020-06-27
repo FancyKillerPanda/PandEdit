@@ -528,10 +528,10 @@ void centerSuggestions()
 	if (numberOfLines > Renderer::popupMaxNumberOfLines) numberOfLines = Renderer::popupMaxNumberOfLines;
 
 	// One unweildy if...
-	if (!((FRAME->popupCurrentSuggestion >= FRAME->popupTopLine &&
-		   FRAME->popupCurrentSuggestion < FRAME->popupTopLine + numberOfLines) ||
-		  (FRAME->popupTopLine + numberOfLines > FRAME->popupLines.size() &&
-		   FRAME->popupCurrentSuggestion < (FRAME->popupTopLine + numberOfLines) - FRAME->popupLines.size())))
+	if (!((FRAME->popupCurrentSuggestion >= FRAME->popupTargetTopLine &&
+		   FRAME->popupCurrentSuggestion < FRAME->popupTargetTopLine + numberOfLines) ||
+		  (FRAME->popupTargetTopLine + numberOfLines > FRAME->popupLines.size() &&
+		   FRAME->popupCurrentSuggestion < (FRAME->popupTargetTopLine + numberOfLines) - FRAME->popupLines.size())))
 	{
 		int topLine = (int) FRAME->popupCurrentSuggestion - ((int) numberOfLines / 2);
 
@@ -540,7 +540,7 @@ void centerSuggestions()
 			topLine += FRAME->popupLines.size();
 		}
 		
-		FRAME->popupTopLine = topLine;
+		FRAME->popupTargetTopLine = topLine;
 	}
 }
 

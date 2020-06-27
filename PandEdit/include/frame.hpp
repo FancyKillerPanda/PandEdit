@@ -68,7 +68,8 @@ public:
 	// NOTE(fkp): this is 0 even if there is nothing in the above
 	// vector. Don't access unless you know there is a popup shown.
 	unsigned int popupCurrentSuggestion = 0;
-	unsigned int popupTopLine = 0;
+	int popupCurrentTopLine = 0;
+	int popupTargetTopLine = 0;
 
 	bool shouldReLexBuffer = true;
 	bool overwriteMode = false;

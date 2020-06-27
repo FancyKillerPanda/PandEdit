@@ -291,6 +291,53 @@ void Renderer::drawText(TextToDraw& textToDraw)
 	return;
 }
 
+void updateTopLine(int& currentTopLine, int targetTopLine, unsigned int numberOfLinesInView, unsigned int totalNumberOfLines)
+{
+	// TODO(fkp): This is dependent on frame rate
+	if (currentTopLine < targetTopLine)
+	{
+		currentTopLine += 2;
+
+		// If on the other side now
+		if (currentTopLine > targetTopLine)
+		{
+			currentTopLine = targetTopLine;
+		}
+	}
+	else if (currentTopLine > targetTopLine)
+	{
+		currentTopLine -= 2;
+
+		// If on the other side now
+		if (currentTopLine < targetTopLine)
+		{
+			currentTopLine = targetTopLine;
+		}
+	}
+
+	if (currentTopLine < targetTopLine &&
+		targetTopLine - currentTopLine > numberOfLinesInView)
+	{
+		currentTopLine = targetTopLine - numberOfLinesInView;
+	}
+	else if (currentTopLine > targetTopLine &&
+			 currentTopLine - targetTopLine > numberOfLinesInView)
+	{
+		currentTopLine = targetTopLine + numberOfLinesInView;
+	}
+
+	if (currentTopLine > (int) totalNumberOfLines - 2)
+	{
+		currentTopLine = (int) totalNumberOfLines - 2;
+	}
+
+	// Don't make this an else if
+	if (currentTopLine < 0)
+	{
+		currentTopLine = 0;
+	}	
+}
+
 void Renderer::drawFrame(Frame& frame)
 {
 	if (frame.childOne != nullptr || frame.childTwo != nullptr)
@@ -300,53 +347,8 @@ void Renderer::drawFrame(Frame& frame)
 	}
 	
 	Buffer& buffer = *frame.currentBuffer;
+	updateTopLine(frame.currentTopLine, frame.targetTopLine, frame.numberOfLinesInView, buffer.data.size());
 
-	// TODO(fkp): Should this be done in a dedicated update() method
-	// for the frame?
-	// TODO(fkp): This is dependent on frame rate
-	if (frame.currentTopLine < frame.targetTopLine)
-	{
-		frame.currentTopLine += 2;
-
-		// If on the other side now
-		if (frame.currentTopLine > frame.targetTopLine)
-		{
-			frame.currentTopLine = frame.targetTopLine;
-		}
-	}
-	else if (frame.currentTopLine > frame.targetTopLine)
-	{
-		frame.currentTopLine -= 2;
-
-		// If on the other side now
-		if (frame.currentTopLine < frame.targetTopLine)
-		{
-			frame.currentTopLine = frame.targetTopLine;
-		}
-	}
-
-	if (frame.currentTopLine < frame.targetTopLine &&
-		frame.targetTopLine - frame.currentTopLine > frame.numberOfLinesInView)
-	{
-		frame.currentTopLine = frame.targetTopLine - frame.numberOfLinesInView;
-	}
-	else if (frame.currentTopLine > frame.targetTopLine &&
-		frame.currentTopLine - frame.targetTopLine > frame.numberOfLinesInView)
-	{
-		frame.currentTopLine = frame.targetTopLine + frame.numberOfLinesInView;
-	}
-
-	if (frame.currentTopLine > (int) buffer.data.size() - 2)
-	{
-		frame.currentTopLine = (int) buffer.data.size() - 2;
-	}
-
-	// Don't make this an else if
-	if (frame.currentTopLine < 0)
-	{
-		frame.currentTopLine = 0;
-	}
-	
 	//
 	// Frame and point rects
 	//
@@ -600,6 +602,8 @@ void Renderer::drawFramePopups(Frame& frame)
 		unsigned int numberOfLines = frame.popupLines.size();
 		if (numberOfLines > popupMaxNumberOfLines) numberOfLines = popupMaxNumberOfLines;
 
+		updateTopLine(frame.popupCurrentTopLine, frame.popupTargetTopLine, numberOfLines, frame.popupLines.size());
+		
 		int popupX = pointX + (pointWidth * 1.5f);
 		int popupY = pointY;
 		unsigned int popupWidth;
@@ -645,7 +649,7 @@ void Renderer::drawFramePopups(Frame& frame)
 				popupY -= currentFont->size;
 			}
 		}
-		
+
 		// Draws the background
 		// TODO(fkp): Try fit on the other side of the point
 		glUseProgram(shapeShader.programID);
@@ -667,7 +671,7 @@ void Renderer::drawFramePopups(Frame& frame)
 
 		for (int i = 0; i < numberOfLines; i++)
 		{
-			int lineIndex = frame.popupTopLine + i;
+			int lineIndex = frame.popupCurrentTopLine + i;
 
 			if (lineIndex >= frame.popupLines.size())
 			{
