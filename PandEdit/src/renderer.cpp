@@ -598,12 +598,25 @@ void Renderer::drawFramePopups(Frame& frame)
 		float pointHeight;
 		frame.getPointRect(currentFont, tabWidth, framePixelX, framePixelY, &pointX, &pointY, &pointWidth, &pointHeight);
 	
-		// Figures out the location and dimensions of the popup
+		// The number of lines in view for the popup
 		unsigned int numberOfLines = frame.popupLines.size();
 		if (numberOfLines > popupMaxNumberOfLines) numberOfLines = popupMaxNumberOfLines;
 
-		updateTopLine(frame.popupCurrentTopLine, frame.popupTargetTopLine, numberOfLines, frame.popupLines.size());
+		// Workaround because a weird scrolling animation occurs when we wrap around
+		if (frame.popupTargetTopLine == frame.popupLines.size() - (numberOfLines / 2) - 1 &&
+			(frame.popupCurrentTopLine == 0 || frame.popupCurrentTopLine == 1))
+		{
+			frame.popupCurrentTopLine = frame.popupLines.size();
+		}
+		else if ((frame.popupTargetTopLine == 0 || frame.popupTargetTopLine == 1) &&
+				 frame.popupCurrentTopLine == frame.popupLines.size() - (numberOfLines / 2) - 1)
+		{
+			frame.popupCurrentTopLine = 1 - ((int) numberOfLines / 2);
+		}
 		
+		updateTopLine(frame.popupCurrentTopLine, frame.popupTargetTopLine, numberOfLines, frame.popupLines.size());
+
+		// Figures out the dimensions for the popup
 		int popupX = pointX + (pointWidth * 1.5f);
 		int popupY = pointY;
 		unsigned int popupWidth;
