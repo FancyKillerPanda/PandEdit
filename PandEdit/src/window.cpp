@@ -404,14 +404,14 @@ void Window::saveProject(const std::string& projectName)
 	for (Frame* frame : frames)
 	{
 		// NOTE(fkp): When changing this, change the load as well
-		file << frame->name << ",";
+		file << frame->name;
 		
-		file << frame->pcDimensions.x << ",";
-		file << frame->pcDimensions.y << ",";
-		file << frame->pcDimensions.width << ",";
-		file << frame->pcDimensions.height << ",";
-		file << frame->windowWidth << ",";
-		file << frame->windowHeight << ",";
+		file << "," << frame->pcDimensions.x;
+		file << "," << frame->pcDimensions.y;
+		file << "," << frame->pcDimensions.width;
+		file << "," << frame->pcDimensions.height;
+		file << "," << frame->windowWidth;
+		file << "," << frame->windowHeight;
 		
 		if (frame->childOne || frame->childTwo)
 		{
@@ -421,19 +421,19 @@ void Window::saveProject(const std::string& projectName)
 		else
 		{
 			// TODO(fkp): Saving undo information?
-			file << (int) frame->currentBuffer->type << ",";
-			file << frame->currentBuffer->name << ",";
-			file << frame->currentBuffer->path << ",";
+			file << "," << (int) frame->currentBuffer->type;
+			file << "," << frame->currentBuffer->name;
+			file << "," << frame->currentBuffer->path;
 		
-			file << frame->point.line << ",";
-			file << frame->point.col << ",";
-			file << frame->mark.line << ",";
-			file << frame->mark.col << ",";
+			file << "," << frame->point.line;
+			file << "," << frame->point.col;
+			file << "," << frame->mark.line;
+			file << "," << frame->mark.col;
 		
-			file << frame->targetTopLine << ",";
-			file << frame->numberOfLinesInView << ",";
+			file << "," << frame->targetTopLine;
+			file << "," << frame->numberOfLinesInView;
 
-			file << frame->overwriteMode;
+			file << "," << frame->overwriteMode;
 		}
 		
 		file << "\n";
