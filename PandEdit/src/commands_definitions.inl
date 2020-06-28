@@ -576,3 +576,65 @@ DEFINE_COMMAND(nextSuggestion)
 
 	return false;
 }
+
+//
+// NOTE(fkp): Project commands
+//
+
+DEFINE_COMMAND(saveProject)
+{
+	if (Commands::currentCommand)
+	{
+		exitMinibuffer("");
+		Commands::currentCommand = nullptr;
+
+		if (text == "")
+		{
+			writeToMinibuffer("Error: No file path supplied.");
+		}
+		else
+		{		
+			if (text[text.size() - 1] == '/' || text[text.size() - 1] == '\\')
+			{
+				writeToMinibuffer("Error: Specify project file, not directory.");
+			}
+			else
+			{
+				window.saveProject(text);
+				writeToMinibuffer("Saved project to \"" + text + "\"");
+			}
+		}
+		
+		return true;
+	}
+	else
+	{
+		// TODO(fkp): Check if project is active
+		// Maybe have a save and save as?
+		if (0 /* project is active */)
+		{
+			// exitMinibuffer("");
+			// window.saveProject(/* current project path */);
+			// writeToMinibuffer("Saved project to \"" + /* current project path */ + "\"");
+		
+			// return true;
+		}
+		else
+		{
+			Frame::minibufferFrame->makeActive();
+			Commands::currentCommand = saveProject;
+			
+			std::string message = "Path: " + window.currentWorkingDirectory;
+			Commands::isReadingPath = true;
+			writeToMinibuffer(message);
+			FRAME->updatePopups();
+
+			return false;
+		}
+	}
+}
+
+DEFINE_COMMAND(loadProject)
+{
+	return true;
+}

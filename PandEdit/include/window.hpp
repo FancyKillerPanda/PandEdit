@@ -52,6 +52,10 @@ public:
 	// If moveNext is false, will move backwards
 	void moveToNextFrame(bool moveNext = true);
 
+	// TODO(fkp): Should we move this to a separate place
+	void saveProject(const std::string& projectName);
+	void loadProject(const std::string& projectName);
+
 private:
 	static LRESULT CALLBACK eventCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 	static void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);

@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <windowsx.h> // For GET_X/Y_LPARAM macro
 #include <filesystem>
+#include <fstream>
 
 #include <glad/glad.h>
 #include <glad/glad_wgl.h>
@@ -388,6 +389,62 @@ void Window::moveToNextFrame(bool moveNext)
 	}
 
 	printf("Error: Window is not keeping track of current frame.\n");
+}
+
+void Window::saveProject(const std::string& projectName)
+{
+	std::ofstream file(projectName, std::ios::trunc);
+
+	if (!file)
+	{
+		printf("Unable to open file to save project.\n");
+		return;
+	}
+
+	for (Frame* frame : frames)
+	{
+		// NOTE(fkp): When changing this, change the load as well
+		file << frame->name << ",";
+		
+		file << frame->pcDimensions.x << ",";
+		file << frame->pcDimensions.y << ",";
+		file << frame->pcDimensions.width << ",";
+		file << frame->pcDimensions.height << ",";
+		file << frame->windowWidth << ",";
+		file << frame->windowHeight << ",";
+		
+		if (frame->childOne || frame->childTwo)
+		{
+			// This frame is only for grouping
+			// TODO(fkp): Maybe save the index of the children
+		}
+		else
+		{
+			// TODO(fkp): Saving undo information?
+			file << (int) frame->currentBuffer->type << ",";
+			file << frame->currentBuffer->name << ",";
+			file << frame->currentBuffer->path << ",";
+		
+			file << frame->point.line << ",";
+			file << frame->point.col << ",";
+			file << frame->mark.line << ",";
+			file << frame->mark.col << ",";
+		
+			file << frame->targetTopLine << ",";
+			file << frame->numberOfLinesInView << ",";
+
+			file << frame->overwriteMode;
+		}
+		
+		file << "\n";
+	}
+
+	// TODO(fkp): Save common properties like font
+}
+
+void Window::loadProject(const std::string& projectName)
+{
+	
 }
 
 

@@ -89,6 +89,9 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 	COMMAND(saveCurrentBuffer),
 
 	{ "lexBufferAsC++", lexBufferAsCpp },
+
+	COMMAND(saveProject),
+	COMMAND(loadProject),
 };
 
 #undef COMMAND
