@@ -8,6 +8,7 @@
 #include <windowsx.h> // For GET_X/Y_LPARAM macro
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 #include <glad/glad.h>
 #include <glad/glad_wgl.h>
@@ -391,20 +392,45 @@ void Window::moveToNextFrame(bool moveNext)
 	printf("Error: Window is not keeping track of current frame.\n");
 }
 
+// NOTE(fkp): Volatile! Ensure this is synced with loadProject()
 void Window::saveProject(const std::string& projectName)
 {
 	std::ofstream file(projectName, std::ios::trunc);
 
 	if (!file)
 	{
-		printf("Unable to open file to save project.\n");
+		printf("Error: Unable to open file '%s' to save project.\n", projectName.c_str());
 		return;
 	}
 
 	for (Frame* frame : frames)
 	{
-		// NOTE(fkp): When changing this, change the load as well
-		file << frame->name;
+		file << "frame";
+		
+		if (frame->childOne || frame->childTwo)
+		{
+			file << ",group";
+		}
+		else
+		{
+			file << ",content";
+		}
+
+		// The status of the frame
+		if (frame == Frame::currentFrame)
+		{
+			file << ",current";
+		}
+		else if (frame == Frame::previousFrame)
+		{
+			file << ",previous";
+		}
+		else
+		{
+			file << ",none";
+		}
+		
+		file << "," << (frame->name == "" ? " " : frame->name);
 		
 		file << "," << frame->pcDimensions.x;
 		file << "," << frame->pcDimensions.y;
@@ -413,17 +439,41 @@ void Window::saveProject(const std::string& projectName)
 		file << "," << frame->windowWidth;
 		file << "," << frame->windowHeight;
 		
+		// Parent and children
+		int parentIndex = -1;
+		int childOneIndex = -1;
+		int childTwoIndex = -1;
+
+		for (int i = 0; i < frames.size(); i++)
+		{
+			if (frames[i] == frame->parent)
+			{
+				parentIndex = i;
+			}
+			else if (frames[i] == frame->childOne)
+			{
+				childOneIndex = i;
+			}
+			else if (frames[i] == frame->childTwo)
+			{
+				childTwoIndex = i;
+			}
+		}
+
+		file << "," << parentIndex;
+		file << "," << childOneIndex;
+		file << "," << childTwoIndex;
+		
 		if (frame->childOne || frame->childTwo)
 		{
 			// This frame is only for grouping
-			// TODO(fkp): Maybe save the index of the children
 		}
 		else
 		{
 			// TODO(fkp): Saving undo information?
 			file << "," << (int) frame->currentBuffer->type;
-			file << "," << frame->currentBuffer->name;
-			file << "," << frame->currentBuffer->path;
+			file << "," << (frame->currentBuffer->name == "" ? " " : frame->currentBuffer->name);
+			file << "," << (frame->currentBuffer->path == "" ? " " : frame->currentBuffer->path);
 		
 			file << "," << frame->point.line;
 			file << "," << frame->point.col;
@@ -442,9 +492,184 @@ void Window::saveProject(const std::string& projectName)
 	// TODO(fkp): Save common properties like font
 }
 
+// NOTE(fkp): Volatile! Ensure this is synced with saveProject()
 void Window::loadProject(const std::string& projectName)
 {
+#define READ_STRING_UNTIL_COMMA(name)			\
+	std::getline(line, name, ',');
+
+#define READ_FLOAT_UNTIL_COMMA(name, nameStr)	\
+	std::string nameStr;						\
+	READ_STRING_UNTIL_COMMA(nameStr);			\
+	name = std::stof(nameStr);
 	
+#define READ_UINT_UNTIL_COMMA(name, nameStr)	\
+	std::string nameStr;						\
+	READ_STRING_UNTIL_COMMA(nameStr);			\
+	name = std::stoul(nameStr);
+
+#define READ_INT_UNTIL_COMMA(name, nameStr)		\
+	std::string nameStr;						\
+	READ_STRING_UNTIL_COMMA(nameStr);			\
+	name = std::stoi(nameStr);
+
+#define READ_BOOL_UNTIL_COMMA(name, nameStr)	\
+	std::string nameStr;						\
+	READ_STRING_UNTIL_COMMA(nameStr);			\
+	name = (bool) std::stoi(nameStr);
+
+	std::ifstream file(projectName);
+
+	if (!file)
+	{
+		printf("Error: Unable to open project file '%s'.", projectName.c_str());
+		return;
+	}
+
+	// Delete all the old frames
+	for (Frame* frame : frames)
+	{
+		delete frame;
+		frame = nullptr;
+	}
+
+	frames.clear();
+
+	// Each line represents a complete *thing*
+	std::string lineStr;
+	
+	while (std::getline(file, lineStr))
+	{
+		std::stringstream line { lineStr };
+		std::string lineType;
+		READ_STRING_UNTIL_COMMA(lineType);
+
+		if (lineType == "frame")
+		{
+			std::string contentOrGroup;
+			std::string frameStatus;
+			std::string frameName;
+			READ_STRING_UNTIL_COMMA(contentOrGroup);
+			READ_STRING_UNTIL_COMMA(frameStatus);
+			READ_STRING_UNTIL_COMMA(frameName);
+
+			Vector4f frameDimensions;
+			unsigned int frameWindowWidth;
+			unsigned int frameWindowHeight;
+			READ_FLOAT_UNTIL_COMMA(frameDimensions.x, dimensionsXStr);
+			READ_FLOAT_UNTIL_COMMA(frameDimensions.y, dimensionsYStr);
+			READ_FLOAT_UNTIL_COMMA(frameDimensions.width, dimensionsWidthStr);
+			READ_FLOAT_UNTIL_COMMA(frameDimensions.height, dimensionsHeightStr);
+			// TODO(fkp): Make these external to the frames and specific to the window
+			READ_UINT_UNTIL_COMMA(frameWindowWidth, frameWindowWidthStr);
+			READ_UINT_UNTIL_COMMA(frameWindowHeight, frameWindowHeightStr);
+
+			// Creates the new frame instance
+			Frame* frame = new Frame(frameName, frameDimensions, frameWindowWidth, frameWindowHeight);
+			frames.push_back(frame);
+
+			if (frameStatus == "current")
+			{
+				Frame::currentFrame = frame;
+			}
+			else if (frameStatus == "previous")
+			{
+				Frame::previousFrame = frame;
+			}
+			
+			int parentIndex;
+			int childOneIndex;
+			int childTwoIndex;
+			READ_INT_UNTIL_COMMA(parentIndex, parentIndexStr);
+			READ_INT_UNTIL_COMMA(childOneIndex, childOneIndexStr);
+			READ_INT_UNTIL_COMMA(childTwoIndex, childTwoIndexStr);
+
+			// Removed braces for compactness
+			if (parentIndex == -1)
+				frame->parent = (Frame*) SIZE_MAX;
+			else
+				frame->parent = (Frame*) (std::size_t) parentIndex;
+
+			if (childOneIndex == -1)
+				frame->childOne = (Frame*) SIZE_MAX;
+			else
+				frame->childOne = (Frame*) (std::size_t) childOneIndex;
+
+			if (childTwoIndex == -1)
+				frame->childTwo = (Frame*) SIZE_MAX;
+			else
+				frame->childTwo = (Frame*) (std::size_t) childTwoIndex;
+
+			if (contentOrGroup == "group")
+			{
+			}
+			else if (contentOrGroup == "content")
+			{
+				int frameBufferTypeInt;
+				std::string frameBufferName;
+				std::string frameBufferPath;
+				READ_INT_UNTIL_COMMA(frameBufferTypeInt, frameBufferTypeStr);
+				READ_STRING_UNTIL_COMMA(frameBufferName);
+				READ_STRING_UNTIL_COMMA(frameBufferPath);
+
+				frame->currentBuffer = new Buffer(BufferType(frameBufferTypeInt), frameBufferName, frameBufferPath);
+
+				if (frame->currentBuffer->type == BufferType::MiniBuffer)
+				{
+					Frame::minibufferFrame = frame;
+				}
+		
+				READ_UINT_UNTIL_COMMA(frame->point.line, pointLineStr);
+				READ_UINT_UNTIL_COMMA(frame->point.col, pointColStr);
+				READ_UINT_UNTIL_COMMA(frame->mark.line, markLineStr);
+				READ_UINT_UNTIL_COMMA(frame->mark.col, markColStr);
+		
+				READ_INT_UNTIL_COMMA(frame->targetTopLine, targetTopLineStr);
+				frame->currentTopLine = frame->targetTopLine;
+				READ_UINT_UNTIL_COMMA(frame->numberOfLinesInView, numberOfLinesInViewStr);
+
+				READ_BOOL_UNTIL_COMMA(frame->overwriteMode, overwriteModeStr);
+			}
+			else
+			{
+				printf("Error: Frame was neither content nor group.\n");
+			}
+		}
+	}
+	
+	// Sorts out the parents and children
+	// NOTE(fkp): The parent, childOne, and childTwo members of the
+	// frame are used as indices into the vector of all frames. It is
+	// set to SIZE_MAX if there is no parent/child.
+	for (Frame* frame : frames)
+	{
+		if (frame->parent == (Frame*) SIZE_MAX)
+		{
+			frame->parent = nullptr;
+		}
+		else
+		{
+			frame->parent = frames[(std::size_t) frame->parent];
+		}
+
+		if (frame->childOne == (Frame*) SIZE_MAX)
+		{
+			frame->childOne = nullptr;
+		}
+		else
+		{
+			frame->childOne = frames[(std::size_t) frame->childOne];
+		}
+		
+		if (frame->childTwo == (Frame*) SIZE_MAX)
+		{
+			frame->childTwo = nullptr;
+		}
+		else
+		{
+			frame->childTwo = frames[(std::size_t) frame->childTwo];
+		}
+	}
 }
 
 

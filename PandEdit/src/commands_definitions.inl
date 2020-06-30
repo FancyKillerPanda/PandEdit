@@ -636,5 +636,41 @@ DEFINE_COMMAND(saveProject)
 
 DEFINE_COMMAND(loadProject)
 {
-	return true;
+	// Mostly copied from saveProject() above
+	if (Commands::currentCommand)
+	{
+		exitMinibuffer("");
+		Commands::currentCommand = nullptr;
+
+		if (text == "")
+		{
+			writeToMinibuffer("Error: No file path supplied.");
+		}
+		else
+		{		
+			if (text[text.size() - 1] == '/' || text[text.size() - 1] == '\\')
+			{
+				writeToMinibuffer("Error: Specify project file, not directory.");
+			}
+			else
+			{
+				window.loadProject(text);
+				writeToMinibuffer("Loaded project from \"" + text + "\"");
+			}
+		}
+		
+		return true;
+	}
+	else
+	{
+		Frame::minibufferFrame->makeActive();
+		Commands::currentCommand = loadProject;
+			
+		std::string message = "Path: " + window.currentWorkingDirectory;
+		Commands::isReadingPath = true;
+		writeToMinibuffer(message);
+		FRAME->updatePopups();
+
+		return false;
+	}
 }

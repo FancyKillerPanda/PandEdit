@@ -29,7 +29,11 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 	this->windowHeight = windowHeight;
 	pcDimensions = dimensions;
 
-	switchToBuffer(buffer);
+	if (buffer)
+	{
+		switchToBuffer(buffer);
+	}
+	
 	framesMap.insert({ name, this });
 
 	if (isActive)
@@ -37,7 +41,7 @@ void Frame::init(std::string name, Vector4f dimensions, unsigned int windowWidth
 		makeActive();
 	}
 
-	if (currentBuffer->type == BufferType::MiniBuffer)
+	if (currentBuffer && currentBuffer->type == BufferType::MiniBuffer)
 	{
 		minibufferFrame = this;
 	}
