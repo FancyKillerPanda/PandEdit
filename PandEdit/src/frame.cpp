@@ -1404,6 +1404,7 @@ void Frame::updatePopups()
 		}
 	}
 	
+	popupLines.clear();
 	std::sort(foundMatches.begin(), foundMatches.end(), [](auto& left, auto& right)
 														{
 															return left.first < right.first;
