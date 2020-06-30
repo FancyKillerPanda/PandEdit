@@ -433,11 +433,13 @@ void Renderer::drawFrame(Frame& frame)
 		textToDraw.maxWidth = framePixelWidth;
 		textToDraw.colour = defaultColour;
 
+		Point stringEndPoint = getPointAtEndOfString(visibleLines, frame.currentTopLine);
+
 		for (int i = 0; i < bufferTokens.size(); i++)
 		{
 			const Token& token = *bufferTokens[i];
 			
-			if (token.start > getPointAtEndOfString(visibleLines, frame.currentTopLine))
+			if (token.start > stringEndPoint)
 			{
 				break;
 			}
@@ -471,8 +473,6 @@ void Renderer::drawFrame(Frame& frame)
 		}
 
 		// Draws the rest of the text if needed
-		Point stringEndPoint = getPointAtEndOfString(visibleLines, frame.currentTopLine);
-		
 		if (lastTokenEnd < stringEndPoint)
 		{
 			textToDraw.colour = defaultColour;

@@ -355,7 +355,7 @@ Point getPointAtEndOfString(const std::string& string, unsigned int lineOffset)
 	Point result;
 	result.line = lineOffset;
 
-	for (char character : string)
+	for (const char& character : string)
 	{
 		if (character == '\n')
 		{
