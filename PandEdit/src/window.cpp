@@ -436,8 +436,6 @@ void Window::saveProject(const std::string& projectName)
 		file << "," << frame->pcDimensions.y;
 		file << "," << frame->pcDimensions.width;
 		file << "," << frame->pcDimensions.height;
-		file << "," << frame->windowWidth;
-		file << "," << frame->windowHeight;
 		
 		// Parent and children
 		int parentIndex = -1;
@@ -554,18 +552,13 @@ void Window::loadProject(const std::string& projectName)
 			READ_STRING_UNTIL_COMMA(frameName);
 
 			Vector4f frameDimensions;
-			unsigned int frameWindowWidth;
-			unsigned int frameWindowHeight;
 			READ_FLOAT_UNTIL_COMMA(frameDimensions.x, dimensionsXStr);
 			READ_FLOAT_UNTIL_COMMA(frameDimensions.y, dimensionsYStr);
 			READ_FLOAT_UNTIL_COMMA(frameDimensions.width, dimensionsWidthStr);
 			READ_FLOAT_UNTIL_COMMA(frameDimensions.height, dimensionsHeightStr);
-			// TODO(fkp): Make these external to the frames and specific to the window
-			READ_UINT_UNTIL_COMMA(frameWindowWidth, frameWindowWidthStr);
-			READ_UINT_UNTIL_COMMA(frameWindowHeight, frameWindowHeightStr);
 
 			// Creates the new frame instance
-			Frame* frame = new Frame(frameName, frameDimensions, frameWindowWidth, frameWindowHeight);
+			Frame* frame = new Frame(frameName, frameDimensions, width, height - renderer->currentFont->size);
 			frames.push_back(frame);
 
 			if (frameStatus == "current")
