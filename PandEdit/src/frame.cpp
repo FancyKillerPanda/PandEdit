@@ -234,6 +234,16 @@ void Frame::split(bool vertically, Font* currentFont)
 	childOne->getNumberOfLines(currentFont);
 	childTwo->getNumberOfLines(currentFont);
 
+	if (childOne->point.line > childOne->targetTopLine + childOne->numberOfLinesInView)
+	{
+		childOne->centerPoint();
+	}
+	
+	if (childTwo->point.line > childTwo->targetTopLine + childTwo->numberOfLinesInView)
+	{
+		childTwo->centerPoint();
+	}
+	
 	// Invalidates everything for this frame
 	currentBuffer = nullptr;
 	point = Point {};

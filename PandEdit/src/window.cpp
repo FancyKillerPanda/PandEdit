@@ -133,6 +133,11 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 				{
 					window->setFont(Font::get("arial"));
 				}
+
+				for (Frame* frame : window->frames)
+				{
+					frame->getNumberOfLines(window->renderer->currentFont);
+				}
 			}
 		} break;
 
@@ -479,8 +484,6 @@ void Window::saveProject(const std::string& projectName)
 			file << "," << frame->mark.col;
 		
 			file << "," << frame->targetTopLine;
-			file << "," << frame->numberOfLinesInView;
-
 			file << "," << frame->overwriteMode;
 		}
 		
@@ -619,7 +622,7 @@ void Window::loadProject(const std::string& projectName)
 		
 				READ_INT_UNTIL_COMMA(frame->targetTopLine, targetTopLineStr);
 				frame->currentTopLine = frame->targetTopLine;
-				READ_UINT_UNTIL_COMMA(frame->numberOfLinesInView, numberOfLinesInViewStr);
+				frame->getNumberOfLines(renderer->currentFont);
 
 				READ_BOOL_UNTIL_COMMA(frame->overwriteMode, overwriteModeStr);
 			}
