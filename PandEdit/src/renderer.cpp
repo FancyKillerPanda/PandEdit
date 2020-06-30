@@ -371,7 +371,11 @@ void Renderer::drawFrame(Frame& frame)
 	// Highlighting the current line
 	//
 	
-	if (&frame == Frame::currentFrame && buffer.type != BufferType::MiniBuffer)
+	if (&frame == Frame::currentFrame &&
+		buffer.type != BufferType::MiniBuffer &&
+		pointX + pointWidth <= framePixelX + framePixelWidth &&
+		pointY >= framePixelY &&
+		pointY + pointHeight <= framePixelY + framePixelHeight - currentFont->size)
 	{
 		glUseProgram(shapeShader.programID);
 		glUniform4f(glGetUniformLocation(shapeShader.programID, "colour"), 0.19f, 0.19f, 0.19f, 1.0f);
@@ -488,6 +492,7 @@ void Renderer::drawFrame(Frame& frame)
 
 	if (frame.currentBuffer->type == BufferType::MiniBuffer ||
 		(pointX + pointWidth <= framePixelX + framePixelWidth &&
+		 pointY >= framePixelY &&
 		 pointY + pointHeight <= framePixelY + framePixelHeight - currentFont->size))
 	{
 		glUseProgram(shapeShader.programID);
