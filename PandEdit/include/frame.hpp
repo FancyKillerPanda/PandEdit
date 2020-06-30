@@ -70,6 +70,7 @@ public:
 	unsigned int popupCurrentSuggestion = 0;
 	int popupCurrentTopLine = 0;
 	int popupTargetTopLine = 0;
+	bool shouldUpdatePopups = true;
 
 	bool shouldReLexBuffer = true;
 	bool overwriteMode = false;

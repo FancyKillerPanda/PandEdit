@@ -588,7 +588,7 @@ void Frame::insertChar(char character)
 	adjustOtherFramePointLocations(true, false);
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
-	updatePopups();
+	if (shouldUpdatePopups) updatePopups();
 }
 
 void Frame::backspaceChar(unsigned int num, bool copyText)
@@ -646,7 +646,7 @@ void Frame::backspaceChar(unsigned int num, bool copyText)
 	
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
-	updatePopups();
+	if (shouldUpdatePopups) updatePopups();
 }
 
 void Frame::deleteChar(unsigned int num, bool copyText)
@@ -1419,6 +1419,8 @@ void Frame::completeSuggestion()
 {
 	if (popupLines.size() > 0)
 	{
+		bool oldShouldUpdatePopups = shouldUpdatePopups;
+		shouldUpdatePopups = false;
 		std::string suggestion = popupLines[popupCurrentSuggestion].first;
 		
 		Token* tokenUnderPoint = getTokenUnderPoint(true);
@@ -1461,6 +1463,7 @@ void Frame::completeSuggestion()
 
 		popupLines.clear();
 		popupCurrentSuggestion = 0;
+		shouldUpdatePopups = oldShouldUpdatePopups;
 	}
 }
 
