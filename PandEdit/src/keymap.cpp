@@ -41,7 +41,7 @@ void KeyMap::registerKeyPress(Window& window, Key key)
 		{
 			for (const std::string& command : result->second)
 			{
-				Commands::executeCommand(window, command);
+				Commands::executeCommand(window, command, true);
 			}
 		}
 	}

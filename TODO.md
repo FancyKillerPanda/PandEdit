@@ -12,6 +12,8 @@
 - std::string_view
 - UTF-8 characters
 
+- Ask for confirmation before creating file
+- Tell user when key combination is undefined
 - Right-align suggestion information
 
 - Project file

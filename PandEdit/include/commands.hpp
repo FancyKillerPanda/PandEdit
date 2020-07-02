@@ -29,7 +29,7 @@ public:
 	inline static MinibufferReading currentlyReading = MinibufferReading::None;
 
 public:
-	static void executeCommand(Window& window, const std::string& commandText);
+	static void executeCommand(Window& window, const std::string& commandText, bool shortcut);
 };
 
 #endif

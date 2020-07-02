@@ -158,7 +158,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 					commandText.erase(0, 1);
 				}
 
-				Commands::executeCommand(*window, commandText);
+				Commands::executeCommand(*window, commandText, false);
 			}
 			else
 			{

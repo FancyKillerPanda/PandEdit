@@ -96,7 +96,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 
 #undef COMMAND
 
-void Commands::executeCommand(Window& window, const std::string& commandText)
+void Commands::executeCommand(Window& window, const std::string& commandText, bool shortcut)
 {	
 	std::string commandName = commandText.substr(0, commandText.find(' '));
 	std::string argumentsText = "";
@@ -127,7 +127,11 @@ void Commands::executeCommand(Window& window, const std::string& commandText)
 	{
 		if (currentCommand)
 		{
-			currentCommand(window, commandText);
+			// Should only happen if this was typed in, not through a keyboard shortcut.
+			if (!shortcut)
+			{
+				currentCommand(window, commandText);
+			}
 		}
 		else
 		{
