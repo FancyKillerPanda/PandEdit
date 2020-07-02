@@ -92,6 +92,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 
 	COMMAND(saveProject),
 	COMMAND(loadProject),
+	COMMAND(compile),
 };
 
 #undef COMMAND

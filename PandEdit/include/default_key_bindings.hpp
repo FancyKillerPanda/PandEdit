@@ -63,6 +63,8 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::Tab }, "completeSuggestion");
 	KeyMap::bindKey({ Key::UpArrow, KEY_CONTROL }, "previousSuggestion");
 	KeyMap::bindKey({ Key::DownArrow, KEY_CONTROL }, "nextSuggestion");
+
+	KeyMap::bindKey({ Key::M, KEY_ALT }, "compile");
 }
 
 #endif

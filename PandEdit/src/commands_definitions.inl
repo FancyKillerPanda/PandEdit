@@ -61,10 +61,13 @@ DEFINE_COMMAND(minibufferEnter)
 
 DEFINE_COMMAND(minibufferQuit)
 {
-	exitMinibuffer("Quit");
-	Frame::previousFrame->makeActive();
-	Commands::currentCommand = nullptr;
-	Commands::currentlyReading = MinibufferReading::None;
+	if (Frame::currentFrame == Frame::minibufferFrame)
+	{
+		exitMinibuffer("Quit");
+		Frame::previousFrame->makeActive();
+		Commands::currentCommand = nullptr;
+		Commands::currentlyReading = MinibufferReading::None;
+	}
 	
 	return true;
 }
@@ -688,4 +691,34 @@ DEFINE_COMMAND(loadProject)
 
 		return false;
 	}
+}
+
+// TODO(fkp): This will hang the program while the command is being executed
+DEFINE_COMMAND(compile)
+{
+	exitMinibuffer("");
+	system("build.bat > __compile__.pe");
+
+	// One for one main frame and one for the minibuffer
+	if (window.frames.size() == 2)
+	{
+		FRAME->split(true, window.renderer->currentFont);
+	}
+	else
+	{
+		window.moveToNextFrame();
+	}
+
+	Buffer* compileBuffer = Buffer::get("*compilation*");
+	
+	if (compileBuffer == nullptr)
+	{
+		compileBuffer = new Buffer(BufferType::Text, "*compilation*", "__compile__.pe");
+	}
+
+	FRAME->switchToBuffer(compileBuffer);
+
+	// TODO(fkp): Delete the temporary __compile__.pe file
+	
+	return true;
 }
