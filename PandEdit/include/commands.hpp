@@ -32,4 +32,6 @@ public:
 	static void executeCommand(Window& window, const std::string& commandText, bool shortcut);
 };
 
+void writeToMinibuffer(std::string message);
+
 #endif

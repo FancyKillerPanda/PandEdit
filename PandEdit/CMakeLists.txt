@@ -32,6 +32,8 @@ set(HEADERS
 	frame.hpp
 	buffer.hpp
 	commands.hpp
+	key.hpp
+	key_combo.hpp
 	keymap.hpp
 	default_key_bindings.hpp
 	point.hpp
@@ -53,6 +55,7 @@ set(SOURCES
 	frame.cpp
 	buffer.cpp
 	commands.cpp
+	key_combo.cpp
 	keymap.cpp
 	point.cpp
 	file_util.cpp

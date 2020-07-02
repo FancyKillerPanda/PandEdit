@@ -44,6 +44,12 @@ void KeyMap::registerKeyPress(Window& window, Key key)
 				Commands::executeCommand(window, command, true);
 			}
 		}
+		/* TODO(fkp): Implement this
+		else
+		{
+			writeToMinibuffer(combo.str() + " is undefined.");
+		}
+		*/
 	}
 }
 
