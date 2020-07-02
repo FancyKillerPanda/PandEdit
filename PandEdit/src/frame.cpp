@@ -1332,8 +1332,7 @@ void Frame::updatePopups()
 			for (const std::pair<std::string, Buffer*>& buffer : Buffer::buffersMap)
 			{
 				// This frame is the minibuffer
-				if (buffer.second == currentBuffer ||
-					buffer.second == previousFrame->currentBuffer)
+				if (buffer.second == currentBuffer)
 				{
 					continue;
 				}
