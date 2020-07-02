@@ -13,6 +13,7 @@ enum class MinibufferReading
 	None,
 	Command,
 	Path,
+	BufferName,
 };
 
 class Window;

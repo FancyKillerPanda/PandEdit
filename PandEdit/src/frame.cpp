@@ -1281,6 +1281,7 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 	}
 }
 
+// TODO(fkp): This method has a lot of code duplication, clean it up.
 void Frame::updatePopups()
 {
 	std::vector<std::pair<std::string::size_type, std::pair<std::string, std::string>>> foundMatches;
@@ -1321,6 +1322,27 @@ void Frame::updatePopups()
 					{
 						foundMatches.emplace_back(index, std::make_pair(name, ""));
 					}
+				}
+			}
+		}
+		else if (Commands::currentlyReading == MinibufferReading::BufferName)
+		{
+			std::string bufferName = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
+
+			for (const std::pair<std::string, Buffer*>& buffer : Buffer::buffersMap)
+			{
+				// This frame is the minibuffer
+				if (buffer.second == currentBuffer ||
+					buffer.second == previousFrame->currentBuffer)
+				{
+					continue;
+				}
+				
+				std::string::size_type index = buffer.first.find(bufferName);
+
+				if (index != std::string::npos)
+				{
+					foundMatches.emplace_back(index, std::make_pair(buffer.first, ""));
 				}
 			}
 		}

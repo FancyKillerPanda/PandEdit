@@ -17,6 +17,13 @@ void startReadingPath(Window& window)
 	FRAME->updatePopups();
 }
 
+void startReadingBufferName()
+{
+	Commands::currentlyReading = MinibufferReading::BufferName;
+	writeToMinibuffer("Buffer: ");
+	FRAME->updatePopups();
+}
+
 //
 // NOTE(fkp): Minibuffer/miscellaneous commands
 //
@@ -386,7 +393,7 @@ DEFINE_COMMAND(switchToBuffer)
 	else
 	{
 		Frame::minibufferFrame->makeActive();
-		writeToMinibuffer("Buffer: ");
+		startReadingBufferName();
 		Commands::currentCommand = switchToBuffer;
 		
 		return false;
@@ -408,8 +415,7 @@ DEFINE_COMMAND(destroyBuffer)
 	else
 	{
 		Frame::minibufferFrame->makeActive();
-		// TODO(fkp): Show default buffer (minibuffer text improvements)
-		writeToMinibuffer("Buffer: ");
+		startReadingBufferName();		
 		Commands::currentCommand = destroyBuffer;
 
 		return false;

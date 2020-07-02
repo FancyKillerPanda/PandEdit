@@ -4,8 +4,9 @@
 - When typing just before a function definition, the letters typed show up in the information
 - After scrolling popup up and down, items are not in the same place
 	- This has been worked around by setting the max number of popup lines to 7, not 8
-- Clear the popups after selection
-	- Use saveProject as example
+
+- Using keyboard shortcut for command while reading path/name puts command name in
+- Don't allow empty buffer name
 
 ### Features
 - std::string_view
