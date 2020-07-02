@@ -8,7 +8,6 @@
 ### Features
 - std::string_view
 - UTF-8 characters
-- WIN32_LEAN_AND_MEAN
 
 - Ask for confirmation before creating file
 - Right-align suggestion information

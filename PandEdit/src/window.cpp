@@ -3,8 +3,9 @@
 #define PANDEDIT_DEBUG_WINDOW
 #define PANDEDIT_VSYNC
 
-#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdio.h>
 #include <windowsx.h> // For GET_X/Y_LPARAM macro
 #include <filesystem>
 #include <fstream>

@@ -1,7 +1,8 @@
 //  ===== Date Created: 14 April, 2020 =====
 
-#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <vector>
