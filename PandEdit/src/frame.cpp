@@ -1287,7 +1287,7 @@ void Frame::updatePopups()
 			
 	if (currentBuffer->type == BufferType::MiniBuffer)
 	{
-		if (Commands::isReadingPath)
+		if (Commands::currentlyReading == MinibufferReading::Path)
 		{
 			// The path up to the last directory
 			std::string::size_type startOfPathIndex = currentBuffer->data[0].find_first_of(' ') + 1;
@@ -1324,7 +1324,7 @@ void Frame::updatePopups()
 				}
 			}
 		}
-		else
+		else if (Commands::currentlyReading == MinibufferReading::Command)
 		{
 			std::string commandText = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
 

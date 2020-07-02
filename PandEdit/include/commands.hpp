@@ -8,6 +8,13 @@
 
 #define COMMAND_FUNC_SIG(...) bool (*__VA_ARGS__)(Window&, const std::string&)
 
+enum class MinibufferReading
+{
+	None,
+	Command,
+	Path,
+};
+
 class Window;
 
 class Commands
@@ -18,7 +25,7 @@ public:
 	static std::unordered_map<std::string, COMMAND_FUNC_SIG()> nonEssentialCommandsMap;
 	inline static COMMAND_FUNC_SIG(currentCommand) = nullptr;
 	inline static std::string lastCommand = "";
-	inline static bool isReadingPath = false;
+	inline static MinibufferReading currentlyReading = MinibufferReading::None;
 
 public:
 	static void executeCommand(Window& window, const std::string& commandText);

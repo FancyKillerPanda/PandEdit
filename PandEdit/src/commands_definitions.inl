@@ -9,6 +9,14 @@
 #define FRAME Frame::currentFrame
 #define BUFFER Frame::currentFrame->currentBuffer
 
+void startReadingPath(Window& window)
+{
+	std::string message = "Path: " + window.currentWorkingDirectory;
+	Commands::currentlyReading = MinibufferReading::Path;
+	writeToMinibuffer(message);
+	FRAME->updatePopups();
+}
+
 //
 // NOTE(fkp): Minibuffer/miscellaneous commands
 //
@@ -38,8 +46,9 @@ DEFINE_COMMAND(minibufferEnter)
 	{
 		Frame::minibufferFrame->makeActive();
 		writeToMinibuffer("Execute: ");
-		Commands::isReadingPath = false; // This shouldn't be necessary
+		Commands::currentlyReading = MinibufferReading::Command;
 	}
+	
 	return false;
 }
 
@@ -48,7 +57,7 @@ DEFINE_COMMAND(minibufferQuit)
 	exitMinibuffer("Quit");
 	Frame::previousFrame->makeActive();
 	Commands::currentCommand = nullptr;
-	Commands::isReadingPath = false;
+	Commands::currentlyReading = MinibufferReading::None;
 	
 	return true;
 }
@@ -122,7 +131,7 @@ DEFINE_COMMAND(backspaceChar)
 
 DEFINE_COMMAND(backspaceCharExtra)
 {
-	if (BUFFER->type == BufferType::MiniBuffer && Commands::isReadingPath)
+	if (BUFFER->type == BufferType::MiniBuffer && Commands::currentlyReading == MinibufferReading::Path)
 	{
 		std::string::size_type indexSlashBefore = BUFFER->data[0].find_last_of("/\\", FRAME->point.col - 2);
 		std::string::size_type indexSlashAfter = BUFFER->data[0].find_first_of("/\\", FRAME->point.col - 1);
@@ -430,11 +439,7 @@ DEFINE_COMMAND(findFile)
 	{
 		Frame::minibufferFrame->makeActive();
 		Commands::currentCommand = findFile;
-		
-		std::string message = "Path: " + window.currentWorkingDirectory;
-		Commands::isReadingPath = true;
-		writeToMinibuffer(message);
-		FRAME->updatePopups();
+		startReadingPath(window);
 
 		return false;
 	}
@@ -482,11 +487,7 @@ DEFINE_COMMAND(saveCurrentBuffer)
 		{
 			Frame::minibufferFrame->makeActive();
 			Commands::currentCommand = saveCurrentBuffer;
-			
-			std::string message = "Path: " + window.currentWorkingDirectory;
-			Commands::isReadingPath = true;
-			writeToMinibuffer(message);
-			FRAME->updatePopups();
+			startReadingPath(window);
 
 			return false;
 		}
@@ -623,11 +624,7 @@ DEFINE_COMMAND(saveProject)
 		{
 			Frame::minibufferFrame->makeActive();
 			Commands::currentCommand = saveProject;
-			
-			std::string message = "Path: " + window.currentWorkingDirectory;
-			Commands::isReadingPath = true;
-			writeToMinibuffer(message);
-			FRAME->updatePopups();
+			startReadingPath(window);
 
 			return false;
 		}
@@ -665,11 +662,7 @@ DEFINE_COMMAND(loadProject)
 	{
 		Frame::minibufferFrame->makeActive();
 		Commands::currentCommand = loadProject;
-			
-		std::string message = "Path: " + window.currentWorkingDirectory;
-		Commands::isReadingPath = true;
-		writeToMinibuffer(message);
-		FRAME->updatePopups();
+		startReadingPath(window);
 
 		return false;
 	}
