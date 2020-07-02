@@ -55,6 +55,7 @@ set(SOURCES
 	frame.cpp
 	buffer.cpp
 	commands.cpp
+	key.cpp
 	key_combo.cpp
 	keymap.cpp
 	point.cpp

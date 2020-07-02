@@ -91,4 +91,6 @@ enum ModifierKey
 	KEY_WINDOWS       = 0x40,
 };
 
+const char* toCString(Key key);
+
 #endif

@@ -44,12 +44,14 @@ void KeyMap::registerKeyPress(Window& window, Key key)
 				Commands::executeCommand(window, command, true);
 			}
 		}
-		/* TODO(fkp): Implement this
 		else
 		{
-			writeToMinibuffer(combo.str() + " is undefined.");
+			// Without this check, pressing any key (such as 'a') will trigger this
+			if (combo.modifiers != NO_MODIFIERS)
+			{
+				writeToMinibuffer(combo.str() + " is undefined.");
+			}
 		}
-		*/
 	}
 }
 

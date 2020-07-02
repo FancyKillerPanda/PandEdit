@@ -4,6 +4,8 @@
 #define KEY_COMBO_HPP
 
 #include <cstddef>
+#include <string>
+
 #include "key.hpp"
 
 class KeyCombo
@@ -16,6 +18,7 @@ public:
 	KeyCombo() = default;
 	KeyCombo(Key key, int modifiers = NO_MODIFIERS);
 
+	std::string str();
 	bool operator==(const KeyCombo& other) const;
 };
 

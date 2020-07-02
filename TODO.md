@@ -12,8 +12,6 @@
 
 - Ask for confirmation before creating file
 - Right-align suggestion information
-- Tell user when key combination is undefined
-
 
 - Project file
 	- Can contain frame layout information
