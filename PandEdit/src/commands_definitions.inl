@@ -375,20 +375,29 @@ DEFINE_COMMAND(redo)
 
 DEFINE_COMMAND(switchToBuffer)
 {
+	std::string bufferName = text.substr(0, text.find(' '));
+	
 	if (Commands::currentCommand)
 	{
-		Commands::currentCommand = nullptr;
-		exitMinibuffer("");
-		
-		Buffer* buffer = Buffer::get(text.substr(0, text.find(' ')));
-
-		if (!buffer)
+		if (bufferName != "")
 		{
-			buffer = new Buffer { BufferType::Text, text.substr(0, text.find(' ')), "" };
-		}
+			Commands::currentCommand = nullptr;
+			exitMinibuffer("");
 		
-		FRAME->switchToBuffer(buffer);
-		return true;
+			Buffer* buffer = Buffer::get(bufferName);
+
+			if (!buffer)
+			{
+				buffer = new Buffer { BufferType::Text, text.substr(0, text.find(' ')), "" };
+			}
+		
+			FRAME->switchToBuffer(buffer);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -404,13 +413,20 @@ DEFINE_COMMAND(destroyBuffer)
 {
 	if (Commands::currentCommand)
 	{
-		Commands::currentCommand = nullptr;
-		exitMinibuffer("");
-
 		std::string bufferName = text.substr(0, text.find(' '));
-		FRAME->destroyBuffer(Buffer::get(bufferName));
+
+		if (bufferName != "")
+		{
+			Commands::currentCommand = nullptr;
+			exitMinibuffer("");
+			FRAME->destroyBuffer(Buffer::get(bufferName));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 		
-		return true;
 	}
 	else
 	{
