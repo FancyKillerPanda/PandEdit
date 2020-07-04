@@ -12,6 +12,7 @@
 #include <glad/glad.h>
 
 #include "frame.hpp"
+#include "project.hpp"
 
 class Renderer;
 class Font;
@@ -34,7 +35,7 @@ public:
 	Renderer* renderer;
 	std::vector<Frame*> frames;
 
-	std::string currentWorkingDirectory;
+	Project currentProject;
 
 private:
 	inline static std::unordered_map<HWND, Window*> windowsMap;

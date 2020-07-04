@@ -353,7 +353,7 @@ void Window::setFont(Font* font)
 void Window::parseArguments(std::vector<std::string>&& args)
 {
 	std::string relativeExePath = getPathOnly(args[0]);
-	currentWorkingDirectory = std::filesystem::absolute(".").generic_string() + '/';
+	currentProject.currentWorkingDirectory = std::filesystem::absolute(".").generic_string() + '/';
 }
 
 void Window::moveToNextFrame(bool moveNext)
