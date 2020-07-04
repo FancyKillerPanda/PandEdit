@@ -107,7 +107,7 @@ void Project::saveToFile(const std::string& path, const Window& window)
 		file << "\n";
 	}
 
-	// TODO(fkp): Save common properties like font
+	file << "compileCommand," << compileCommand << "\n";
 }
 
 // NOTE(fkp): Volatile! Ensure this is synced with saveToFile()
@@ -247,6 +247,20 @@ void Project::loadFromFile(const std::string& path, Window& window)
 			else
 			{
 				printf("Error: Frame was neither content nor group.\n");
+			}
+		}
+		else if (lineType == "compileCommand")
+		{
+			std::string command = lineStr.substr(lineStr.find_first_of(",") + 1);
+
+			if (command == "")
+			{
+				printf("Warning: No compile command specified in project file.\n");
+			}
+			else
+			{
+				compileCommand = "cmd.exe /C " + command + " > __compile__.pe";
+				printf("Compile: '%s'\n", compileCommand.c_str());
 			}
 		}
 	}

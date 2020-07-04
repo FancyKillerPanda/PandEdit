@@ -12,10 +12,10 @@ class Window;
 class Project
 {
 public:
-	std::string currentPath;
-	std::string currentWorkingDirectory;
+	std::string currentPath = "";
+	std::string currentWorkingDirectory = "";
 	
-	std::string compileCommand = "cmd.exe /C build.bat > __compile__.pe";
+	std::string compileCommand = "";
 	std::future<bool> compileFuture;
 	std::thread compileThread;
 

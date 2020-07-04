@@ -12,6 +12,11 @@
 - Ask for confirmation before creating file
 - Right-align suggestion information
 
+- Mark a buffer as read-only
+- Update compile buffer as compilation occurs
+- Add visual indicator (asterisk) if a buffer has been modified
+	- Option to revert buffer back to its state on disk
+
 - Project file
 	- Can contain frame layout information
 	- Specify include directories
