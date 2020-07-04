@@ -7,17 +7,22 @@
 #include <future>
 #include <thread>
 
-// TODO(fkp): Move project save and load to be methods here
+class Window;
+
 class Project
 {
 public:
+	std::string currentPath;
 	std::string currentWorkingDirectory;
-	std::string compileCommand = "cmd.exe /C build.bat > __compile__.pe";
 	
+	std::string compileCommand = "cmd.exe /C build.bat > __compile__.pe";
 	std::future<bool> compileFuture;
 	std::thread compileThread;
 
 public:
+	void saveToFile(const std::string& path, const Window& window);
+	void loadFromFile(const std::string& path, Window& window);
+	
 	bool isCompileRunning();
 	bool executeCompileCommand();
 };

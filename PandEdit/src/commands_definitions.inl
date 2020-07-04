@@ -626,7 +626,7 @@ DEFINE_COMMAND(saveProject)
 			}
 			else
 			{
-				window.saveProject(text);
+				window.currentProject.saveToFile(text, window);
 				writeToMinibuffer("Saved project to \"" + text + "\"");
 			}
 		}
@@ -635,15 +635,14 @@ DEFINE_COMMAND(saveProject)
 	}
 	else
 	{
-		// TODO(fkp): Check if project is active
 		// Maybe have a save and save as?
-		if (0 /* project is active */)
+		if (window.currentProject.currentPath != "")
 		{
-			// exitMinibuffer("");
-			// window.saveProject(/* current project path */);
-			// writeToMinibuffer("Saved project to \"" + /* current project path */ + "\"");
+			exitMinibuffer("");
+			window.currentProject.saveToFile(window.currentProject.currentPath, window);
+			writeToMinibuffer("Saved project to \"" + window.currentProject.currentPath + "\"");
 		
-			// return true;
+			return true;
 		}
 		else
 		{
@@ -676,7 +675,7 @@ DEFINE_COMMAND(loadProject)
 			}
 			else
 			{
-				window.loadProject(text);
+				window.currentProject.loadFromFile(text, window);
 				writeToMinibuffer("Loaded project from \"" + text + "\"");
 			}
 		}
@@ -693,11 +692,9 @@ DEFINE_COMMAND(loadProject)
 	}
 }
 
-// TODO(fkp): This will hang the program while the command is being executed
 DEFINE_COMMAND(compile)
 {
 	exitMinibuffer("");
-	// system("build.bat > __compile__.pe");
 
 	// One for one main frame and one for the minibuffer
 	if (window.frames.size() == 2)
