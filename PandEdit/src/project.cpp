@@ -6,6 +6,7 @@
 #include <thread>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #include "project.hpp"
 #include "window.hpp"
@@ -260,7 +261,6 @@ void Project::loadFromFile(const std::string& path, Window& window)
 			else
 			{
 				compileCommand = "cmd.exe /C " + command + " > __compile__.pe";
-				printf("Compile: '%s'\n", compileCommand.c_str());
 			}
 		}
 	}
@@ -318,21 +318,47 @@ bool Project::isCompileRunning()
 }
 
 // This method will run asynchronously after a compilation has begun
-void waitForCompilationToFinish(PROCESS_INFORMATION processInformation, std::promise<bool>& compilePromise)
+void waitForCompilationToFinish(PROCESS_INFORMATION processInformation, HANDLE dirChangeHandle, std::promise<bool>& compilePromise)
 {
 	// Waits for an event or the process to finish
 	MSG message;
 	DWORD reason = WAIT_TIMEOUT;
 
+	HANDLE waitObjects[2] = { processInformation.hProcess, dirChangeHandle };
+
 	while (reason != WAIT_OBJECT_0)
 	{
-		reason = MsgWaitForMultipleObjects(1, &processInformation.hProcess, false, 0, QS_ALLINPUT);
+		reason = MsgWaitForMultipleObjects(2, waitObjects, false, 0, QS_ALLINPUT);
 
-		if (reason == WAIT_OBJECT_0)
+		switch (reason)
+		{
+		case WAIT_OBJECT_0:
 		{
 			printf("Info: Finished compilation.\n");
-		}
-		else if (reason == WAIT_OBJECT_0 + 1)
+		} break;
+
+		case WAIT_OBJECT_0 + 1:
+		{
+			// Directory has changed
+			FILE_NOTIFY_INFORMATION changeInfo;
+			DWORD bytesReceived;
+
+			if (!ReadDirectoryChangesW(dirChangeHandle, &changeInfo, sizeof(changeInfo), false, FILE_NOTIFY_CHANGE_LAST_WRITE, &bytesReceived, nullptr, nullptr))
+			{
+				printf("Error: Failed to read directory changes.\n");
+				break;
+			}
+
+			std::wstring filename { changeInfo.FileName, changeInfo.FileNameLength };
+			printf("Info: File changed: '%S'\n", filename.c_str());
+
+			if (!FindNextChangeNotification(dirChangeHandle))
+			{
+				printf("Error: FindNextChangeNotification failed.\n");
+			}
+		} break;
+
+		case WAIT_OBJECT_0 + 2:
 		{
 			// A window message is available
 			while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
@@ -340,12 +366,14 @@ void waitForCompilationToFinish(PROCESS_INFORMATION processInformation, std::pro
 				TranslateMessage(&message);
 				DispatchMessage(&message);
 			}
+		} break;
 		}
 	}
 
 	// Cleanup of the child process
 	CloseHandle(processInformation.hProcess);
 	CloseHandle(processInformation.hThread);
+	FindCloseChangeNotification(dirChangeHandle);
 
 	compilePromise.set_value(true);
 }
@@ -366,20 +394,29 @@ bool Project::executeCompileCommand()
 	char* compileCommandCStr = new char[compileCommand.size() + 1];
 	std::copy(compileCommand.begin(), compileCommand.end(), compileCommandCStr);
 	compileCommandCStr[compileCommand.size()] = '\0';
-	
+
 	if (CreateProcess(NULL, compileCommandCStr,
 					  NULL, NULL, false, 0, NULL, NULL,
 					  &startupInformation, &processInformation))
 	{
+		std::filesystem::path cwdPath = std::filesystem::absolute(currentWorkingDirectory);
+		HANDLE dirChangeHandle = FindFirstChangeNotification(cwdPath.string().c_str(), false, FILE_NOTIFY_CHANGE_LAST_WRITE);
+
+		if (dirChangeHandle == nullptr || dirChangeHandle == INVALID_HANDLE_VALUE)
+		{
+			printf("Error: Could not watch build directory.\n");
+			return false;
+		}
+		
 		std::promise<bool> compilePromise;
 		compileFuture = compilePromise.get_future();
 		
-		compileThread = std::thread { waitForCompilationToFinish, processInformation, std::ref(compilePromise) };
+		compileThread = std::thread { waitForCompilationToFinish, processInformation, dirChangeHandle, std::ref(compilePromise) };
 		compileThread.detach();
 	}
 	else
 	{
-		printf("Error: could not create process to compile.\n");
+		printf("Error: could not create process to compile.\n--> %lu", GetLastError());
 		return false;
 	}
 
