@@ -13,6 +13,7 @@
 #include "frame.hpp"
 #include "renderer.hpp"
 #include "font.hpp"
+#include "commands.hpp"
 
 // NOTE(fkp): Volatile! Ensure this is synced with loadFromFile()
 void Project::saveToFile(const std::string& path, const Window& window)
@@ -318,13 +319,15 @@ bool Project::isCompileRunning()
 }
 
 // This method will run asynchronously after a compilation has begun
-void waitForCompilationToFinish(HANDLE childStdoutRead)
+void waitForCompilationToFinish(HANDLE childStdoutRead, Buffer* compileBuffer)
 {
 	// Reads from the child process's STDOUT
 	const unsigned int BUFFER_SIZE = 1023;
 	char buffer[BUFFER_SIZE + 1];
 	DWORD numberOfBytesRead = 0;
 
+	bool hasDeletedFirstLine = false;
+	
 	while (true)
 	{
 		bool success = ReadFile(childStdoutRead, buffer, BUFFER_SIZE, &numberOfBytesRead, nullptr);
@@ -334,16 +337,30 @@ void waitForCompilationToFinish(HANDLE childStdoutRead)
 		// character, I couldn't find it in the documentation and
 		// don't want to take any chances.
 		buffer[numberOfBytesRead] = 0;
-		printf("Read: %s", buffer);
+
+		// Gets rid of traling newlines
+		if (buffer[numberOfBytesRead - 1] == '\n')
+		{
+			buffer[numberOfBytesRead - 1] = 0;
+		}
+
+		if (!hasDeletedFirstLine)
+		{
+			hasDeletedFirstLine = true;
+			compileBuffer->data.pop_back();
+		}
+		
+		compileBuffer->data.push_back(buffer);
 	}
 
 	// Closes the one remaining handle
 	CloseHandle(childStdoutRead);
 
-	printf("Info: Finished compilation.\n");
+	// TODO(fkp): Write out if there were errors or not
+	writeToMinibuffer("Finished compilation.\n");
 }
 
-bool Project::executeCompileCommand()
+bool Project::executeCompileCommand(Buffer* compileBuffer)
 {
 	if (isCompileRunning())
 	{
@@ -419,7 +436,7 @@ bool Project::executeCompileCommand()
 		std::promise<bool> compilePromise;
 		compileFuture = compilePromise.get_future();
 
-		compileThread = std::thread { waitForCompilationToFinish, childStdOutRead };
+		compileThread = std::thread { waitForCompilationToFinish, childStdOutRead, compileBuffer };
 		compileThread.detach();
 		
 		// Closes unneeded handles

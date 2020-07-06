@@ -7,6 +7,8 @@
 #include <future>
 #include <thread>
 
+#include "buffer.hpp"
+
 class Window;
 
 class Project
@@ -24,7 +26,7 @@ public:
 	void loadFromFile(const std::string& path, Window& window);
 	
 	bool isCompileRunning();
-	bool executeCompileCommand();
+	bool executeCompileCommand(Buffer* compileBuffer);
 };
 
 #endif

@@ -715,7 +715,7 @@ DEFINE_COMMAND(compile)
 
 	FRAME->switchToBuffer(compileBuffer);
 
-	if (!window.currentProject.executeCompileCommand())
+	if (!window.currentProject.executeCompileCommand(compileBuffer))
 	{
 		writeToMinibuffer("Error: Compilation already in progress.");
 	}
