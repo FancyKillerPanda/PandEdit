@@ -260,7 +260,7 @@ void Project::loadFromFile(const std::string& path, Window& window)
 			}
 			else
 			{
-				compileCommand = "cmd.exe /C " + command + " > __compile__.pe";
+				compileCommand = "cmd.exe /C " + command;
 			}
 		}
 	}
@@ -318,110 +318,123 @@ bool Project::isCompileRunning()
 }
 
 // This method will run asynchronously after a compilation has begun
-void waitForCompilationToFinish(PROCESS_INFORMATION processInformation, HANDLE dirChangeHandle, std::promise<bool>& compilePromise)
+void waitForCompilationToFinish(HANDLE childStdoutRead)
 {
-	// Waits for an event or the process to finish
-	MSG message;
-	DWORD reason = WAIT_TIMEOUT;
+	// Reads from the child process's STDOUT
+	const unsigned int BUFFER_SIZE = 1023;
+	char buffer[BUFFER_SIZE + 1];
+	DWORD numberOfBytesRead = 0;
 
-	HANDLE waitObjects[2] = { processInformation.hProcess, dirChangeHandle };
-
-	while (reason != WAIT_OBJECT_0)
+	while (true)
 	{
-		reason = MsgWaitForMultipleObjects(2, waitObjects, false, 0, QS_ALLINPUT);
+		bool success = ReadFile(childStdoutRead, buffer, BUFFER_SIZE, &numberOfBytesRead, nullptr);
+		if (!success || numberOfBytesRead == 0) break;
 
-		switch (reason)
-		{
-		case WAIT_OBJECT_0:
-		{
-			printf("Info: Finished compilation.\n");
-		} break;
-
-		case WAIT_OBJECT_0 + 1:
-		{
-			// Directory has changed
-			FILE_NOTIFY_INFORMATION changeInfo;
-			DWORD bytesReceived;
-
-			if (!ReadDirectoryChangesW(dirChangeHandle, &changeInfo, sizeof(changeInfo), false, FILE_NOTIFY_CHANGE_LAST_WRITE, &bytesReceived, nullptr, nullptr))
-			{
-				printf("Error: Failed to read directory changes.\n");
-				break;
-			}
-
-			std::wstring filename { changeInfo.FileName, changeInfo.FileNameLength };
-			printf("Info: File changed: '%S'\n", filename.c_str());
-
-			if (!FindNextChangeNotification(dirChangeHandle))
-			{
-				printf("Error: FindNextChangeNotification failed.\n");
-			}
-		} break;
-
-		case WAIT_OBJECT_0 + 2:
-		{
-			// A window message is available
-			while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&message);
-				DispatchMessage(&message);
-			}
-		} break;
-		}
+		// Don't know if we need to add an explicit null-termination
+		// character, I couldn't find it in the documentation and
+		// don't want to take any chances.
+		buffer[numberOfBytesRead] = 0;
+		printf("Read: %s", buffer);
 	}
 
-	// Cleanup of the child process
-	CloseHandle(processInformation.hProcess);
-	CloseHandle(processInformation.hThread);
-	FindCloseChangeNotification(dirChangeHandle);
+	// Closes the one remaining handle
+	CloseHandle(childStdoutRead);
 
-	compilePromise.set_value(true);
+	printf("Info: Finished compilation.\n");
 }
 
 bool Project::executeCompileCommand()
 {
 	if (isCompileRunning())
 	{
+		printf("Error: Failed to start new compilation, one already running.\n");
 		return false;
 	}
-	
-	STARTUPINFO startupInformation {};
-	startupInformation.cb = sizeof(startupInformation);
-	PROCESS_INFORMATION processInformation {};
 
 	// Makes the command a modifiable char* because Windows wants that
 	// for some reason
 	char* compileCommandCStr = new char[compileCommand.size() + 1];
 	std::copy(compileCommand.begin(), compileCommand.end(), compileCommandCStr);
 	compileCommandCStr[compileCommand.size()] = '\0';
+	
+	//
+	// NOTE(fkp): Pipe setup
+	//
+	
+	HANDLE childStdOutRead = nullptr;
+	HANDLE childStdOutWrite = nullptr;
+	HANDLE childStdInRead = nullptr;
+	HANDLE childStdInWrite = nullptr;
+	
+	SECURITY_ATTRIBUTES securityAttributes {};
+	securityAttributes.nLength = sizeof(securityAttributes);
+	securityAttributes.bInheritHandle = true;
+	securityAttributes.lpSecurityDescriptor = nullptr;
 
-	if (CreateProcess(NULL, compileCommandCStr,
-					  NULL, NULL, false, 0, NULL, NULL,
-					  &startupInformation, &processInformation))
+ 	// Create a pipe for the child process's STDOUT
+	if (!CreatePipe(&childStdOutRead, &childStdOutWrite, &securityAttributes, 0))
 	{
-		std::filesystem::path cwdPath = std::filesystem::absolute(currentWorkingDirectory);
-		HANDLE dirChangeHandle = FindFirstChangeNotification(cwdPath.string().c_str(), false, FILE_NOTIFY_CHANGE_LAST_WRITE);
-
-		if (dirChangeHandle == nullptr || dirChangeHandle == INVALID_HANDLE_VALUE)
-		{
-			printf("Error: Could not watch build directory.\n");
-			return false;
-		}
-		
-		std::promise<bool> compilePromise;
-		compileFuture = compilePromise.get_future();
-		
-		compileThread = std::thread { waitForCompilationToFinish, processInformation, dirChangeHandle, std::ref(compilePromise) };
-		compileThread.detach();
-	}
-	else
-	{
-		printf("Error: could not create process to compile.\n--> %lu", GetLastError());
+		printf("Error: Failed to create child process's STDOUT handle.\n");
 		return false;
 	}
 
-	delete[] compileCommandCStr;
-	// TODO(fkp): Delete the temporary __compile__.pe file
+	// Ensure child's STDOUT read handle is not inherited
+	if (!SetHandleInformation(childStdOutRead, HANDLE_FLAG_INHERIT, 0))
+	{
+		printf("Error: Failed to ensure child process's STDOUT read handle is not inherited.\n");
+		return false;
+	}
+
+ 	// Create a pipe for the child process's STDIN
+	if (!CreatePipe(&childStdInRead, &childStdInWrite, &securityAttributes, 0))
+	{
+		printf("Error: Failed to create child process's STDIN handle.\n");
+		return false;
+	}
+
+	// Ensure child's STDIN write handle is not inherited
+	if (!SetHandleInformation(childStdInWrite, HANDLE_FLAG_INHERIT, 0))
+	{
+		printf("Error: Failed to ensure child process's STDIN write handle is not inherited.\n");
+		return false;
+	}
+
+	
+	//
+	// NOTE(fkp): Process creation
+	//
+
+	PROCESS_INFORMATION processInformation {};
+	STARTUPINFO startupInfo {};
+	startupInfo.cb = sizeof(startupInfo);
+	startupInfo.hStdError = childStdOutWrite;
+	startupInfo.hStdOutput = childStdOutWrite;
+	startupInfo.hStdInput = childStdInRead;
+	startupInfo.dwFlags = STARTF_USESTDHANDLES;
+
+	if (CreateProcess(nullptr, compileCommandCStr,
+					  nullptr, nullptr, true, 0, nullptr, nullptr,
+					  &startupInfo, &processInformation))
+	{
+		std::promise<bool> compilePromise;
+		compileFuture = compilePromise.get_future();
+
+		compileThread = std::thread { waitForCompilationToFinish, childStdOutRead };
+		compileThread.detach();
+		
+		// Closes unneeded handles
+		// NOTE(fkp): childStdOutRead will be closed in waitForCompilationToFinish()
+		CloseHandle(processInformation.hProcess);
+		CloseHandle(processInformation.hThread);
+		CloseHandle(childStdOutWrite);
+		CloseHandle(childStdInRead);
+		CloseHandle(childStdInWrite);
+	}
+	else
+	{
+		printf("Error: Failed to create child process.\n");
+		return false;
+	}
 
 	return true;
 }
