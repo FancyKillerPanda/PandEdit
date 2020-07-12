@@ -35,11 +35,11 @@ int main(int argc, char* argv[])
 	window.setFont(&consolasFont24);
 
 	mapDefaultKeyBindings();	
-	
-	std::string fpsTextString = "FPS: 0";
+
+	std::string fpsTextString = "0ms";
 	Timer fpsTimer;
 	unsigned int numberOfFrames = 0;
-
+	
 	TextToDraw fpsText { fpsTextString };
 	fpsText.startX = window.width - 20;
 	fpsText.colour = getDefaultTextColour();
@@ -57,10 +57,15 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		window.draw();
 
-		// NOTE(fkp): FPS for debugging
-		if (fpsTimer.getElapsedMs() > 1000.0)
-		{
-			fpsTextString = "FPS: " + std::to_string(numberOfFrames);
+		double frameTime = fpsTimer.getElapsedMs();
+		
+		if (frameTime > 1000.0)
+		{			
+			constexpr unsigned int bufferSize = 16;
+			char buffer[bufferSize];
+			snprintf(buffer, bufferSize, "%.2fms", frameTime / numberOfFrames);
+				
+			fpsTextString = buffer;
 			fpsTimer.reset();
 			fpsText.textLength = fpsTextString.size();
 			
