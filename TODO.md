@@ -2,17 +2,24 @@
 
 ### Bug Fixes
 - When typing just before a function definition, the letters typed show up in the information
-- After scrolling popup up and down, items are not in the same place
-	- This has been worked around by setting the max number of popup lines to 7, not 8
 
 ### Features
-- std::string_view
 - UTF-8 characters
 
-- Mark a buffer as read-only
-- Update compile buffer as compilation occurs
+- Compile buffer should close automatically if compilation succeeded
+	- This would rely on checking the exit code somehow
 - Add visual indicator (asterisk) if a buffer has been modified
 	- Option to revert buffer back to its state on disk
+		- As proof of concept, make this a manual task first
+		- Can make this automatically happen when a file changes externally
+
+- Search forward and backward through the file
+	- Ability to use a regex for the search
+- Replace on text (using regex)
+
+- Save all open files at once
+	- Ask for where to save non-file-visiting buffers
+	- On exit, ask if buffers should be saved
 
 - Project file
 	- Can contain frame layout information
