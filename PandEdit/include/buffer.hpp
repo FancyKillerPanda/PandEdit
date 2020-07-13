@@ -29,6 +29,8 @@ class Buffer
 public:
 	inline static std::unordered_map<std::string, Buffer*> buffersMap;
 	
+	bool isReadOnly = false;
+	
 	BufferType type;
 	std::string name;
 	std::string path;

@@ -9,9 +9,6 @@
 - std::string_view
 - UTF-8 characters
 
-- Ask for confirmation before creating file
-- Right-align suggestion information
-
 - Mark a buffer as read-only
 - Update compile buffer as compilation occurs
 - Add visual indicator (asterisk) if a buffer has been modified

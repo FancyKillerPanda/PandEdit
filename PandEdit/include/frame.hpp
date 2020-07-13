@@ -135,6 +135,8 @@ public:
 	unsigned int findWordBoundaryRight();
 	void moveColToTarget();
 	void adjustOtherFramePointLocations(bool insertion, bool lineWrap);
+
+	bool warnIfBufferIsReadOnly();
 	
 	void updatePopups();
 	void completeSuggestion();

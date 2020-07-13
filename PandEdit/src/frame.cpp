@@ -464,6 +464,8 @@ std::string Frame::getTextPointToMark()
 
 void Frame::deleteTextPointToMark(bool appendToKillRing)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	std::string text = getTextPointToMark();
 	
 	if (appendToKillRing)
@@ -494,6 +496,8 @@ void Frame::deleteTextPointToMark(bool appendToKillRing)
 
 void Frame::deleteRestOfLine()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	unsigned int numberOfCharsToDelete = currentBuffer->data[point.line].size() - point.col;
 	
 	if (numberOfCharsToDelete == 0)
@@ -571,6 +575,8 @@ void Frame::doCommonPointManipulationTasks()
 
 void Frame::doCommonBufferManipulationTasks()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	// TODO(fkp): Figure out which lex mode to use
 	if (currentBuffer->isUsingSyntaxHighlighting && shouldReLexBuffer)
 	{
@@ -580,6 +586,8 @@ void Frame::doCommonBufferManipulationTasks()
 
 void Frame::insertChar(char character)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	Point startLocation = point;
 
 	if (overwriteMode && point.col < currentBuffer->data[point.line].size())
@@ -604,6 +612,8 @@ void Frame::insertChar(char character)
 
 void Frame::backspaceChar(unsigned int num, bool copyText)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	std::string textDeleted = "";
 	Point endLocation = point; // This is not startLocation because we are going backwards
 
@@ -662,6 +672,8 @@ void Frame::backspaceChar(unsigned int num, bool copyText)
 
 void Frame::deleteChar(unsigned int num, bool copyText)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	std::string textDeleted = "";
 
 	if (num == 0) num = 1;
@@ -707,6 +719,8 @@ void Frame::deleteChar(unsigned int num, bool copyText)
 
 void Frame::newLine()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	Point startLocation = point;
 
 	std::string restOfLine { currentBuffer->data[point.line].begin() + point.col, currentBuffer->data[point.line].end() };
@@ -735,6 +749,8 @@ void Frame::newLine()
 
 void Frame::insertString(const std::string& string)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	Point startLocation = point;
 	bool oldShouldAddInformation = currentBuffer->shouldAddToUndoInformation;
 	unsigned int oldTopLine = targetTopLine;
@@ -1009,6 +1025,68 @@ unsigned int Frame::findWordBoundaryLeft()
 	return numberOfChars;
 }
 
+unsigned int Frame::findWordBoundaryRight()
+{
+	static std::string wordSeparators = WORD_SEPARATORS;
+	unsigned int numberOfChars = 0;
+	Point currentLocation = point;
+	currentLocation.buffer = currentBuffer;
+	// If started on whitespace, stop at first non-whitespace
+	// character. Otherwise, stop at first whitespace character.
+	bool startedOnWhitespace;
+
+	if (point.col < currentBuffer->data[point.line].size() &&
+		isspace(currentBuffer->data[point.line][point.col]) &&
+		isspace(currentBuffer->data[point.line][point.col + 1]))
+	{
+		startedOnWhitespace = true;
+	}
+	else if (point.col == currentBuffer->data[point.line].size())
+	{
+		startedOnWhitespace = true;
+	}
+	else
+	{
+		startedOnWhitespace = false;
+	}
+
+	while (true)
+	{
+		numberOfChars += 1;
+		currentLocation++;
+
+		if (isspace(currentBuffer->data[currentLocation.line][currentLocation.col]))
+		{
+			if (!startedOnWhitespace)
+			{
+				break;
+			}
+		}
+		else if (currentLocation.col == currentBuffer->data[currentLocation.line].size())
+		{
+			if (currentLocation != point || !currentLocation.isInBuffer())
+			{
+				break;
+			}
+		}
+		else
+		{
+			if (startedOnWhitespace)
+			{
+				break;
+			}
+		}
+
+		if (numberOfChars != 0 &&
+			wordSeparators.find(currentBuffer->data[currentLocation.line][currentLocation.col]) != std::string::npos)
+		{
+			break;
+		}
+	}
+	
+	return numberOfChars;
+}
+
 void Frame::getRect(Font* currentFont, int* realPixelX, unsigned int* realPixelWidth, int* pixelX, int* pixelY, unsigned int* pixelWidth, unsigned int* pixelHeight)
 {
 	int tempRealPixelX = (int) (pcDimensions.x * windowWidth);
@@ -1120,68 +1198,6 @@ Token* Frame::getTokenUnderPoint(bool includeEnd)
 	return nullptr;
 }
 
-unsigned int Frame::findWordBoundaryRight()
-{
-	static std::string wordSeparators = WORD_SEPARATORS;
-	unsigned int numberOfChars = 0;
-	Point currentLocation = point;
-	currentLocation.buffer = currentBuffer;
-	// If started on whitespace, stop at first non-whitespace
-	// character. Otherwise, stop at first whitespace character.
-	bool startedOnWhitespace;
-
-	if (point.col < currentBuffer->data[point.line].size() &&
-		isspace(currentBuffer->data[point.line][point.col]) &&
-		isspace(currentBuffer->data[point.line][point.col + 1]))
-	{
-		startedOnWhitespace = true;
-	}
-	else if (point.col == currentBuffer->data[point.line].size())
-	{
-		startedOnWhitespace = true;
-	}
-	else
-	{
-		startedOnWhitespace = false;
-	}
-
-	while (true)
-	{
-		numberOfChars += 1;
-		currentLocation++;
-
-		if (isspace(currentBuffer->data[currentLocation.line][currentLocation.col]))
-		{
-			if (!startedOnWhitespace)
-			{
-				break;
-			}
-		}
-		else if (currentLocation.col == currentBuffer->data[currentLocation.line].size())
-		{
-			if (currentLocation != point || !currentLocation.isInBuffer())
-			{
-				break;
-			}
-		}
-		else
-		{
-			if (startedOnWhitespace)
-			{
-				break;
-			}
-		}
-
-		if (numberOfChars != 0 &&
-			wordSeparators.find(currentBuffer->data[currentLocation.line][currentLocation.col]) != std::string::npos)
-		{
-			break;
-		}
-	}
-	
-	return numberOfChars;
-}
-
 void Frame::moveColToTarget()
 {
 	if (point.col > currentBuffer->data[point.line].size())
@@ -1205,6 +1221,8 @@ void Frame::moveColToTarget()
 // riddled with bugs.
 void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	for (Frame* frame : *allFrames)
 	{
 		if (frame == this) continue;
@@ -1282,9 +1300,22 @@ void Frame::adjustOtherFramePointLocations(bool insertion, bool lineWrap)
 	}
 }
 
+bool Frame::warnIfBufferIsReadOnly()
+{
+	if (currentBuffer->isReadOnly)
+	{
+		writeToMinibuffer("Cannot modify buffer - read only.");
+		return false;
+	}
+
+	return true;
+}
+
 // TODO(fkp): This method has a lot of code duplication, clean it up.
 void Frame::updatePopups()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	std::vector<std::pair<std::string::size_type, std::pair<std::string, std::string>>> foundMatches;
 			
 	if (currentBuffer->type == BufferType::MiniBuffer)
@@ -1450,6 +1481,8 @@ void Frame::updatePopups()
 
 void Frame::completeSuggestion()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	if (popupLines.size() > 0)
 	{
 		bool oldShouldUpdatePopups = shouldUpdatePopups;
@@ -1550,6 +1583,8 @@ void Frame::copyRegion(std::string text)
 
 void Frame::paste()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	if (GetClipboardSequenceNumber() != lastClipboardSequenceNumber)
 	{
 		pasteClipboard();
@@ -1569,6 +1604,8 @@ void Frame::paste()
 
 void Frame::pasteClipboard()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	if (!IsClipboardFormatAvailable(CF_TEXT))
 	{
 		printf("Error: Pasting text not supported.\n");
@@ -1605,6 +1642,8 @@ void Frame::pasteClipboard()
 
 void Frame::pastePop()
 {
+	if (!warnIfBufferIsReadOnly()) return;
+	
 	deleteTextPointToMark(false);
 	killRingPointer -= 1;
 	

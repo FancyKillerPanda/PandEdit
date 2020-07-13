@@ -768,6 +768,7 @@ DEFINE_COMMAND(compile)
 		compileBuffer = new Buffer(BufferType::Text, "*compilation*", "__compile__.pe");
 	}
 
+	compileBuffer->isReadOnly = true;
 	FRAME->switchToBuffer(compileBuffer);
 
 	if (!window.currentProject.executeCompileCommand(compileBuffer))
