@@ -14,6 +14,7 @@ enum class MinibufferReading
 	Command,
 	Path,
 	BufferName,
+	Confirmation,
 };
 
 class Window;

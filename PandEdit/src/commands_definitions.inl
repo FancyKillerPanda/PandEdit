@@ -1,6 +1,8 @@
 // NOTE(fkp): This file is not to be compiled, it will be included in
 // commands.cpp
 
+#include <fstream>
+
 #include "file_util.hpp"
 #include "renderer.hpp"
 #include "lexer.hpp"
@@ -446,19 +448,72 @@ DEFINE_COMMAND(findFile)
 {
 	if (Commands::currentCommand)
 	{
-		Commands::currentCommand = nullptr;
-		exitMinibuffer("");
-
-		Buffer* buffer = Buffer::getFromFilePath(text.substr(0, text.find(' ')));
-
-		if (!buffer)
+		if (Commands::currentlyReading == MinibufferReading::Path)
 		{
-			std::string filename = getFilenameFromPath(text.substr(0, text.find(' ')));
-			buffer = new Buffer { BufferType::Text, filename, text.substr(0, text.find(' ')) };
-		}
+			// Checks if the file exists
+			std::ifstream file { text };
+			bool fileExists = !file.fail();
+			file.close();
+			
+			if (fileExists)
+			{
+				Commands::currentCommand = nullptr;
+				exitMinibuffer("");
 
-		FRAME->switchToBuffer(buffer);
-		return true;
+				Buffer* buffer = Buffer::getFromFilePath(text.substr(0, text.find(' ')));
+
+				if (!buffer)
+				{
+					std::string filename = getFilenameFromPath(text.substr(0, text.find(' ')));
+					buffer = new Buffer { BufferType::Text, filename, text.substr(0, text.find(' ')) };
+				}
+
+				FRAME->switchToBuffer(buffer);
+				return true;
+			}
+			else
+			{
+				Commands::currentlyReading = MinibufferReading::Confirmation;
+				BUFFER->data[0] += " [create? y/n] ";
+				FRAME->point.col = BUFFER->data[0].size();
+				FRAME->popupLines.clear();
+
+				return false;
+			}
+		}
+		else if (Commands::currentlyReading == MinibufferReading::Confirmation)
+		{
+			if (text.back() == 'y')
+			{
+				// This is the same as above
+				std::string path = text.substr(0, text.find_last_of("["));
+				std::string filename = getFilenameFromPath(path);
+				Buffer* buffer = new Buffer { BufferType::Text, filename, path };
+
+				Commands::currentCommand = nullptr;
+				exitMinibuffer("");
+				FRAME->switchToBuffer(buffer);
+
+				return true;
+			}
+			else
+			{
+				Commands::currentlyReading = MinibufferReading::Path;
+				
+				// The +6 is for the "Path: " at the start of the string
+				// The -1 is because we want to at the space before the bracket
+				BUFFER->data[0] = BUFFER->data[0].substr(0, text.find_last_of("[") + 6 - 1);
+				FRAME->point.col = BUFFER->data[0].size();
+				FRAME->updatePopups();
+				
+				return false;
+			}
+		}
+		else
+		{
+			printf("Error: Unhandled read type in findFile.\n");
+			return true;
+		}
 	}
 	else
 	{
