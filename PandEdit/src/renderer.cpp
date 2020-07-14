@@ -547,6 +547,13 @@ void Renderer::drawFrame(Frame& frame)
 		drawRect(realFramePixelX, framePixelY + framePixelHeight - currentFont->size, realFramePixelWidth, currentFont->size);
 
 		std::string modeLineTextString = buffer.name;
+		
+		if (!frame.currentBuffer->isReadOnly &&
+			frame.currentBuffer->numberOfActionsSinceSave > 0)
+		{
+			modeLineTextString += " (*)";
+		}
+		
 		modeLineTextString += " (LINE: ";
 		modeLineTextString += std::to_string(frame.point.line + 1);
 		modeLineTextString += ", COL: ";

@@ -176,6 +176,7 @@ void Buffer::addActionToUndoBuffer(Action&& action)
 	
 	undoInformation.push_back(std::move(action));
 	undoInformationPointer = undoInformation.size();
+	numberOfActionsSinceSave += 1;
 }
 
 bool Buffer::undo(Frame& frame)
@@ -187,6 +188,7 @@ bool Buffer::undo(Frame& frame)
 
 	shouldAddToUndoInformation = false;
 	undoInformationPointer -= 1;
+	numberOfActionsSinceSave -= 1;
 	const Action& action = undoInformation[undoInformationPointer];
 
 	switch (action.type)
@@ -245,6 +247,7 @@ bool Buffer::redo(Frame& frame)
 	}
 	
 	undoInformationPointer += 1;
+	numberOfActionsSinceSave += 1;
 	shouldAddToUndoInformation = true;
 
 	return true;
@@ -272,6 +275,7 @@ void Buffer::saveToFile()
 		file << line << '\n';
 	}
 
+	numberOfActionsSinceSave = 0;
 	printf("Info: Saved buffer to file '%s'.\n", path.c_str());
 }
 

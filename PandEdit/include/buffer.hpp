@@ -30,6 +30,7 @@ public:
 	inline static std::unordered_map<std::string, Buffer*> buffersMap;
 	
 	bool isReadOnly = false;
+	unsigned int numberOfActionsSinceSave = 0;
 	
 	BufferType type;
 	std::string name;
