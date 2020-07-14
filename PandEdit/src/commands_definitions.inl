@@ -827,6 +827,8 @@ DEFINE_COMMAND(compile)
 		window.moveToNextFrame();
 	}
 
+	saveAllBuffers(window, text);
+
 	Buffer* compileBuffer = Buffer::get("*compilation*");
 	
 	if (compileBuffer == nullptr)

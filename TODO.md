@@ -15,9 +15,7 @@
 	- Ability to use a regex for the search
 - Replace on text (using regex)
 
-- Save all open files at once
-	- Ask for where to save non-file-visiting buffers
-	- On exit, ask if buffers should be saved
+- Check if any buffers need saving before asking on quit
 
 - Automatically pair parens, braces, and brackets
 	- When inserting a newline between braces, add proper formatting
