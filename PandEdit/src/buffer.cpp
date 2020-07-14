@@ -8,6 +8,7 @@
 #include "frame.hpp"
 #include "file_util.hpp"
 #include "common.hpp"
+#include "commands.hpp"
 
 Buffer::Buffer(BufferType type, std::string name, std::string path)
 	: type(type), name(name), path(path), lexer(this)
@@ -19,35 +20,8 @@ Buffer::Buffer(BufferType type, std::string name, std::string path)
 	}
 	else
 	{
-		std::string fileContents = readFile(path.c_str());
-
-		std::string::size_type pos = 0;
-		std::string::size_type previous = 0;
-
-		while ((pos = fileContents.find("\n", previous)) != std::string::npos)
-		{
-			data.emplace_back(fileContents.substr(previous, pos - previous));
-			previous = pos + 1;
-		}
-
-		// Last one
-		data.emplace_back(fileContents.substr(previous));
-
-		// Automatic syntax highlighting based on file extension
-		// TODO(fkp): Different highlighting for C files
-		std::string extension = path.substr(path.find_last_of('.') + 1);
-		std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
-		
-		static std::unordered_set<std::string> cppExtensions = {
-			"h", "hpp", "hxx",
-			"c", "cpp", "cxx", "cc",
-		};
-
-		if (cppExtensions.find(extension) != cppExtensions.end())
-		{
-			isUsingSyntaxHighlighting = true;
-			lexer.lex(0, true);
-		}
+		// This method does all the necessary initialisation of the data
+		revertToFile();		
 	}
 	
 	buffersMap.insert({ name, this });
@@ -277,6 +251,73 @@ void Buffer::saveToFile()
 
 	numberOfActionsSinceSave = 0;
 	printf("Info: Saved buffer to file '%s'.\n", path.c_str());
+}
+
+void Buffer::revertToFile()
+{
+	if (path == "")
+	{
+		writeToMinibuffer("Error: No file associated with this buffer.");
+		return;
+	}
+	else if (!doesFileExist(path.c_str()))
+	{
+		writeToMinibuffer("Error: File no longer exists on disk.");
+		return;
+	}
+
+	data.clear();
+	std::string fileContents = readFile(path.c_str());
+
+	std::string::size_type pos = 0;
+	std::string::size_type previous = 0;
+
+	while ((pos = fileContents.find("\n", previous)) != std::string::npos)
+	{
+		data.emplace_back(fileContents.substr(previous, pos - previous));
+		previous = pos + 1;
+	}
+
+	// Last one
+	data.emplace_back(fileContents.substr(previous));
+
+	/* TODO(fkp): Ensure all frame point locations are within bounds
+	// Adjustment of the point and mark
+	if (point.line >= data.size())
+	{
+		point.line = data.size();
+	}
+
+	if (point.col > data[point.line].size())
+	{
+		point.col = data[point.line].size();
+	}
+
+	mark.line = point.line;
+	mark.col = point.col;
+	*/
+
+	// TODO(fkp): Maybe make it so undo history isn't cleared?
+	undoInformation.clear();
+	undoInformationPointer = 0;
+	numberOfActionsSinceSave = 0;
+	
+	// Lexing
+	// Automatic syntax highlighting based on file extension
+	// TODO(fkp): Different highlighting for C files
+	std::string extension = path.substr(path.find_last_of('.') + 1);
+	std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
+		
+	static std::unordered_set<std::string> cppExtensions = {
+		"h", "hpp", "hxx",
+		"c", "cpp", "cxx", "cc",
+	};
+
+	if (cppExtensions.find(extension) != cppExtensions.end())
+	{
+		isUsingSyntaxHighlighting = true;
+		lexer.lex(0, true);
+	}
 }
 
 std::string Buffer::substrFromPoints(const Point& start, const Point& end)

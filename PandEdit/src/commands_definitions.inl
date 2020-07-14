@@ -574,6 +574,14 @@ DEFINE_COMMAND(saveCurrentBuffer)
 	}
 }
 
+DEFINE_COMMAND(revertBuffer)
+{
+	exitMinibuffer("");
+	BUFFER->revertToFile();
+
+	return true;
+}
+
 DEFINE_COMMAND(lexBufferAsCpp)
 {
 	exitMinibuffer("");

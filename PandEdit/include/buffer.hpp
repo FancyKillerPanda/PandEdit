@@ -65,6 +65,7 @@ public:
 	bool undo(Frame& frame);
 	bool redo(Frame& frame);
 	void saveToFile();
+	void revertToFile();
 
 	// NOTE(fkp): Calls the standalone substrFromPoints() function
 	// with the buffer's string.
