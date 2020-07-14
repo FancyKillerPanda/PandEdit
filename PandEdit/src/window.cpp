@@ -90,7 +90,7 @@ LRESULT CALLBACK Window::eventCallback(HWND windowHandle, UINT message, WPARAM w
 	{
 	case WM_CLOSE:
 	{
-		window->isOpen = false;
+		Commands::executeCommand(*window, "quit", true);
 	} return 0;
 
 	case WM_DESTROY:

@@ -43,10 +43,47 @@ DEFINE_COMMAND(echo)
 	return true;
 }
 
+// Forward declarations for quit
+DEFINE_COMMAND(saveAllBuffers);
+DEFINE_COMMAND(minibufferEnter);
+
 DEFINE_COMMAND(quit)
 {
-	window.isOpen = false;
-	return true;
+	if (Commands::currentCommand == quit &&
+		Commands::currentlyReading == MinibufferReading::Confirmation)
+	{
+		switch (text.back())
+		{
+		case 'y':
+		{
+			saveAllBuffers(window, text);
+		} // no break
+
+		case 'n':
+		{
+			window.isOpen = false;
+		} return true;;
+
+		default:
+		{
+			writeToMinibuffer("Save buffers? [y/n] ");
+			FRAME->point.col = BUFFER->data[0].size();
+		} return false;
+		}
+	}
+	else
+	{
+		Commands::currentCommand = quit;
+		
+		minibufferEnter(window, text);
+		writeToMinibuffer("Save buffers? [y/n] ");
+		FRAME->point.col = BUFFER->data[0].size();
+		
+		Commands::currentlyReading = MinibufferReading::Confirmation;
+		FRAME->popupLines.clear();
+
+		return false;
+	}
 }
 
 DEFINE_COMMAND(minibufferEnter)
@@ -525,9 +562,9 @@ DEFINE_COMMAND(findFile)
 	}
 }
 
-bool saveBuffer(Buffer* buffer, COMMAND_FUNC_SIG(commandName), Window& window, const std::string& text)
+bool saveBuffer(Buffer* buffer, COMMAND_FUNC_SIG(commandName), Window& window, const std::string& text, bool requestPath)
 {
-	if (Commands::currentCommand)
+	if (Commands::currentCommand == commandName && requestPath)
 	{
 		exitMinibuffer("");
 		Commands::currentCommand = nullptr;
@@ -563,7 +600,7 @@ bool saveBuffer(Buffer* buffer, COMMAND_FUNC_SIG(commandName), Window& window, c
 		
 			return true;
 		}
-		else
+		else if (requestPath)
 		{
 			Frame::minibufferFrame->makeActive();
 			Commands::currentCommand = commandName;
@@ -571,12 +608,16 @@ bool saveBuffer(Buffer* buffer, COMMAND_FUNC_SIG(commandName), Window& window, c
 
 			return false;
 		}
+		else
+		{
+			return true;
+		}
 	}
 }
 
 DEFINE_COMMAND(saveCurrentBuffer)
 {
-	return saveBuffer(BUFFER, saveCurrentBuffer, window, text);
+	return saveBuffer(BUFFER, saveCurrentBuffer, window, text, true);
 }
 
 DEFINE_COMMAND(saveAllBuffers)
@@ -585,7 +626,7 @@ DEFINE_COMMAND(saveAllBuffers)
 	// all file-visiting buffers.
 	for (auto& bufferElement : Buffer::buffersMap)
 	{
-		saveBuffer(bufferElement.second, saveAllBuffers, window, text);
+		saveBuffer(bufferElement.second, saveAllBuffers, window, text, false);
 	}
 
 	return true;
