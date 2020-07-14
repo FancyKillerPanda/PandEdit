@@ -21,6 +21,9 @@
 	- Ask for where to save non-file-visiting buffers
 	- On exit, ask if buffers should be saved
 
+- Automatically pair parens, braces, and brackets
+	- When inserting a newline between braces, add proper formatting
+
 - Project file
 	- Can contain frame layout information
 	- Specify include directories

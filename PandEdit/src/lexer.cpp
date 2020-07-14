@@ -64,6 +64,12 @@ Lexer::Lexer(Buffer* buffer)
 
 void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 {
+	// If lexing the entire buffer, clear old memory
+	if (lexEntireBuffer)
+	{
+		lineStates.clear();
+	}
+	
 	if (buffer->data.size() == 0)
 	{
 		ERROR_ONCE("Error: Buffer has no lines in it.\n");
@@ -88,7 +94,7 @@ void Lexer::lex(unsigned int startLine, bool lexEntireBuffer)
 		// TODO(fkp): Maybe figure this out better
 		lineStates.emplace_back();
 	}
-	
+
 	Point point { startLine, 0, buffer };
 	LineLexState::FinishType currentLineLastFinishType = lineStates[point.line].finishType;
 

@@ -281,21 +281,27 @@ void Buffer::revertToFile()
 	// Last one
 	data.emplace_back(fileContents.substr(previous));
 
-	/* TODO(fkp): Ensure all frame point locations are within bounds
-	// Adjustment of the point and mark
-	if (point.line >= data.size())
+	// Adjustment of the point and mark in relevant frames
+	for (Frame* frame : *Frame::allFrames)
 	{
-		point.line = data.size();
-	}
+		if (frame->currentBuffer != this)
+		{
+			continue;
+		}
+		
+		if (frame->point.line >= data.size())
+		{
+			frame->point.line = data.size();
+		}
 
-	if (point.col > data[point.line].size())
-	{
-		point.col = data[point.line].size();
-	}
+		if (frame->point.col > data[frame->point.line].size())
+		{
+			frame->point.col = data[frame->point.line].size();
+		}
 
-	mark.line = point.line;
-	mark.col = point.col;
-	*/
+		frame->mark.line = frame->point.line;
+		frame->mark.col = frame->point.col;
+	}
 
 	// TODO(fkp): Maybe make it so undo history isn't cleared?
 	undoInformation.clear();
