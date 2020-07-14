@@ -8,10 +8,8 @@
 
 - Compile buffer should close automatically if compilation succeeded
 	- This would rely on checking the exit code somehow
-- Add visual indicator (asterisk) if a buffer has been modified
-	- Option to revert buffer back to its state on disk
-		- As proof of concept, make this a manual task first
-		- Can make this automatically happen when a file changes externally
+
+- Automatically revert if file was changed externally
 
 - Search forward and backward through the file
 	- Ability to use a regex for the search

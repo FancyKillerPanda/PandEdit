@@ -525,7 +525,7 @@ DEFINE_COMMAND(findFile)
 	}
 }
 
-DEFINE_COMMAND(saveCurrentBuffer)
+bool saveBuffer(Buffer* buffer, COMMAND_FUNC_SIG(commandName), Window& window, const std::string& text)
 {
 	if (Commands::currentCommand)
 	{
@@ -540,38 +540,55 @@ DEFINE_COMMAND(saveCurrentBuffer)
 		{		
 			if (text[text.size() - 1] == '/' || text[text.size() - 1] == '\\')
 			{
-				BUFFER->path = text + BUFFER->name;
+				buffer->path = text + buffer->name;
 			}
 			else
 			{
-				BUFFER->path = text;
+				buffer->path = text;
 			}
 
-			BUFFER->saveToFile();
-			writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+			buffer->saveToFile();
+			writeToMinibuffer("Saved \"" + buffer->path + "\"");
 		}
 		
 		return true;
 	}
 	else
 	{
-		if (BUFFER->path != "")
+		if (buffer->path != "")
 		{
 			exitMinibuffer("");
-			BUFFER->saveToFile();
-			writeToMinibuffer("Saved \"" + BUFFER->path + "\"");
+			buffer->saveToFile();
+			writeToMinibuffer("Saved \"" + buffer->path + "\"");
 		
 			return true;
 		}
 		else
 		{
 			Frame::minibufferFrame->makeActive();
-			Commands::currentCommand = saveCurrentBuffer;
+			Commands::currentCommand = commandName;
 			startReadingPath(window);
 
 			return false;
 		}
 	}
+}
+
+DEFINE_COMMAND(saveCurrentBuffer)
+{
+	return saveBuffer(BUFFER, saveCurrentBuffer, window, text);
+}
+
+DEFINE_COMMAND(saveAllBuffers)
+{
+	// NOTE(fkp): This won't actually ask for a path, but will save
+	// all file-visiting buffers.
+	for (auto& bufferElement : Buffer::buffersMap)
+	{
+		saveBuffer(bufferElement.second, saveAllBuffers, window, text);
+	}
+
+	return true;
 }
 
 DEFINE_COMMAND(revertBuffer)

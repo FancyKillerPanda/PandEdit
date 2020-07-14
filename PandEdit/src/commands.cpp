@@ -87,6 +87,7 @@ std::unordered_map<std::string, COMMAND_FUNC_SIG()> Commands::nonEssentialComman
 	COMMAND(destroyBuffer),
 	COMMAND(findFile),
 	COMMAND(saveCurrentBuffer),
+	COMMAND(saveAllBuffers),
 	COMMAND(revertBuffer),
 
 	{ "lexBufferAsC++", lexBufferAsCpp },

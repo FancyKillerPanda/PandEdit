@@ -7,9 +7,6 @@
 
 void mapDefaultKeyBindings()
 {
-	// NOTE(fkp): KeyCombo constructor is in the order:
-	// Key, Control, Shift, Alt, Windows
-
 	KeyMap::bindKey({ Key::F4, KEY_ALT }, "quit");
 	KeyMap::bindKey({ Key::X, KEY_ALT }, "minibufferEnter");
 	KeyMap::bindKey({ Key::G, KEY_CONTROL }, "minibufferQuit");
@@ -59,6 +56,7 @@ void mapDefaultKeyBindings()
 	KeyMap::bindKey({ Key::K, KEY_ALT }, "destroyBuffer");
 	KeyMap::bindKey({ Key::F, KEY_ALT }, "findFile");
 	KeyMap::bindKey({ Key::S, KEY_ALT }, "saveCurrentBuffer");
+	KeyMap::bindKey({ Key::S, KEY_ALT | KEY_SHIFT }, "saveAllBuffers");
 
 	KeyMap::bindKey({ Key::Tab }, "completeSuggestion");
 	KeyMap::bindKey({ Key::UpArrow, KEY_CONTROL }, "previousSuggestion");
