@@ -15,8 +15,6 @@
 	- Ability to use a regex for the search
 - Replace on text (using regex)
 
-- Check if any buffers need saving before asking on quit
-
 - Automatically pair parens, braces, and brackets
 	- When inserting a newline between braces, add proper formatting
 

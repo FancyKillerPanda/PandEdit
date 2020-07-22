@@ -608,6 +608,24 @@ void Frame::insertChar(char character)
 	doCommonPointManipulationTasks();
 	doCommonBufferManipulationTasks();
 	if (shouldUpdatePopups) updatePopups();
+
+	// Matching pairs
+	// TODO(fkp): Check to see if there is already a matching character
+	if (character == '{')
+	{
+		insertChar('}');
+		movePointLeft();
+	}
+	if (character == '(')
+	{
+		insertChar(')');
+		movePointLeft();
+	}
+	else if (character == '[')
+	{
+		insertChar(']');
+		movePointLeft();
+	}
 }
 
 void Frame::backspaceChar(unsigned int num, bool copyText)
@@ -720,6 +738,11 @@ void Frame::deleteChar(unsigned int num, bool copyText)
 void Frame::newLine()
 {
 	if (!warnIfBufferIsReadOnly()) return;
+
+	// This is for proper expansion of braces
+	bool isExpandingBraces = point.col > 0 &&
+							 currentBuffer->data[point.line][point.col] == '}' &&
+							 currentBuffer->data[point.line][point.col - 1] == '{';
 	
 	Point startLocation = point;
 
@@ -745,6 +768,13 @@ void Frame::newLine()
 	
 	doCommonPointManipulationTasks();
 	adjustOtherFramePointLocations(true, true);
+
+	if (isExpandingBraces)
+	{
+		insertChar('\t');
+		newLine();
+		movePointLeft();
+	}
 }
 
 void Frame::insertString(const std::string& string)
