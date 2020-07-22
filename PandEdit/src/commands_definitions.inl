@@ -73,16 +73,38 @@ DEFINE_COMMAND(quit)
 	}
 	else
 	{
-		Commands::currentCommand = quit;
-		
-		minibufferEnter(window, text);
-		writeToMinibuffer("Save buffers? [y/n] ");
-		FRAME->point.col = BUFFER->data[0].size();
-		
-		Commands::currentlyReading = MinibufferReading::Confirmation;
-		FRAME->popupLines.clear();
+		bool someBufferNeedsSaving = false;
 
-		return false;
+		for (auto& bufferElement : Buffer::buffersMap)
+		{
+			if (bufferElement.second->type == BufferType::MiniBuffer) continue;
+			
+			if (!bufferElement.second->isReadOnly &&
+				bufferElement.second->numberOfActionsSinceSave > 0)
+			{
+				someBufferNeedsSaving = true;
+				break;
+			}
+		}
+	
+		if (someBufferNeedsSaving)
+		{
+			Commands::currentCommand = quit;
+		
+			minibufferEnter(window, text);
+			writeToMinibuffer("Save buffers? [y/n] ");
+			FRAME->point.col = BUFFER->data[0].size();
+		
+			Commands::currentlyReading = MinibufferReading::Confirmation;
+			FRAME->popupLines.clear();
+
+			return false;
+		}
+		else
+		{
+			window.isOpen = false;
+			return true;
+		}
 	}
 }
 
