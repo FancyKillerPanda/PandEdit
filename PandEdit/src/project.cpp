@@ -319,7 +319,7 @@ bool Project::isCompileRunning()
 }
 
 // This method will run asynchronously after a compilation has begun
-void waitForCompilationToFinish(HANDLE childStdoutRead, Buffer* compileBuffer)
+void waitForCompilationToFinish(HANDLE hProcess, HANDLE childStdoutRead, Buffer* compileBuffer)
 {
 	// Reads from the child process's STDOUT
 	const unsigned int BUFFER_SIZE = 1023;
@@ -353,11 +353,41 @@ void waitForCompilationToFinish(HANDLE childStdoutRead, Buffer* compileBuffer)
 		compileBuffer->data.push_back(buffer);
 	}
 
-	// Closes the one remaining handle
+	// Gets the exit code
+	DWORD exitCode;
+	bool written = false;
+	
+	if (!GetExitCodeProcess(hProcess, &exitCode))
+	{
+		printf("Error: Failed to get the exit code of the process.\n");
+	}
+	else
+	{
+		if (exitCode == 0)
+		{
+			for (Frame* frame : *Frame::allFrames)
+			{
+				if (frame->currentBuffer == compileBuffer)
+				{
+					// TODO(fkp): Switch back to previous buffer
+					frame->switchToBuffer(Buffer::get("*scratch*"));
+					writeToMinibuffer("Finished compilation (no errors)");
+					written = true;
+					
+					break;
+				}
+			}
+		}
+	}
+	
+	// Closes the two remaining handles
+	CloseHandle(hProcess);
 	CloseHandle(childStdoutRead);
 
-	// TODO(fkp): Write out if there were errors or not
-	writeToMinibuffer("Finished compilation.\n");
+	if (!written)
+	{
+		writeToMinibuffer("Finished compilation (with errors)");
+	}
 }
 
 bool Project::executeCompileCommand(Buffer* compileBuffer)
@@ -436,12 +466,12 @@ bool Project::executeCompileCommand(Buffer* compileBuffer)
 		std::promise<bool> compilePromise;
 		compileFuture = compilePromise.get_future();
 
-		compileThread = std::thread { waitForCompilationToFinish, childStdOutRead, compileBuffer };
+		compileThread = std::thread { waitForCompilationToFinish, processInformation.hProcess, childStdOutRead, compileBuffer };
 		compileThread.detach();
 		
 		// Closes unneeded handles
-		// NOTE(fkp): childStdOutRead will be closed in waitForCompilationToFinish()
-		CloseHandle(processInformation.hProcess);
+		// NOTE(fkp): childStdOutRead and processInformation.hProcess
+		// will be closed in waitForCompilationToFinish()
 		CloseHandle(processInformation.hThread);
 		CloseHandle(childStdOutWrite);
 		CloseHandle(childStdInRead);

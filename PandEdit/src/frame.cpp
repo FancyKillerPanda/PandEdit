@@ -1391,7 +1391,7 @@ void Frame::updatePopups()
 		{
 			std::string bufferName = currentBuffer->data[0].substr(currentBuffer->data[0].find_first_of(' ') + 1);
 
-			for (const std::pair<std::string, Buffer*>& buffer : Buffer::buffersMap)
+			for (const std::pair<const std::string, Buffer*>& buffer : Buffer::buffersMap)
 			{
 				// This frame is the minibuffer
 				if (buffer.second == currentBuffer)
@@ -1416,7 +1416,7 @@ void Frame::updatePopups()
 				return;
 			}
 
-			for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
+			for (const std::pair<const std::string, COMMAND_FUNC_SIG()>& command : Commands::nonEssentialCommandsMap)
 			{
 				std::string::size_type index = command.first.find(commandText);
 
@@ -1426,7 +1426,7 @@ void Frame::updatePopups()
 				}
 			}
 
-			for (const std::pair<std::string, COMMAND_FUNC_SIG()>& command : Commands::essentialCommandsMap)
+			for (const std::pair<const std::string, COMMAND_FUNC_SIG()>& command : Commands::essentialCommandsMap)
 			{
 				std::string::size_type index = command.first.find(commandText);
 

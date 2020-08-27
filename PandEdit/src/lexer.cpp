@@ -1,6 +1,7 @@
 //  ===== Date Created: 04 May, 2020 ===== 
 
 #include <algorithm>
+#include <iterator>
 
 #include "lexer.hpp"
 #include "buffer.hpp"
